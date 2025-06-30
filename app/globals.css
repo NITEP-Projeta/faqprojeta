@@ -112,6 +112,10 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.hide-native-cursor {
+  cursor: none;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
