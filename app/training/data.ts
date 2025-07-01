@@ -22,5 +22,53 @@ export const trainingData = [
         category: "Gestão",
         type: "link",
         file: "https://plataforma-externa.com/curso1"
+    },
+    {
+        slug: "curso-externo",
+        title: "Curso Externo de Gestão",
+        description: "Treinamento em plataforma externa.",
+        category: "Gestão",
+        type: "link",
+        file: "https://plataforma-externa.com/curso1"
+    },
+    {
+        slug: "curso-externo",
+        title: "Curso Externo de Gestão",
+        description: "Treinamento em plataforma externa.",
+        category: "Gestão",
+        type: "link",
+        file: "https://plataforma-externa.com/curso1"
+    },
+    {
+        slug: "curso-externo",
+        title: "Curso Externo de Gestão",
+        description: "Treinamento em plataforma externa.",
+        category: "Gestão",
+        type: "link",
+        file: "https://plataforma-externa.com/curso1"
+    },
+    {
+        slug: "curso-externo",
+        title: "Curso Externo de Gestão",
+        description: "Treinamento em plataforma externa.",
+        category: "Gestão",
+        type: "link",
+        file: "https://plataforma-externa.com/curso1"
+    },
+    {
+        slug: "curso-externo",
+        title: "Curso Externo de Gestão",
+        description: "Treinamento em plataforma externa.",
+        category: "Gestão",
+        type: "link",
+        file: "https://plataforma-externa.com/curso1"
+    },
+    {
+        slug: "Project",
+        title: "Project Iniciante",
+        description: "Treinamento em plataforma externa.",
+        category: "Gestão",
+        type: "link",
+        file: "https://plataforma-externa.com/curso1"
     }
 ]

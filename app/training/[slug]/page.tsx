@@ -1,11 +1,12 @@
 import { trainingData } from "../data"
 import { notFound } from "next/navigation"
 
-export default function TrainingViewPage({ params }: { params: { slug: string } }) {
+export default async function TrainingViewPage({ params }: { params: { slug: string } }) {
   const training = trainingData.find((t) => t.slug === params.slug)
   if (!training) return notFound()
 
   return (
+  <div className="flex items-start justify-center min-h-screen">
     <div className="container py-10">
       <h1 className="text-2xl font-bold mb-4">{training.title}</h1>
       <p className="text-muted-foreground mb-6">{training.description}</p>
@@ -36,5 +37,6 @@ export default function TrainingViewPage({ params }: { params: { slug: string } 
         </a>
       )}
     </div>
+  </div>
   )
 }
