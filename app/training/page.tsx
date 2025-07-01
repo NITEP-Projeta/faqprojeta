@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button"
 
 export default function TrainingListPage() {
   return (
-    <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6">📚 Treinamentos</h1>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="flex items-start justify-center min-h-screen bg-gray-50">
+    <div className="container py-10 text-center">
+      <h1 className="text-3xl font-bold mb-2">📚 Treinamentos</h1>
+      <p className="text-gray-600 mb-8">Escolha um dos treinamentos disponíveis abaixo.</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
         {trainingData.map((item) => (
           <Card key={item.slug} className="hover:shadow-md transition">
             <CardHeader>
@@ -18,12 +21,13 @@ export default function TrainingListPage() {
             </CardHeader>
             <CardContent>
               <Link href={`/training/${item.slug}`}>
-                <Button variant="outline">Acessar</Button>
+                <Button className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100 transition" variant="outline">Acessar</Button>
               </Link>
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
+  </div>
   )
 }
