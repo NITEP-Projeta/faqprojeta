@@ -8,19 +8,19 @@ import { motion } from "framer-motion"
 
 export default function TrainingListPage() {
   return (
-  <div className="flex items-start justify-center min-h-screen">
+  <div className="flex items-start justify-center min-h-screen bg-[#EAEAEA]">
     <div className="container py-2">
-      <div className="bg-muted py-24 px-6 text-center">
+      <div className="bg-[#EAEAEA] rounded-sm py-24 px-6 text-center">
         <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 2.5 }}
             className="max-w-3xl mx-auto"
           >
-            <h1 className="text-2xl sm:text-4xl md:text-4xl font-bold tracking-tight mb-4">
+            <h1 className="text-2xl sm:text-4xl md:text-4xl font-bold tracking-tight mb-4 text-[#1A1A1A]">
               Explore o Portal de <span className="text-primary">Treinamentos</span>
             </h1>
-            <p className="text-1xl sm:text-4xl md:text-2xl text-muted-foreground mb-8">
+            <p className="text-1xl sm:text-4xl md:text-2xl text-muted-foreground mb-8 text-[#1A1A1A]">
             Aqui você encontra todos os cursos, materiais e conteúdos essenciais para o seu desenvolvimento. Aproveite para aprender, se atualizar e crescer com a gente.
             </p>
           </motion.div>
@@ -42,7 +42,7 @@ export default function TrainingListPage() {
             </CardHeader>
             <CardContent>
               <Link href={`/training/${item.slug}`}>
-                <Button variant="outline">Acessar</Button>
+                <Button className="bg-neutral-100 hover:bg-neutral-900 rounded-full" variant="outline">Acessar</Button>
               </Link>
             </CardContent>
           </Card>
@@ -50,7 +50,7 @@ export default function TrainingListPage() {
         ))}
       </div>
 
-      <div className="bg-muted p-6">
+      <div className="bg-[#EAEAEA] rounded-sm p-6">
         <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
