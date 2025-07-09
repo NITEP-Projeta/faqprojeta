@@ -35,14 +35,14 @@ export default function TrainingListPage() {
           transition={{ duration: 2.5}} // animação em cascata
           className="w-full"
           >
-          <Card key={item.slug} className="flex justify-center text-center hover:shadow-md transition">
+          <Card key={item.slug} className="flex justify-center text-center hover:shadow-md transition border-solid border-[#7A7A7A]">
             <CardHeader>
               <CardTitle>{item.title}</CardTitle>
               <CardDescription>{item.description}</CardDescription>
             </CardHeader>
             <CardContent>
               <Link href={`/training/${item.slug}`}>
-                <Button className="bg-neutral-100 hover:bg-neutral-900 rounded-full" variant="outline">Acessar</Button>
+                <Button className="text-[#1A1A1A] hover:bg-[#D96C06] focus:outline-2 focus:outline-offset-2 focus:outline-[#D96C06] active:bg-[#bf5f05] rounded-full cursor-pointer" variant="outline">Acessar</Button>
               </Link>
             </CardContent>
           </Card>
@@ -57,7 +57,7 @@ export default function TrainingListPage() {
             transition={{ duration: 2.5 }}
             className="max-w-3xl mx-auto"
         >
-        <footer className="text-sm text-center text-muted-foreground">
+        <footer className="text-sm text-center text-muted-foreground text-[#1A1A1A]">
           © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
         </footer>
         </motion.div>
