@@ -1,68 +1,98 @@
 "use client"
 
 import Link from "next/link"
-import { trainingData } from "./data"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-export default function TrainingListPage() {
+const manualData = [
+  {
+    title: "Código de Conduta",
+    description: "Regras e valores que definem o comportamento profissional dentro da organização.",
+    slug: "codigo-de-conduta",
+  },
+  {
+    title: "Benefícios e Férias",
+    description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
+    slug: "beneficios-e-ferias",
+  },
+  {
+    title: "Política de Home Office",
+    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
+    slug: "politica-home-office",
+  },
+  {
+    title: "Segurança no Trabalho",
+    description: "Normas e práticas para garantir um ambiente seguro para todos.",
+    slug: "seguranca-no-trabalho",
+  },
+  {
+    title: "Vestimenta Profissional",
+    description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
+    slug: "vestimenta-profissional",
+  },
+]
+
+export default function ManualPage() {
   return (
-  <div className="flex items-start justify-center min-h-screen bg-[#EAEAEA]">
-    <div className="container py-2">
-      <div className="bg-[#EAEAEA] rounded-sm py-24 px-6 text-center">
+    <div className="flex items-center justify-center min-h-screen bg-[#F5F5F5] px-4 py-10">
+      <div className="w-full max-w-7xl grid gap-8">
+
+        {/* Header Card */}
         <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 2.5 }}
-            className="max-w-3xl mx-auto"
-          >
-            <h1 className="text-2xl sm:text-4xl md:text-4xl font-bold tracking-tight mb-4 text-[#1A1A1A]">
-              Explore o Portal de <span className="text-primary">Treinamentos</span>
-            </h1>
-            <p className="text-1xl sm:text-4xl md:text-2xl text-muted-foreground mb-8 text-[#1A1A1A]">
-            Aqui você encontra todos os cursos, materiais e conteúdos essenciais para o seu desenvolvimento. Aproveite para aprender, se atualizar e crescer com a gente.
-            </p>
-          </motion.div>
-        </div>
-        
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pt-8 pb-8">
-        {trainingData.map((item) => (
-          <motion.div
-          key={item.slug}
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2.5}} // animação em cascata
-          className="w-full"
-          >
-          <Card key={item.slug} className="flex justify-center text-center hover:shadow-md transition border-solid border-[#7A7A7A]">
+          transition={{ duration: 1.2 }}
+        >
+          <Card className="shadow-md bg-white border border-[#ccc]">
             <CardHeader>
-              <CardTitle>{item.title}</CardTitle>
-              <CardDescription>{item.description}</CardDescription>
+              <CardTitle className="text-3xl text-[#1A1A1A] font-bold text-center">
+                Manual do <span className="text-[#D96C06]">Colaborador</span>
+              </CardTitle>
+              <CardDescription className="text-center text-[#4A4A4A]">
+                Conheça as políticas, normas e diretrizes que regem nosso ambiente de trabalho.
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Link href={`/training/${item.slug}`}>
-                <Button className="text-[#1A1A1A] hover:bg-[#D96C06] focus:outline-2 focus:outline-offset-2 focus:outline-[#D96C06] active:bg-[#bf5f05] rounded-full cursor-pointer" variant="outline">Acessar</Button>
-              </Link>
+          </Card>
+        </motion.div>
+
+        {/* Grid de Cards de Conteúdo */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+          className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {manualData.map((item) => (
+            <Card key={item.slug} className="shadow-md bg-white border border-[#ccc] flex flex-col justify-between">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
+                <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-end">
+                <Link href={`/manual/${item.slug}`}>
+                  <Button className="rounded-full bg-[#D96C06] hover:bg-[#bf5f05] text-white">
+                    Acessar
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </motion.div>
+
+        {/* Footer Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2 }}
+        >
+          <Card className="shadow-sm bg-white border border-[#ccc]">
+            <CardContent className="text-center text-sm text-[#7A7A7A] py-4">
+              © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
             </CardContent>
           </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="bg-[#EAEAEA] rounded-sm p-6">
-        <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 2.5 }}
-            className="max-w-3xl mx-auto"
-        >
-        <footer className="text-sm text-center text-muted-foreground text-[#1A1A1A]">
-          © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
-        </footer>
         </motion.div>
-     </div>
+      </div>
     </div>
-  </div>
   )
 }
