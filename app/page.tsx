@@ -1,9 +1,19 @@
 'use client'
 
+<<<<<<< HEAD
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { BookOpen, HelpCircle, ShieldCheck, Target, Eye, HeartHandshake } from 'lucide-react'
+=======
+import { motion } from "framer-motion"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact } from "lucide-react"
+import { MessageCircle } from "lucide-react";
+
+import CursorBall from "@/components/CursorBall"
+>>>>>>> 0c0874bb964b7b77016d09b8e5eaac1a8a27a513
 
 export default function HomePage() {
   return (
@@ -24,9 +34,6 @@ export default function HomePage() {
             Acesse treinamentos, tire dúvidas e acompanhe comunicações institucionais.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/training">
-              <Button size="lg">📚 Ver Treinamentos</Button>
-            </Link>
             <Link href="/faq">
               <Button size="lg" variant="outline">❓ Tira-Dúvidas</Button>
             </Link>
@@ -35,7 +42,7 @@ export default function HomePage() {
       </section>
 
       {/* MISSÃO, VISÃO, VALORES */}
-      <section className="container py-16 grid md:grid-cols-3 gap-6 text-center">
+      <section className="pt-10 pb-20 grid md:grid-cols-3 gap-10 w-full place-items-center bg-[#EAEAEA]">
         {[
           {
             title: 'Missão',
@@ -59,7 +66,7 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.2, duration: 0.5 }}
             viewport={{ once: true }}
-            className="bg-background/80 backdrop-blur-sm border border-border rounded-xl shadow-md p-6"
+            className="flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all w-[500]"
           >
             {item.icon}
             <h2 className="text-xl font-semibold mt-3 mb-2">{item.title}</h2>
@@ -69,9 +76,10 @@ export default function HomePage() {
       </section>
 
       {/* FUNCIONALIDADES */}
-      <section className="container pb-20 grid md:grid-cols-3 gap-8">
+      <section className="pb-20 grid md:grid-cols-3 gap-10 w-full place-items-center bg-[#EAEAEA]">
         {[
           {
+<<<<<<< HEAD
             icon: <BookOpen className="text-red-700 w-7 h-7" />,
             title: 'Treinamentos Internos',
             desc: 'Conteúdos educativos, vídeos e orientações para todos os setores.',
@@ -89,6 +97,55 @@ export default function HomePage() {
             desc: 'Acesso restrito para responsáveis por controle e conteúdo interno.',
             href: '/admin',
           },
+=======
+            icon: <Book className="text-red-600 w-7 h-7" />,
+            title: "Manual do Colaborador",
+            desc: "Conteúdos educativos, vídeos e orientações para todos os setores.",
+            href: "/training"
+          },
+          {
+            icon: <List className="text-amber-500 w-7 h-7" />,
+            title: "Manual Interno",
+            desc: "FAQ e suporte para colaboradores com dúvidas sobre os sistemas.",
+            href: "/faq"
+          },
+          {
+            icon: <ShieldCheck className="text-green-600 w-7 h-7" />,
+            title: "Diretrizes Internas",
+            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            href: "/admin"
+          },
+          {
+            icon: <Notebook className="text-green-500 w-7 h-7" />,
+            title: "SIPOC",
+            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            href: "/admin"
+          },
+          {
+            icon: <Car className="text-teal-600 w-7 h-7" />,
+            title: "Termo Veículos",
+            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            href: "/admin"
+          },
+          {
+            icon: <Contact className="text-lime-600 w-7 h-7" />,
+            title: "Caderno De Cargos",
+            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            href: "/admin"
+          },
+          {
+            icon: <HelpCircle className="text-yellow-500 w-7 h-7" />,
+            title: "Tira Duvidas",
+            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            href: "/admin"
+          },
+          {
+            icon: <ShieldCheck className="text-green-600 w-7 h-7" />,
+            title: "Área Administrativa",
+            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            href: "/admin"
+          }
+>>>>>>> 0c0874bb964b7b77016d09b8e5eaac1a8a27a513
         ].map((item, idx) => (
           <motion.div
             key={idx}
@@ -96,7 +153,7 @@ export default function HomePage() {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ delay: idx * 0.2, duration: 0.4 }}
             viewport={{ once: true }}
-            className="bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all"
+            className="flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all w-[500]"
           >
             <div className="flex items-center gap-3 mb-4">
               {item.icon}
@@ -104,14 +161,22 @@ export default function HomePage() {
             </div>
             <p className="text-sm text-muted-foreground mb-4">{item.desc}</p>
             <Link href={item.href}>
-              <Button variant="link">Acessar</Button>
+              <Button variant="link" className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-300 rounded-md font-medium hover:bg-blue-100 transition-colors duration-200">Acessar</Button>
             </Link>
           </motion.div>
         ))}
       </section>
 
+      <section>
+        <div className="fixed bottom-6 right-6 z-50">
+          <button className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition">
+            <MessageCircle className="w-6 h-6" />
+          </button>
+        </div>
+      </section>
+
       {/* RODAPÉ */}
-      <footer className="text-sm text-center text-muted-foreground py-6">
+      <footer className="text-sm text-center text-muted-foreground py-6 bg-[#EAEAEA]">
         © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
       </footer>
     </div>
