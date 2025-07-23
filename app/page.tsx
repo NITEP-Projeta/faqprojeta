@@ -1,19 +1,10 @@
 'use client'
 
-<<<<<<< HEAD
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { BookOpen, HelpCircle, ShieldCheck, Target, Eye, HeartHandshake } from 'lucide-react'
-=======
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact } from "lucide-react"
 import { MessageCircle } from "lucide-react";
-
-import CursorBall from "@/components/CursorBall"
->>>>>>> 0c0874bb964b7b77016d09b8e5eaac1a8a27a513
 
 export default function HomePage() {
   return (
@@ -79,25 +70,6 @@ export default function HomePage() {
       <section className="pb-20 grid md:grid-cols-3 gap-10 w-full place-items-center bg-[#EAEAEA]">
         {[
           {
-<<<<<<< HEAD
-            icon: <BookOpen className="text-red-700 w-7 h-7" />,
-            title: 'Treinamentos Internos',
-            desc: 'Conteúdos educativos, vídeos e orientações para todos os setores.',
-            href: '/training',
-          },
-          {
-            icon: <HelpCircle className="text-yellow-500 w-7 h-7" />,
-            title: 'Central de Dúvidas',
-            desc: 'FAQ e suporte para colaboradores com dúvidas sobre os sistemas.',
-            href: '/faq',
-          },
-          {
-            icon: <ShieldCheck className="text-green-600 w-7 h-7" />,
-            title: 'Área Administrativa',
-            desc: 'Acesso restrito para responsáveis por controle e conteúdo interno.',
-            href: '/admin',
-          },
-=======
             icon: <Book className="text-red-600 w-7 h-7" />,
             title: "Manual do Colaborador",
             desc: "Conteúdos educativos, vídeos e orientações para todos os setores.",
@@ -145,27 +117,26 @@ export default function HomePage() {
             desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
             href: "/admin"
           }
->>>>>>> 0c0874bb964b7b77016d09b8e5eaac1a8a27a513
-        ].map((item, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ delay: idx * 0.2, duration: 0.4 }}
-            viewport={{ once: true }}
-            className="flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all w-[500]"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              {item.icon}
-              <h2 className="text-lg font-semibold">{item.title}</h2>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">{item.desc}</p>
-            <Link href={item.href}>
-              <Button variant="link" className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-300 rounded-md font-medium hover:bg-blue-100 transition-colors duration-200">Acessar</Button>
-            </Link>
-          </motion.div>
-        ))}
-      </section>
+          ].map((item, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.2, duration: 0.4 }}
+              viewport={{ once: true }}
+              className="flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all w-[500]"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                {item.icon}
+                <h2 className="text-lg font-semibold">{item.title}</h2>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">{item.desc}</p>
+              <Link href={item.href}>
+                <Button variant="link" className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-300 rounded-md font-medium hover:bg-blue-100 transition-colors duration-200">Acessar</Button>
+              </Link>
+            </motion.div>
+          ))}
+        </section>
 
       <section>
         <div className="fixed bottom-6 right-6 z-50">
