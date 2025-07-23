@@ -1,15 +1,13 @@
-"use client"
+'use client'
 
-import { motion } from "framer-motion"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { BookOpen, HelpCircle, ShieldCheck, Target, Eye, HeartHandshake } from "lucide-react"
-import CursorBall from "@/components/CursorBall"
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { BookOpen, HelpCircle, ShieldCheck, Target, Eye, HeartHandshake } from 'lucide-react'
 
 export default function HomePage() {
   return (
     <div className="relative">
-      <CursorBall />
 
       {/* HERO */}
       <section className="bg-muted py-24 px-6 text-center">
@@ -40,18 +38,18 @@ export default function HomePage() {
       <section className="container py-16 grid md:grid-cols-3 gap-6 text-center">
         {[
           {
-            title: "Missão",
-            desc: "Oferecer soluções em engenharia com excelência técnica, inovação e compromisso com os resultados.",
+            title: 'Missão',
+            desc: 'Oferecer soluções em engenharia com excelência técnica, inovação e compromisso com os resultados.',
             icon: <Target className="mx-auto text-primary w-8 h-8" />,
           },
           {
-            title: "Visão",
-            desc: "Ser referência nacional em engenharia consultiva, promovendo desenvolvimento sustentável.",
+            title: 'Visão',
+            desc: 'Ser referência nacional em engenharia consultiva, promovendo desenvolvimento sustentável.',
             icon: <Eye className="mx-auto text-primary w-8 h-8" />,
           },
           {
-            title: "Valores",
-            desc: "Ética, transparência, segurança, melhoria contínua e foco no cliente.",
+            title: 'Valores',
+            desc: 'Ética, transparência, segurança, melhoria contínua e foco no cliente.',
             icon: <HeartHandshake className="mx-auto text-primary w-8 h-8" />,
           },
         ].map((item, i) => (
@@ -75,22 +73,22 @@ export default function HomePage() {
         {[
           {
             icon: <BookOpen className="text-red-700 w-7 h-7" />,
-            title: "Treinamentos Internos",
-            desc: "Conteúdos educativos, vídeos e orientações para todos os setores.",
-            href: "/training"
+            title: 'Treinamentos Internos',
+            desc: 'Conteúdos educativos, vídeos e orientações para todos os setores.',
+            href: '/training',
           },
           {
             icon: <HelpCircle className="text-yellow-500 w-7 h-7" />,
-            title: "Central de Dúvidas",
-            desc: "FAQ e suporte para colaboradores com dúvidas sobre os sistemas.",
-            href: "/faq"
+            title: 'Central de Dúvidas',
+            desc: 'FAQ e suporte para colaboradores com dúvidas sobre os sistemas.',
+            href: '/faq',
           },
           {
             icon: <ShieldCheck className="text-green-600 w-7 h-7" />,
-            title: "Área Administrativa",
-            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
-            href: "/admin"
-          }
+            title: 'Área Administrativa',
+            desc: 'Acesso restrito para responsáveis por controle e conteúdo interno.',
+            href: '/admin',
+          },
         ].map((item, idx) => (
           <motion.div
             key={idx}
