@@ -21,9 +21,10 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="flex flex-col items-center justify-center gap-5">
+
       {/* HERO */}
-      <section className="bg-muted py-24 px-6 text-center pt-40">
+      <section className="bg-muted py-20 text-center pt-20">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -45,7 +46,7 @@ export default function HomePage() {
       </section>
 
       {/* MISSÃO, VISÃO, VALORES */}
-      <section className="pt-10 pb-20 grid md:grid-cols-3 gap-10 w-full place-items-center bg-[#EAEAEA]">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center pt-5 pb-5">
         {[
           {
             title: 'Missão',
@@ -69,17 +70,17 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.2, duration: 0.5 }}
             viewport={{ once: true }}
-            className="flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all w-[500]"
+            className="flex flex-col items-center justify-center h-50 bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all"
           >
             {item.icon}
             <h2 className="text-xl font-semibold mt-3 mb-2">{item.title}</h2>
-            <p className="text-sm text-muted-foreground">{item.desc}</p>
+            <p className="text-sm text-muted-foreground text-justify">{item.desc}</p>
           </motion.div>
         ))}
       </section>
 
       {/* FUNCIONALIDADES */}
-      <section className="pb-20 grid md:grid-cols-3 gap-10 w-full place-items-center bg-[#EAEAEA]">
+      <section className="pb-5 grid md:grid-cols-3 gap-10 place-items-center">
         {[
           {
             icon: <Book className="text-red-600 w-7 h-7" />,
@@ -136,13 +137,13 @@ export default function HomePage() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.2, duration: 0.4 }}
               viewport={{ once: true }}
-              className="flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all w-[500]"
+              className="flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all"
             >
               <div className="flex items-center gap-3 mb-4">
                 {item.icon}
                 <h2 className="text-lg font-semibold">{item.title}</h2>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">{item.desc}</p>
+              <p className="text-sm text-muted-foreground mb-4 text-justify">{item.desc}</p>
               <Link href={item.href}>
                 <Button variant="link" className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-300 rounded-md font-medium hover:bg-blue-100 transition-colors duration-200">Acessar</Button>
               </Link>
@@ -159,7 +160,7 @@ export default function HomePage() {
       </section>
 
       {/* RODAPÉ */}
-      <footer className="text-sm text-center text-muted-foreground py-6 bg-[#EAEAEA]">
+      <footer className="text-sm text-center text-muted-foreground py-6">
         © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
       </footer>
     </div>
