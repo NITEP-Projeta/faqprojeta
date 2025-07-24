@@ -4,6 +4,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
 const manualData = [
   {
@@ -14,29 +15,31 @@ const manualData = [
   {
     title: "Benefícios e Férias",
     description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
-    slug: "beneficios-e-ferias",
+    slug: "codigo-de-conduta",
   },
   {
     title: "Política de Home Office",
     description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
+    slug: "codigo-de-conduta",
   },
   {
     title: "Segurança no Trabalho",
     description: "Normas e práticas para garantir um ambiente seguro para todos.",
-    slug: "seguranca-no-trabalho",
+    slug: "codigo-de-conduta",
   },
   {
     title: "Vestimenta Profissional",
     description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
-    slug: "vestimenta-profissional",
+    slug: "codigo-de-conduta",
   },
 ]
 
 export default function ManualPage() {
+  const [pdfSlug, setPdfSlug] = useState<string | null>(null);
+  
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#F5F5F5] px-4 py-10">
-      <div className="w-full max-w-7xl grid gap-8">
+  <div className="flex flex-col items-center justify-between min-h-screen bg-[#F5F5F5] gap-8 p-5">
+      <div className="w-full max-w-7xl">
 
         {/* Header Card */}
         <motion.div
@@ -55,7 +58,9 @@ export default function ManualPage() {
             </CardHeader>
           </Card>
         </motion.div>
+      </div>
 
+      <div className="w-full max-w-7xl">
         {/* Grid de Cards de Conteúdo */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -64,22 +69,26 @@ export default function ManualPage() {
           className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {manualData.map((item) => (
-            <Card key={item.slug} className="shadow-md bg-white border border-[#ccc] flex flex-col justify-between">
-              <CardHeader>
+            <Card
+              key={item.slug}
+              className="shadow-md bg-white border border-[#ccc] flex flex-col items-center justify-center text-center px-4 py-6"
+            >
+              <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
                 <CardTitle className="text-xl font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
                 <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-end">
-                <Link href={`/manual/${item.slug}`}>
-                  <Button className="rounded-full bg-[#D96C06] hover:bg-[#bf5f05] text-white">
+
+              <CardContent className="flex justify-center">
+                  <Button onClick={() => setPdfSlug(item.slug)} className="rounded-full bg-[#D96C06] hover:bg-[#bf5f05] text-white">
                     Acessar
                   </Button>
-                </Link>
               </CardContent>
             </Card>
           ))}
         </motion.div>
+      </div>
 
+      <div className="w-full max-w-7xl">
         {/* Footer Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -93,6 +102,29 @@ export default function ManualPage() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Modal PDF */}
+      {pdfSlug && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4">
+          <div className="relative w-full max-w-5xl h-[90vh] bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
+
+            {/* PDF Iframe responsivo */}
+            <iframe
+              src={`/pdfs/${pdfSlug}.pdf`}
+              className="w-full h-full"
+              title={`Manual - ${pdfSlug}`}
+            />
+
+            {/* Botão Fechar no canto inferior direito */}
+            <button
+              onClick={() => setPdfSlug(null)}
+              className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-full text-sm sm:text-base"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
