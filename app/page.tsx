@@ -46,7 +46,7 @@ export default function HomePage() {
       </section>
 
       {/* MISSÃO, VISÃO, VALORES */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center pt-5 pb-5">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center pt-5 pb-5 w-[1000]">
         {[
           {
             title: 'Missão',
@@ -70,11 +70,11 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.2, duration: 0.5 }}
             viewport={{ once: true }}
-            className="flex flex-col items-center justify-center h-50 bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all"
+            className="flex flex-col items-center justify-center h-50 w-auto bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all"
           >
             {item.icon}
             <h2 className="text-xl font-semibold mt-3 mb-2">{item.title}</h2>
-            <p className="text-sm text-muted-foreground text-justify">{item.desc}</p>
+            <p className="text-sm text-muted-foreground text-center">{item.desc}</p>
           </motion.div>
         ))}
       </section>
