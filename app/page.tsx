@@ -22,32 +22,6 @@ export default function HomePage() {
 
   return (
     <div className="relative">
-      <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          scrolled ? "bg-gray-900 shadow-lg backdrop-blur" : "bg-gray-800"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Logo (imagem à esquerda) */}
-          <div className="text-white">
-            <img src="/Logotipo_Projeta_2.png" alt="Logo" className="w-20 h-15" />
-          </div>
-
-          {/* Navegação centralizada */}
-          <nav className="absolute left-1/2 transform -translate-x-1/2 flex gap-6">
-            <a href="#inicio" className="text-sm font-medium text-gray-300 hover:text-white transition">
-              Início
-            </a>
-            <a href="#sobre" className="text-sm font-medium text-gray-300 hover:text-white transition">
-              Sobre
-            </a>
-            <a href="#documentos" className="text-sm font-medium text-gray-300 hover:text-white transition">
-              Documentos
-            </a>
-          </nav>
-        </div>
-      </header>
-      
       {/* HERO */}
       <section className="bg-muted py-24 px-6 text-center pt-40">
         <motion.div
