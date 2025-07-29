@@ -1,9 +1,9 @@
 'use client'
 
 import { Avatar } from 'primereact/avatar'
-import { Ripple } from 'primereact/ripple'
 import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -11,6 +11,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(true)
   const [isApplicationOpen, setIsApplicationOpen] = useState(true)
 
+  const pathname = usePathname()
+
+  // Rotas onde NÃO queremos exibir a Sidebar
+  const noSidebarRoutes = ['/login', '/register', '/forgot-password']
+
+  // Se a rota atual estiver na lista, não renderiza a Sidebar
+  const hideSidebar = noSidebarRoutes.includes(pathname)
   return (
     <div className="flex min-h-screen">
       {/* SIDEBAR FIXA */}
