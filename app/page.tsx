@@ -29,7 +29,7 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto"
+          className="w-auto mx-auto"
         >
           <h1 className="text-5xl font-bold tracking-tight mb-4">
             Bem-vindo ao Canal Interno da <span className="text-primary">Projeta</span>
@@ -37,56 +37,50 @@ export default function HomePage() {
           <p className="text-muted-foreground text-lg mb-8">
             Acesse treinamentos, tire dúvidas e acompanhe comunicações institucionais.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/faq">
-              <Button size="lg" variant="outline">❓ Tira-Dúvidas</Button>
-            </Link>
+                {/* MISSÃO, VISÃO, VALORES */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center pt-5 pb-5 w-full h-auto">
+            {[
+              {
+                title: 'Missão',
+                desc: 'Oferecer soluções em engenharia com excelência técnica, inovação e compromisso com os resultados.',
+                icon: <Target className="mx-auto text-primary w-8 h-8" />,
+              },
+              {
+                title: 'Visão',
+                desc: 'Ser referência nacional em engenharia consultiva, promovendo desenvolvimento sustentável.',
+                icon: <Eye className="mx-auto text-primary w-8 h-8" />,
+              },
+              {
+                title: 'Valores',
+                desc: 'Ética, transparência, segurança, melhoria contínua e foco no cliente.',
+                icon: <HeartHandshake className="mx-auto text-primary w-8 h-8" />,
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.2, duration: 0.5 }}
+                viewport={{ once: true }}
+                className="w-auto h-auto sm:w-[300px] sm:h-[250px] flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all"
+              >
+                {item.icon}
+                <h2 className="text-xl font-semibold mt-3 mb-2">{item.title}</h2>
+                <p className="text-sm text-muted-foreground text-center">{item.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </section>
 
-      {/* MISSÃO, VISÃO, VALORES */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center pt-5 pb-5 w-[1000]">
-        {[
-          {
-            title: 'Missão',
-            desc: 'Oferecer soluções em engenharia com excelência técnica, inovação e compromisso com os resultados.',
-            icon: <Target className="mx-auto text-primary w-8 h-8" />,
-          },
-          {
-            title: 'Visão',
-            desc: 'Ser referência nacional em engenharia consultiva, promovendo desenvolvimento sustentável.',
-            icon: <Eye className="mx-auto text-primary w-8 h-8" />,
-          },
-          {
-            title: 'Valores',
-            desc: 'Ética, transparência, segurança, melhoria contínua e foco no cliente.',
-            icon: <HeartHandshake className="mx-auto text-primary w-8 h-8" />,
-          },
-        ].map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.2, duration: 0.5 }}
-            viewport={{ once: true }}
-            className="flex flex-col items-center justify-center h-50 w-auto bg-background/70 backdrop-blur-sm rounded-xl border border-border shadow-md hover:shadow-xl p-6 transition-all"
-          >
-            {item.icon}
-            <h2 className="text-xl font-semibold mt-3 mb-2">{item.title}</h2>
-            <p className="text-sm text-muted-foreground text-center">{item.desc}</p>
-          </motion.div>
-        ))}
-      </section>
-
       {/* FUNCIONALIDADES */}
-      <section className="pb-5 grid md:grid-cols-3 gap-10 place-items-center">
+      <section className="w-auto grid md:grid-cols-3 place-items-center gap-10 pb-5">
         {[
           {
             icon: <Book className="text-red-600 w-7 h-7" />,
             title: "Manual do Colaborador",
             desc: "Conteúdos educativos, vídeos e orientações para todos os setores.",
-            href: "/training"
+            href: "/manualColaborador"
           },
           {
             icon: <List className="text-amber-500 w-7 h-7" />,
@@ -143,7 +137,7 @@ export default function HomePage() {
                 {item.icon}
                 <h2 className="text-lg font-semibold">{item.title}</h2>
               </div>
-              <p className="text-sm text-muted-foreground mb-4 text-justify">{item.desc}</p>
+              <p className="text-sm text-muted-foreground mb-4 text-center">{item.desc}</p>
               <Link href={item.href}>
                 <Button variant="link" className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 border border-blue-300 rounded-md font-medium hover:bg-blue-100 transition-colors duration-200">Acessar</Button>
               </Link>

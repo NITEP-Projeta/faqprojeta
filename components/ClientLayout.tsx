@@ -19,8 +19,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           {/* TOPO COM LOGO */}
           <div className="px-4 pt-4 pb-2 flex items-center justify-between border-b border-gray-200">
             <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="logo" className="w-6 h-6" />
-              <span className="text-lg font-semibold text-[#00A6C2]">Your Logo</span>
+              <img src="/Logotipo_Projeta_2.png" alt="logo" className="w-[120]" />
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
@@ -56,22 +55,22 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                             <span className="font-medium">Início</span>
                         </Link>
                     </li>
-                    <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+                    <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                         <i className="pi pi-bookmark text-gray-600"></i> <span>Bookmarks</span>
                     </li>
-                    <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+                    <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                         <i className="pi pi-users text-gray-600"></i> <span>Team</span>
                     </li>
-                    <li className="flex items-center justify-between p-2 rounded hover:bg-gray-100 cursor-pointer">
+                    <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                         <div className="flex items-center gap-2">
                         <i className="pi pi-comments text-gray-600"></i> <span>Messages</span>
                         </div>
                         <span className="text-xs bg-blue-500 text-white rounded-full px-2 py-0.5">3</span>
                     </li>
-                    <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+                    <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                         <i className="pi pi-calendar text-gray-600"></i> <span>Calendar</span>
                     </li>
-                    <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+                    <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                         <i className="pi pi-cog text-gray-600"></i> <span>Settings</span>
                     </li>
                 </ul>
@@ -92,13 +91,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
               {isApplicationOpen && (
                 <ul className="space-y-1">
-                  <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+                  <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                     <i className="pi pi-folder text-gray-600"></i> <span>Projects</span>
                   </li>
-                  <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+                  <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                     <i className="pi pi-chart-bar text-gray-600"></i> <span>Performance</span>
                   </li>
-                  <li className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 cursor-pointer">
+                  <li className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#00A6C2] text-gray-700">
                     <i className="pi pi-cog text-gray-600"></i> <span>Settings</span>
                   </li>
                 </ul>
