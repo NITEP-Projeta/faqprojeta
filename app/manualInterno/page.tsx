@@ -4,42 +4,42 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare } from "react-icons/fi"
+import { FiSettings, FiFileText, FiMessageSquare, FiLock, FiGitPullRequest } from "react-icons/fi"
 
-const manualData = [
+const manualInternoData = [
   {
-    title: "Código de Conduta",
-    description: "Regras e valores que definem o comportamento profissional dentro da organização.",
-    slug: "codigo-de-conduta",
-    icon: <FiUsers size={28} className="text-[#D96C06]" />,
+    title: "Processos Internos",
+    description: "Guia com os processos internos da empresa para melhor organização e execução das tarefas.",
+    slug: "processos-internos",
+    icon: <FiFileText size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Benefícios e Férias",
-    description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
-    slug: "beneficios-e-ferias",
-    icon: <FiBriefcase size={28} className="text-[#D96C06]" />,
+    title: "Gestão de Documentos",
+    description: "Regras e práticas para armazenamento e gerenciamento seguro de documentos internos.",
+    slug: "gestao-de-documentos",
+    icon: <FiSettings size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Política de Home Office",
-    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
-    icon: <FiHome size={28} className="text-[#D96C06]" />,
+    title: "Políticas de Comunicação",
+    description: "Diretrizes para comunicação interna, garantindo alinhamento entre setores.",
+    slug: "politicas-de-comunicacao",
+    icon: <FiMessageSquare size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Segurança no Trabalho",
-    description: "Normas e práticas para garantir um ambiente seguro para todos.",
-    slug: "seguranca-no-trabalho",
-    icon: <FiShield size={28} className="text-[#D96C06]" />,
+    title: "Fluxo de Aprovações",
+    description: "Passo a passo dos fluxos de aprovação e responsáveis por cada etapa.",
+    slug: "fluxo-de-aprovacoes",
+    icon: <FiGitPullRequest size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Vestimenta Profissional",
-    description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
-    slug: "vestimenta-profissional",
-    icon: <FiCheckSquare size={28} className="text-[#D96C06]" />,
+    title: "Normas de Segurança Digital",
+    description: "Orientações para proteger os dados internos e evitar vulnerabilidades.",
+    slug: "normas-de-seguranca-digital",
+    icon: <FiLock size={28} className="text-[#D96C06]" />,
   },
 ]
 
-export default function ManualPage() {
+export default function ManualInternoPage() {
   const [pdfSlug, setPdfSlug] = useState<string | null>(null);
   
   return (
@@ -53,10 +53,10 @@ export default function ManualPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual do <span className="text-[#D96C06]">Colaborador</span></h1>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual <span className="text-[#D96C06]">Interno</span></h1>
           <div className="w-24 h-1 bg-[#D96C06] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
-            Conheça as políticas, normas e diretrizes que regem nosso ambiente de trabalho.
+            Consulte normas, processos e diretrizes internas para manter a eficiência corporativa.
           </p>
         </motion.div>
       </div>
@@ -69,7 +69,7 @@ export default function ManualPage() {
           transition={{ duration: 1.5 }}
           className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {manualData.map((item) => (
+          {manualInternoData.map((item) => (
             <Card
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
@@ -115,13 +115,13 @@ export default function ManualPage() {
             <iframe
               src={`/pdfs/${pdfSlug}.pdf`}
               className="w-full h-full"
-              title={`Manual - ${pdfSlug}`}
+              title={`Manual Interno - ${pdfSlug}`}
             />
 
             {/* Botão Fechar */}
             <button
               onClick={() => setPdfSlug(null)}
-              className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-full text-sm sm:text-base"
+              className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-md text-sm sm:text-base"
             >
               Fechar
             </button>

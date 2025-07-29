@@ -4,42 +4,42 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare } from "react-icons/fi"
+import { FiUsers, FiFileText, FiAward, FiList, FiBriefcase } from "react-icons/fi"
 
-const manualData = [
+const cadernoCargosData = [
   {
-    title: "Código de Conduta",
-    description: "Regras e valores que definem o comportamento profissional dentro da organização.",
-    slug: "codigo-de-conduta",
+    title: "Estrutura de Cargos",
+    description: "Organograma com a hierarquia de cargos e funções dentro da empresa.",
+    slug: "estrutura-de-cargos",
     icon: <FiUsers size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Benefícios e Férias",
-    description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
-    slug: "beneficios-e-ferias",
+    title: "Descrição de Funções",
+    description: "Documento com as atividades, responsabilidades e requisitos de cada função.",
+    slug: "descricao-de-funcoes",
+    icon: <FiFileText size={28} className="text-[#D96C06]" />,
+  },
+  {
+    title: "Plano de Carreira",
+    description: "Guia para evolução de cargos e crescimento profissional na organização.",
+    slug: "plano-de-carreira",
+    icon: <FiAward size={28} className="text-[#D96C06]" />,
+  },
+  {
+    title: "Tabela Salarial",
+    description: "Informações sobre faixas salariais correspondentes a cada cargo.",
+    slug: "tabela-salarial",
+    icon: <FiList size={28} className="text-[#D96C06]" />,
+  },
+  {
+    title: "Competências por Cargo",
+    description: "Habilidades e conhecimentos necessários para cada posição.",
+    slug: "competencias-por-cargo",
     icon: <FiBriefcase size={28} className="text-[#D96C06]" />,
-  },
-  {
-    title: "Política de Home Office",
-    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
-    icon: <FiHome size={28} className="text-[#D96C06]" />,
-  },
-  {
-    title: "Segurança no Trabalho",
-    description: "Normas e práticas para garantir um ambiente seguro para todos.",
-    slug: "seguranca-no-trabalho",
-    icon: <FiShield size={28} className="text-[#D96C06]" />,
-  },
-  {
-    title: "Vestimenta Profissional",
-    description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
-    slug: "vestimenta-profissional",
-    icon: <FiCheckSquare size={28} className="text-[#D96C06]" />,
   },
 ]
 
-export default function ManualPage() {
+export default function CadernoCargosPage() {
   const [pdfSlug, setPdfSlug] = useState<string | null>(null);
   
   return (
@@ -53,10 +53,10 @@ export default function ManualPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual do <span className="text-[#D96C06]">Colaborador</span></h1>
-          <div className="w-24 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Caderno de <span className="text-[#D96C06]">Cargos</span></h1>
+          <div className="w-28 h-1 bg-[#D96C06] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
-            Conheça as políticas, normas e diretrizes que regem nosso ambiente de trabalho.
+            Documentos com informações sobre cargos, funções, competências e planos de carreira.
           </p>
         </motion.div>
       </div>
@@ -69,7 +69,7 @@ export default function ManualPage() {
           transition={{ duration: 1.5 }}
           className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {manualData.map((item) => (
+          {cadernoCargosData.map((item) => (
             <Card
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
@@ -115,7 +115,7 @@ export default function ManualPage() {
             <iframe
               src={`/pdfs/${pdfSlug}.pdf`}
               className="w-full h-full"
-              title={`Manual - ${pdfSlug}`}
+              title={`Caderno de Cargos - ${pdfSlug}`}
             />
 
             {/* Botão Fechar */}

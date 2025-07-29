@@ -4,42 +4,42 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare } from "react-icons/fi"
+import { FiTruck, FiFileText, FiKey, FiShield, FiAlertTriangle } from "react-icons/fi"
 
-const manualData = [
+const termoVeiculosData = [
   {
-    title: "Código de Conduta",
-    description: "Regras e valores que definem o comportamento profissional dentro da organização.",
-    slug: "codigo-de-conduta",
-    icon: <FiUsers size={28} className="text-[#D96C06]" />,
+    title: "Termo de Responsabilidade",
+    description: "Documento de compromisso do colaborador ao utilizar veículos da empresa.",
+    slug: "termo-de-responsabilidade",
+    icon: <FiFileText size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Benefícios e Férias",
-    description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
-    slug: "beneficios-e-ferias",
-    icon: <FiBriefcase size={28} className="text-[#D96C06]" />,
+    title: "Controle de Entrega de Chaves",
+    description: "Registro de retirada e devolução de chaves dos veículos corporativos.",
+    slug: "controle-entrega-chaves",
+    icon: <FiKey size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Política de Home Office",
-    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
-    icon: <FiHome size={28} className="text-[#D96C06]" />,
+    title: "Checklist de Veículos",
+    description: "Lista de verificação para garantir condições seguras e adequadas do veículo.",
+    slug: "checklist-veiculos",
+    icon: <FiTruck size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Segurança no Trabalho",
-    description: "Normas e práticas para garantir um ambiente seguro para todos.",
-    slug: "seguranca-no-trabalho",
+    title: "Política de Uso de Veículos",
+    description: "Diretrizes e regras para a utilização correta e responsável da frota.",
+    slug: "politica-uso-veiculos",
     icon: <FiShield size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Vestimenta Profissional",
-    description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
-    slug: "vestimenta-profissional",
-    icon: <FiCheckSquare size={28} className="text-[#D96C06]" />,
+    title: "Registro de Ocorrências",
+    description: "Formulário para anotar incidentes ou problemas ocorridos durante o uso.",
+    slug: "registro-ocorrencias-veiculos",
+    icon: <FiAlertTriangle size={28} className="text-[#D96C06]" />,
   },
 ]
 
-export default function ManualPage() {
+export default function TermoVeiculosPage() {
   const [pdfSlug, setPdfSlug] = useState<string | null>(null);
   
   return (
@@ -53,10 +53,10 @@ export default function ManualPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual do <span className="text-[#D96C06]">Colaborador</span></h1>
-          <div className="w-24 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Termos de <span className="text-[#D96C06]">Veículos</span></h1>
+          <div className="w-28 h-1 bg-[#D96C06] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
-            Conheça as políticas, normas e diretrizes que regem nosso ambiente de trabalho.
+            Documentos e formulários para controle e uso adequado dos veículos corporativos.
           </p>
         </motion.div>
       </div>
@@ -69,7 +69,7 @@ export default function ManualPage() {
           transition={{ duration: 1.5 }}
           className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {manualData.map((item) => (
+          {termoVeiculosData.map((item) => (
             <Card
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
@@ -115,7 +115,7 @@ export default function ManualPage() {
             <iframe
               src={`/pdfs/${pdfSlug}.pdf`}
               className="w-full h-full"
-              title={`Manual - ${pdfSlug}`}
+              title={`Termo Veículos - ${pdfSlug}`}
             />
 
             {/* Botão Fechar */}

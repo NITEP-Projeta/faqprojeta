@@ -62,7 +62,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
                   <li>
                       <Link
-                          href="/manual-colaborador"
+                          href="/manualColaborador"
                           aria-label="Abrir Manual do Colaborador"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
                       >
@@ -73,7 +73,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
                   <li>
                       <Link
-                          href="/manual-interno"
+                          href="/manualInterno"
                           aria-label="Abrir Manual Interno"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
                       >
@@ -84,7 +84,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
                   <li>
                       <Link
-                          href="/diretrizes-internas"
+                          href="/diretrizesInternas"
                           aria-label="Abrir Diretrizes Internas"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
                       >
@@ -106,7 +106,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
                   <li>
                       <Link
-                          href="/termo-veiculos"
+                          href="/termoVeiculos"
                           aria-label="Abrir Termo Veículos"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
                       >
@@ -116,7 +116,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </li>
                   <li>
                     <Link
-                        href="/caderno-cargos"
+                        href="/cadernoCargos"
                         aria-label="Abrir Caderno de Cargos"
                         className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
                     >
@@ -144,7 +144,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 <ul className="space-y-1">
                     <li>
                         <Link
-                            href="/dashboard"
+                            href="/admin"
                             aria-label="Ir para a página de Dashboard"
                             className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
                         >

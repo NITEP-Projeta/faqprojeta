@@ -4,42 +4,42 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare } from "react-icons/fi"
+import { FiGitBranch, FiUsers, FiPackage, FiClipboard, FiActivity } from "react-icons/fi"
 
-const manualData = [
+const sipocData = [
   {
-    title: "Código de Conduta",
-    description: "Regras e valores que definem o comportamento profissional dentro da organização.",
-    slug: "codigo-de-conduta",
+    title: "Fornecedores (Suppliers)",
+    description: "Identificação dos fornecedores que fornecem entradas para o processo.",
+    slug: "fornecedores-sipoc",
     icon: <FiUsers size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Benefícios e Férias",
-    description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
-    slug: "beneficios-e-ferias",
-    icon: <FiBriefcase size={28} className="text-[#D96C06]" />,
+    title: "Entradas (Inputs)",
+    description: "Recursos, informações ou materiais que alimentam o processo SIPOC.",
+    slug: "entradas-sipoc",
+    icon: <FiPackage size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Política de Home Office",
-    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
-    icon: <FiHome size={28} className="text-[#D96C06]" />,
+    title: "Processo (Process)",
+    description: "Etapas e atividades que transformam entradas em saídas.",
+    slug: "processo-sipoc",
+    icon: <FiGitBranch size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Segurança no Trabalho",
-    description: "Normas e práticas para garantir um ambiente seguro para todos.",
-    slug: "seguranca-no-trabalho",
-    icon: <FiShield size={28} className="text-[#D96C06]" />,
+    title: "Saídas (Outputs)",
+    description: "Produtos, serviços ou resultados gerados pelo processo.",
+    slug: "saidas-sipoc",
+    icon: <FiClipboard size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Vestimenta Profissional",
-    description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
-    slug: "vestimenta-profissional",
-    icon: <FiCheckSquare size={28} className="text-[#D96C06]" />,
+    title: "Clientes (Customers)",
+    description: "Destinatários ou usuários finais das saídas do processo.",
+    slug: "clientes-sipoc",
+    icon: <FiActivity size={28} className="text-[#D96C06]" />,
   },
 ]
 
-export default function ManualPage() {
+export default function SipocPage() {
   const [pdfSlug, setPdfSlug] = useState<string | null>(null);
   
   return (
@@ -53,10 +53,10 @@ export default function ManualPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual do <span className="text-[#D96C06]">Colaborador</span></h1>
-          <div className="w-24 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Mapa <span className="text-[#D96C06]">SIPOC</span></h1>
+          <div className="w-28 h-1 bg-[#D96C06] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
-            Conheça as políticas, normas e diretrizes que regem nosso ambiente de trabalho.
+            Ferramenta visual para compreender, mapear e padronizar processos-chave da organização.
           </p>
         </motion.div>
       </div>
@@ -69,7 +69,7 @@ export default function ManualPage() {
           transition={{ duration: 1.5 }}
           className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {manualData.map((item) => (
+          {sipocData.map((item) => (
             <Card
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
@@ -115,7 +115,7 @@ export default function ManualPage() {
             <iframe
               src={`/pdfs/${pdfSlug}.pdf`}
               className="w-full h-full"
-              title={`Manual - ${pdfSlug}`}
+              title={`SIPOC - ${pdfSlug}`}
             />
 
             {/* Botão Fechar */}

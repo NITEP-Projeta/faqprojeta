@@ -4,42 +4,42 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare } from "react-icons/fi"
+import { FiBookOpen, FiUsers, FiShield, FiFileText, FiCheckCircle } from "react-icons/fi"
 
-const manualData = [
+const diretrizesData = [
   {
-    title: "Código de Conduta",
-    description: "Regras e valores que definem o comportamento profissional dentro da organização.",
-    slug: "codigo-de-conduta",
+    title: "Ética Profissional",
+    description: "Princípios éticos que norteiam nossas atividades e relações internas e externas.",
+    slug: "etica-profissional",
+    icon: <FiBookOpen size={28} className="text-[#D96C06]" />,
+  },
+  {
+    title: "Conduta Organizacional",
+    description: "Normas de comportamento e relacionamento entre colaboradores e setores.",
+    slug: "conduta-organizacional",
     icon: <FiUsers size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Benefícios e Férias",
-    description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
-    slug: "beneficios-e-ferias",
-    icon: <FiBriefcase size={28} className="text-[#D96C06]" />,
-  },
-  {
-    title: "Política de Home Office",
-    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
-    icon: <FiHome size={28} className="text-[#D96C06]" />,
-  },
-  {
-    title: "Segurança no Trabalho",
-    description: "Normas e práticas para garantir um ambiente seguro para todos.",
-    slug: "seguranca-no-trabalho",
+    title: "Segurança da Informação",
+    description: "Diretrizes para proteção de dados internos, confidencialidade e boas práticas digitais.",
+    slug: "seguranca-da-informacao",
     icon: <FiShield size={28} className="text-[#D96C06]" />,
   },
   {
-    title: "Vestimenta Profissional",
-    description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
-    slug: "vestimenta-profissional",
-    icon: <FiCheckSquare size={28} className="text-[#D96C06]" />,
+    title: "Gestão de Políticas Internas",
+    description: "Documentos oficiais e padrões que regem procedimentos internos.",
+    slug: "gestao-politicas-internas",
+    icon: <FiFileText size={28} className="text-[#D96C06]" />,
+  },
+  {
+    title: "Conformidade e Auditorias",
+    description: "Regras para garantir conformidade com normas internas e externas, incluindo auditorias periódicas.",
+    slug: "conformidade-auditorias",
+    icon: <FiCheckCircle size={28} className="text-[#D96C06]" />,
   },
 ]
 
-export default function ManualPage() {
+export default function DiretrizesInternasPage() {
   const [pdfSlug, setPdfSlug] = useState<string | null>(null);
   
   return (
@@ -53,10 +53,10 @@ export default function ManualPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual do <span className="text-[#D96C06]">Colaborador</span></h1>
-          <div className="w-24 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Diretrizes <span className="text-[#D96C06]">Internas</span></h1>
+          <div className="w-28 h-1 bg-[#D96C06] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
-            Conheça as políticas, normas e diretrizes que regem nosso ambiente de trabalho.
+            Consulte as diretrizes corporativas para garantir alinhamento, ética e segurança em nossas operações.
           </p>
         </motion.div>
       </div>
@@ -69,7 +69,7 @@ export default function ManualPage() {
           transition={{ duration: 1.5 }}
           className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {manualData.map((item) => (
+          {diretrizesData.map((item) => (
             <Card
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
@@ -115,7 +115,7 @@ export default function ManualPage() {
             <iframe
               src={`/pdfs/${pdfSlug}.pdf`}
               className="w-full h-full"
-              title={`Manual - ${pdfSlug}`}
+              title={`Diretrizes Internas - ${pdfSlug}`}
             />
 
             {/* Botão Fechar */}
