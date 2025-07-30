@@ -1,16 +1,15 @@
-// components/admin/Dashboard.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { fetchUsers, User } from '@/services/userService';
 import { fetchTotalVisitors } from '@/services/metricsService';
+import { KpiCard } from '@/components/ui/KpiCard';
 import LineChartOne from '@/components/ui/charts/line/LineChartOne';
 import BarChartOne from '@/components/ui/charts/bar/BarChartOne';
-import { KpiCard } from '@/components/ui/KpiCard';
 
 export default function Dashboard() {
   const [users, setUsers] = useState<User[]>([]);
-  const [visitors, setVisitors] = useState<number | null>(null);
+  const [visitors, setVisitors] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,11 +23,7 @@ export default function Dashboard() {
   }, []);
 
   if (error) {
-    return (
-      <div className="p-4 text-red-600">
-        Erro ao carregar dados: {error}
-      </div>
-    );
+    return <div className="p-4 text-red-600">Erro: {error}</div>;
   }
 
   return (
@@ -37,18 +32,21 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <KpiCard
           title="Total Visitors"
-          value={visitors ?? 0}
-          changePercent={visitors !== null ? ((visitors - 100) / 100) * 100 : undefined}
-          trendData={[90, 110, visitors ?? 0]}
+          subtitle="Últimos 30 dias"
+          value={visitors}
+          changePercent={visitors >= 100 ? ((visitors - 100) * 100) / 100 : undefined}
+          trendData={[80, 90, visitors]}
         />
         <KpiCard
           title="Active Users"
+          subtitle="Desde a última semana"
           value={users.length}
-          changePercent={((users.length - 50) / 50) * 100}
+          changePercent={users.length >= 50 ? ((users.length - 50) * 100) / 50 : undefined}
           trendData={[40, 55, users.length]}
         />
         <KpiCard
           title="Trainings Completed"
+          subtitle="No mês atual"
           value={124}
           changePercent={+12.1}
           trendData={[110, 130, 124]}
@@ -62,15 +60,15 @@ export default function Dashboard() {
           <LineChartOne
             title="Visualizações e Interações"
             data={[180, 190, 170, 160, 175, 165]}
-            labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
+            labels={['Jan','Feb','Mar','Apr','May','Jun']}
           />
         </div>
         <div className="bg-white p-4 rounded shadow">
           <h4 className="mb-2 text-gray-600">Treinamentos por Categoria</h4>
           <BarChartOne
             title="Distribuição Geral"
-            data={[150, 380, 200, 280, 170, 190]}
-            labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
+            data={[150,380,200,280,170,190]}
+            labels={['Jan','Feb','Mar','Apr','May','Jun']}
           />
         </div>
       </div>

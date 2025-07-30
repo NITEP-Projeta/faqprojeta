@@ -1,5 +1,4 @@
-// app/admin/page.tsx
-import React from 'react';
+'use client';
 import AdminLayout from '@/components/AdminLayout';
 import Dashboard from '@/components/Dashboard';
 

@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+// src/modules/metrics/metrics.module.ts
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { MetricsService } from './metrics.service';
