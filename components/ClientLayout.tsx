@@ -36,7 +36,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               onClick={() => setIsSidebarOpen(false)}
               className="text-[#EAEAEA] hover:text-[#F2C14E] p-2 rounded-full transition-all duration-300"
             >
-              <i className="pi pi-times text-lg"></i>
+              <i className="pi pi-times text-lg cursor-pointer"></i>
             </button>
           </div>
 
@@ -46,7 +46,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <div className="mb-4">
               <button
                 onClick={() => setIsFavoritesOpen(!isFavoritesOpen)}
-                className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none"
+                className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none cursor-pointer"
               >
                 <span className='text-lg font-extrabold'>Biblioteca Corporativa</span>
                 <i
@@ -139,7 +139,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <div>
               <button
                 onClick={() => setIsApplicationOpen(!isApplicationOpen)}
-                className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none"
+                className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none cursor-pointer"
               >
                 <span className='text-lg font-extrabold'>Painel de Controle</span>
                 <i
@@ -192,7 +192,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {!isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="fixed top-4 left-4 z-50 bg-[#8B0D0D] border border-[#d4a72c] shadow-md p-3 rounded-md text-white font-bold hover:bg-[#1A1A1A] hover:text-[#F2C14E] transition-all duration-300"
+          className="fixed top-4 left-4 z-50 bg-[#8B0D0D] border border-[#d4a72c] shadow-md p-3 rounded-md text-white font-bold hover:bg-[#1A1A1A] hover:text-[#F2C14E] transition-all duration-300 cursor-pointer"
         >
           <i className="pi pi-bars"></i>
         </button>

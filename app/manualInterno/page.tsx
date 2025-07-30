@@ -83,7 +83,7 @@ export default function ManualInternoPage() {
               <CardContent className="flex justify-center mt-2">
                 <Button
                   onClick={() => setPdfSlug(item.slug)}
-                  className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all"
+                  className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all cursor-pointer"
                 >
                   Acessar
                 </Button>
@@ -121,7 +121,7 @@ export default function ManualInternoPage() {
             {/* Botão Fechar */}
             <button
               onClick={() => setPdfSlug(null)}
-              className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-md text-sm sm:text-base"
+              className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-md text-sm sm:text-base cursor-pointer"
             >
               Fechar
             </button>

@@ -107,7 +107,7 @@ export default function HomePage() {
             icon: <HelpCircle className="text-yellow-500 w-8 h-8" />,
             title: "Tira Dúvidas",
             desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
-            href: "/admin"
+            href: "/faq"
           },
           {
             icon: <ShieldCheck className="text-green-600 w-8 h-8" />,
@@ -137,7 +137,7 @@ export default function HomePage() {
 
             {/* Botão */}
             <Link href={item.href}>
-              <Button className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all">
+              <Button className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all cursor-pointer">
                 Acessar
               </Button>
             </Link>
