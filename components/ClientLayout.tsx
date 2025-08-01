@@ -22,7 +22,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <div className="flex min-h-screen">
       {/* SIDEBAR FIXA */}
       {isSidebarOpen && (
-        <aside className="w-[280px] bg-[#8B0D0D] border-r border-gray-200 flex flex-col justify-between h-screen sticky top-0 left-0 shadow-sm z-20 transition-all duration-300">
+        <aside className="w-[280px] bg-[#ffffff] border-r border-gray-200 flex flex-col justify-between h-screen sticky top-0 left-0 shadow-sm z-20 transition-all duration-300">
           {/* TOPO COM LOGO */}
           <div className="px-5 py-4 flex items-center justify-between bg-[#1A1A1A] shadow-sm gap-23">
             <div className="flex items-center gap-3">
@@ -48,19 +48,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 onClick={() => setIsFavoritesOpen(!isFavoritesOpen)}
                 className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none cursor-pointer"
               >
-                <span className='text-lg font-extrabold'>Biblioteca Corporativa</span>
+                <span className='text-lg font-extrabold text-black'>Biblioteca Corporativa</span>
                 <i
                   className={`pi ${isFavoritesOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-[#EAEAEA] hover:text-[#F2C14E] duration-300`}
                 ></i>
               </button>
 
               {isFavoritesOpen && (
-              <ul className="space-y-1 transition-all">
+              <ul className="space-y-1 transition-all text-black font-medium">
                   <li>
                       <Link
                           href="/"
                           aria-label="Ir para a página principal"
-                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
                           <i className="pi pi-home" />
                           <span className="font-medium">Início</span>
@@ -71,7 +71,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <Link
                           href="/manualColaborador"
                           aria-label="Abrir Manual do Colaborador"
-                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
                           <i className="pi pi-book"></i>
                           <span className="font-medium">Manual do Colaborador</span>
@@ -82,7 +82,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <Link
                           href="/manualInterno"
                           aria-label="Abrir Manual Interno"
-                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
                           <i className="pi pi-file"></i>
                           <span className="font-medium">Manual Interno</span>
@@ -93,7 +93,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <Link
                           href="/diretrizesInternas"
                           aria-label="Abrir Diretrizes Internas"
-                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
                           <i className="pi pi-align-justify"></i>
                           <span className="font-medium">Diretrizes Internas</span>
@@ -104,7 +104,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <Link
                           href="/sipoc"
                           aria-label="Abrir SIPOC"
-                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
                           <i className="pi pi-sitemap"></i>
                           <span className="font-medium">SIPOC</span>
@@ -115,7 +115,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <Link
                           href="/termoVeiculos"
                           aria-label="Abrir Termo Veículos"
-                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                          className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
                           <i className="pi pi-car"></i>
                           <span className="font-medium">Termo Veículos</span>
@@ -125,7 +125,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <Link
                         href="/cadernoCargos"
                         aria-label="Abrir Caderno de Cargos"
-                        className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                        className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
                     >
                         <i className="pi pi-briefcase"></i>
                         <span className="font-medium">Caderno de Cargos</span>
@@ -141,19 +141,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 onClick={() => setIsApplicationOpen(!isApplicationOpen)}
                 className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none cursor-pointer"
               >
-                <span className='text-lg font-extrabold'>Painel de Controle</span>
+                <span className='text-lg font-extrabold text-black'>Painel de Controle</span>
                 <i
                   className={`pi ${isApplicationOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-[#EAEAEA] hover:text-[#F2C14E] duration-300`}
                 ></i>
               </button>
 
               {isApplicationOpen && (
-                <ul className="space-y-1">
+                <ul className="space-y-1 text-black">
                     <li>
                         <Link
                             href="/admin"
                             aria-label="Ir para a página de Dashboard"
-                            className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                            className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
                         >
                             <i className="pi pi-chart-bar"></i>
                             <span>Dashboard</span>
@@ -163,7 +163,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         <Link
                             href="/chat"
                             aria-label="Ir para a página de Chat"
-                            className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] text-[#EAEAEA] hover:text-[#00A6C2]"
+                            className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
                         >
                             <i className="pi pi-comments"></i>
                             <span>Chat</span>
