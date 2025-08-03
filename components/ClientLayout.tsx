@@ -1,9 +1,16 @@
 'use client'
 
 import { Avatar } from 'primereact/avatar'
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
+import { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { app } from "@/src/firebase/firebase"; // seu arquivo de config
+import { LogOut } from "lucide-react";
+
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +25,25 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   // Se a rota atual estiver na lista, não renderiza a Sidebar
   const hideSidebar = noSidebarRoutes.includes(pathname)
+
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+  const auth = getAuth(app);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.replace("/login"); // redireciona para login após logout
+  };
   return (
+    <ProtectedRoute>
     <div className="flex min-h-screen">
       {/* SIDEBAR FIXA */}
       {isSidebarOpen && (
@@ -175,15 +200,29 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           </div>
 
           {/* RODAPÉ COM USUÁRIO */}
-          <div className="p-4 bg-[#1A1A1A] border-t-4 border-[#dc2e1c]">
-            <a className="flex items-center gap-3 p-2 rounded transition cursor-pointer">
-              <Avatar
-                image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-                shape="circle"
-                className="w-8 h-8"
-              />
-              <span className="font-semibold text-sm text-[#EAEAEA]">Amy Elsner</span>
-            </a>
+          <div className="p-4 bg-[#1A1A1A] border-t border-neutral-800">
+            <div className="flex items-center justify-between gap-3">
+              {/* Avatar e nome */}
+              <div className="flex items-center gap-3">
+                <Avatar
+                  image={user?.photoURL || "/Logo_Projeta.png"}
+                  shape="circle"
+                  className="w-9 h-9 border border-neutral-500"
+                />
+                <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">
+                  {user?.displayName || user?.email || "Usuário"}
+                </span>
+              </div>
+
+              {/* Botão de sair */}
+              <button
+                onClick={handleLogout}
+                title="Sair"
+                className="p-2 rounded-md hover:bg-[#dc2e1c]/10 transition-colors text-gray-300 hover:text-[#dc2e1c]"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </aside>
       )}
@@ -201,5 +240,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {/* CONTEÚDO PRINCIPAL */}
       <main className="flex-1 bg-[#F5F5F5] p-4 overflow-y-auto">{children}</main>
     </div>
+    </ProtectedRoute>
   )
 }
