@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare } from "react-icons/fi"
+import { ProtectedRoute } from "@/components/ProtectedRoute"
 
 const manualData = [
   {
@@ -43,6 +44,7 @@ export default function ManualPage() {
   const [pdfSlug, setPdfSlug] = useState<string | null>(null);
   
   return (
+    <ProtectedRoute>
     <div className="flex flex-col items-center justify-between min-h-screen bg-[#F8F8F8] gap-8 p-6">
       <div className="w-full max-w-7xl">
 
@@ -129,5 +131,6 @@ export default function ManualPage() {
         </div>
       )}
     </div>
+    </ProtectedRoute>
   )
 }

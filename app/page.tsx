@@ -1,13 +1,12 @@
 'use client'
 
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact } from "lucide-react"
 import { MessageCircle } from "lucide-react";
 
-import { Home, Info, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false);
@@ -21,6 +20,7 @@ export default function HomePage() {
   }, []);
 
   return (
+  <ProtectedRoute>
     <div className="flex flex-col items-center justify-center gap-5">
 
       {/* HERO */}
@@ -158,5 +158,6 @@ export default function HomePage() {
         © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
       </footer>
     </div>
+  </ProtectedRoute>
   )
 }

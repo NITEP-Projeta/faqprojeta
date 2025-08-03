@@ -1,9 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import { ProtectedRoute } from "@/components/ProtectedRoute"
 
 export default function TiraDuvidasPage() {
   return (
+    <ProtectedRoute>
     <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8 bg-gray-50">
       {/* Logo e título */}
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -103,5 +105,6 @@ export default function TiraDuvidasPage() {
         </form>
       </div>
     </div>
+    </ProtectedRoute>
   )
 }
