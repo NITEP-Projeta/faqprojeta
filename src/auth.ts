@@ -1,6 +1,6 @@
 // services/auth.ts
 import { auth } from "@/src/firebase/firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth";
 
 export const loginComEmailESenha = async (email: string, senha: string) => {
   try {
@@ -22,6 +22,16 @@ export const cadastrarComEmailESenha = async (email: string, senha: string) => {
     throw error;
   }
 };
+
+export const enviarEmailDeRecuperacao = async (email: string) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    console.log("Email de recuperação enviado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao enviar email de recuperação:", error);
+    throw error;
+  }
+}
 
 export const logout = async () => {
   try {
