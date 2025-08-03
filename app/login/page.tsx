@@ -46,7 +46,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-900">
-              E-mail
+              E-mail:
             </label>
             <input
               id="email"
@@ -60,18 +60,28 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-              Senha
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="Digite sua senha"
-              className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-900">
+                  Senha:
+              </label>
+              <div className="text-sm">
+                <a href="/recuperarSenha" className="font-semibold text-[#8B0D0D] hover:text-[#1A1A1A]">
+                    Esquece sua senha?
+                </a>
+              </div>
+            </div>
+            <div className="mt-2">
+              <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Digite sua senha"
+                  className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
           </div>
 
           <button
