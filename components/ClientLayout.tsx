@@ -22,26 +22,26 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <div className="flex min-h-screen">
       {/* SIDEBAR FIXA */}
       {isSidebarOpen && (
-        <aside className="w-[280px] bg-[#ffffff] border-r border-gray-200 flex flex-col justify-between h-screen sticky top-0 left-0 shadow-sm z-20 transition-all duration-300">
+        <aside className="w-[280px] bg-[#F5F5F5] border-r border-gray-200 flex flex-col justify-between h-screen sticky top-0 left-0 shadow-sm z-20 transition-all duration-300">
           {/* TOPO COM LOGO */}
-          <div className="px-5 py-4 flex items-center justify-between bg-[#1A1A1A] shadow-sm gap-23">
+          <div className="px-5 py-4 flex items-center justify-between bg-[#F5F5F5] shadow-sm gap-23">
             <div className="flex items-center gap-3">
               <img 
-                src="/Logotipo_Projeta_2.png" 
+                src="/Logotipo_Projeta_1.png" 
                 alt="logo" 
                 className="w-32 max-w-[140px] object-contain transition-transform duration-300 hover:scale-105"
               />
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="text-[#EAEAEA] hover:text-[#F2C14E] p-2 rounded-full transition-all duration-300"
+              className="text-black hover:text-[#dc2e1c] p-2 rounded-full transition-all duration-300"
             >
               <i className="pi pi-times text-lg cursor-pointer"></i>
             </button>
           </div>
 
           {/* MENU */}
-          <div className="overflow-y-auto flex-1 px-4 py-4 text-sm border-t-4 border-[#F2C14E]">
+          <div className="overflow-y-auto flex-1 px-4 py-4 text-sm border-t-4 border-[#dc2e1c]">
             {/* FAVORITES */}
             <div className="mb-4">
               <button
@@ -175,7 +175,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           </div>
 
           {/* RODAPÉ COM USUÁRIO */}
-          <div className="p-4 bg-[#1A1A1A] border-t-4 border-[#F2C14E]">
+          <div className="p-4 bg-[#1A1A1A] border-t-4 border-[#dc2e1c]">
             <a className="flex items-center gap-3 p-2 rounded transition cursor-pointer">
               <Avatar
                 image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
