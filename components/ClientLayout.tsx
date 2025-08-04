@@ -9,6 +9,8 @@ import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { app } from "@/src/firebase/firebase"; // seu arquivo de config
 import { LogOut } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/src/firebase/firebase";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -27,20 +29,36 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const hideSidebar = noSidebarRoutes.includes(pathname)
 
   const [user, setUser] = useState<User | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
   const auth = getAuth(app);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          setDisplayName(userDoc.data().nome as string);
+        } else {
+          setDisplayName(user.displayName || user.email || "Usuário");
+        }
+      } else {
+        setDisplayName(null);
+      }
+      setLoading(false);
     });
-
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
+
+  if (loading) {
+    return <span>Carregando...</span>;
+  };
 
   const handleLogout = async () => {
-    await signOut(auth);
-    router.replace("/login"); // redireciona para login após logout
+  await signOut(auth);
+  router.replace("/login"); // redireciona para login após logout
   };
   return (
     <ProtectedRoute>
@@ -210,7 +228,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   className="w-9 h-9 border border-neutral-500"
                 />
                 <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">
-                  {user?.displayName || user?.email || "Usuário"}
+                  {displayName || "Usuário"}
                 </span>
               </div>
 
@@ -218,7 +236,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <button
                 onClick={handleLogout}
                 title="Sair"
-                className="p-2 rounded-md hover:bg-[#dc2e1c]/10 transition-colors text-gray-300 hover:text-[#dc2e1c]"
+                className="p-2 rounded-md hover:bg-[#dc2e1c]/10 transition-colors text-gray-300 hover:text-[#dc2e1c] cursor-pointer"
               >
                 <LogOut className="w-5 h-5" />
               </button>
