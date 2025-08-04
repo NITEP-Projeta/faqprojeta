@@ -1,39 +1,31 @@
 'use client'
 
-import { Avatar } from 'primereact/avatar'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
 import { useEffect, useState } from "react";
-import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { app } from "@/src/firebase/firebase"; // seu arquivo de config
-import { LogOut } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/src/firebase/firebase";
 
+import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db, app } from "@/src/firebase/firebase";
+
+import { LogOut } from "lucide-react";
+
+import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const auth = getAuth(app);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(true)
   const [isApplicationOpen, setIsApplicationOpen] = useState(true)
 
-  const pathname = usePathname()
-
-  // Rotas onde NÃO queremos exibir a Sidebar
-  const noSidebarRoutes = ['/login', '/register', '/forgot-password']
-
-  // Se a rota atual estiver na lista, não renderiza a Sidebar
-  const hideSidebar = noSidebarRoutes.includes(pathname)
-
-  const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const router = useRouter();
-  const auth = getAuth(app);
+  
+  const { isAdmin } = useCurrentUser();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
@@ -46,20 +38,18 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         }
       } else {
         setDisplayName(null);
-      }
-      setLoading(false);
-    });
+      }});
+
     return () => unsubscribe();
   }, []);
 
-  if (loading) {
-    return <span>Carregando...</span>;
-  };
-
+  // Logout do usuário
   const handleLogout = async () => {
-  await signOut(auth);
-  router.replace("/login"); // redireciona para login após logout
-  };
+  router.replace("/login");
+  setTimeout(() => {
+    signOut(auth)}, 3000);
+ };
+
   return (
     <ProtectedRoute>
     <div className="flex min-h-screen">
@@ -93,7 +83,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               >
                 <span className='text-lg font-extrabold text-black'>Biblioteca Corporativa</span>
                 <i
-                  className={`pi ${isFavoritesOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-[#EAEAEA] hover:text-[#F2C14E] duration-300`}
+                  className={`pi ${isFavoritesOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#F2C14E] duration-300`}
                 ></i>
               </button>
 
@@ -179,6 +169,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             </div>
 
             {/* APPLICATION */}
+            {isAdmin && (
             <div>
               <button
                 onClick={() => setIsApplicationOpen(!isApplicationOpen)}
@@ -186,7 +177,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               >
                 <span className='text-lg font-extrabold text-black'>Painel de Controle</span>
                 <i
-                  className={`pi ${isApplicationOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-[#EAEAEA] hover:text-[#F2C14E] duration-300`}
+                  className={`pi ${isApplicationOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#F2C14E] duration-300`}
                 ></i>
               </button>
 
@@ -215,18 +206,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                 </ul>
               )}
             </div>
+            )}
           </div>
+
 
           {/* RODAPÉ COM USUÁRIO */}
           <div className="p-4 bg-[#1A1A1A] border-t border-neutral-800">
             <div className="flex items-center justify-between gap-3">
               {/* Avatar e nome */}
               <div className="flex items-center gap-3">
-                <Avatar
-                  image={user?.photoURL || "/Logo_Projeta.png"}
-                  shape="circle"
-                  className="w-9 h-9 border border-neutral-500"
-                />
                 <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">
                   {displayName || "Usuário"}
                 </span>

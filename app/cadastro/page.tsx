@@ -6,50 +6,96 @@ import { useRouter } from "next/navigation";
 import { cadastrarComEmailESenha } from "@/src/auth";
 import { setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/src/firebase/firebase";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { sendEmailVerification } from "firebase/auth";
+import Swal from "sweetalert2";
 
 export default function CadastroPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setAvatarFile(e.target.files[0]);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
 
     if (password !== confirmPassword) {
-      setError("As senhas não coincidem.");
+      toast.error("As senhas não coincidem.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+        // Validação simples dos campos
+    if (!email) {
+      toast.error("O campo e-mail é obrigatório.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    // Verifica se o e-mail é do domínio projetacs.com
+    const emailRegex = /^[^\s@]+@projetacs\.com$/i;
+    if (!emailRegex.test(email)) {
+      toast.error("Somente e-mails '@projetacs.com' são permitidos.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    if (!password) {
+      toast.error("O campo senha é obrigatório.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("A senha deve ter no mínimo 6 caracteres.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       return;
     }
 
     setLoading(true);
     try {
-      // 1. Cria usuário no Auth
       const userCredential = await cadastrarComEmailESenha(email, password);
       const uid = userCredential.user.uid;
 
-      // 3. Grava dados no Firestore
+    await sendEmailVerification(userCredential.user);
+    Swal.fire({
+      icon: "success",
+      title: "Verifique seu e-mail",
+      text: "Enviamos um link para ativar sua conta. Verifique sua caixa de entrada.",
+      confirmButtonColor: "#8B0D0D"
+    });
+      
       await setDoc(doc(db, "users", uid), {
         nome,
         email,
         createdAt: serverTimestamp(),
       });
 
-      // 4. Redireciona
       router.push("/login");
+
     } catch (err: any) {
-      console.error("Erro no cadastro:", err);
-      setError(err.message || "Erro ao cadastrar usuário.");
+      toast.error(err.message || "Erro ao cadastrar usuário.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } finally {
       setLoading(false);
     }
@@ -137,9 +183,6 @@ export default function CadastroPage() {
             />
           </div>
 
-          {/* Erro */}
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
           {/* Botão */}
           <button
             type="submit"
@@ -163,6 +206,8 @@ export default function CadastroPage() {
             Acesse aqui
           </Link>
         </p>
+
+        <ToastContainer />
       </div>
     </div>
   );

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginComEmailESenha } from "@/src/auth";
+import { signInWithEmailAndPassword, signOut, UserCredential } from "firebase/auth";
+import { auth } from "@/src/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,8 +17,19 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
     try {
-      await loginComEmailESenha(email, password);
+      // Login do usuário
+      const userCredential: UserCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Verificação se o e-mail foi confirmado
+      if (!user.emailVerified) {
+        setError("Por favor, verifique seu e-mail antes de acessar o sistema.");
+        await signOut(auth);
+        return;
+      }
+
       router.push("/");
     } catch (err: any) {
       setError(err.message || "Erro ao fazer login");
@@ -42,8 +54,14 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-white p-8 rounded-lg shadow-md border border-gray-300">
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-white p-8 rounded-lg shadow-md">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="text-red-500 text-sm text-center bg-red-100 p-2 rounded-md">
+              {error}
+            </div>
+          )}
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-900">
               E-mail:
@@ -53,7 +71,7 @@ export default function LoginPage() {
               type="email"
               required
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Digite seu e-mail"
               className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
@@ -62,24 +80,27 @@ export default function LoginPage() {
           <div>
             <div className="flex items-center justify-between">
               <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-                  Senha:
+                Senha:
               </label>
               <div className="text-sm">
-                <a href="/recuperarSenha" className="font-semibold text-[#8B0D0D] hover:text-[#1A1A1A]">
-                    Esquece sua senha?
-                </a>
+                <Link
+                  href="/recuperarSenha"
+                  className="font-semibold text-[#8B0D0D] hover:text-[#1A1A1A]"
+                >
+                  Esqueceu sua senha?
+                </Link>
               </div>
             </div>
             <div className="mt-2">
               <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="Digite sua senha"
-                  className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Digite sua senha"
+                className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
@@ -88,7 +109,8 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className="w-full flex justify-center rounded-md bg-[#8B0D0D] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1A1A1A] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-          >{loading ? (
+          >
+            {loading ? (
               <>
                 <svg
                   className="animate-spin h-5 w-5 mr-2 text-white"
@@ -119,7 +141,7 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-8 text-center text-sm text-gray-500">
-          Não possui conta?{' '}
+          Não possui conta?{" "}
           <Link href="/cadastro" className="font-semibold text-[#8B0D0D] hover:text-[#1A1A1A]">
             Cadastre-se agora
           </Link>

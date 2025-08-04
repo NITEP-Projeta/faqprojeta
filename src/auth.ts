@@ -1,6 +1,6 @@
 // services/auth.ts
 import { auth } from "@/src/firebase/firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut} from "firebase/auth";
 
 export const loginComEmailESenha = async (email: string, senha: string) => {
   try {
@@ -42,3 +42,5 @@ export const logout = async () => {
     throw error;
   }
 };
+export { auth };
+
