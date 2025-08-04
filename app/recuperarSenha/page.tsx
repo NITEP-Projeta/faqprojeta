@@ -41,7 +41,7 @@ export default function EsqueciSenhaPage() {
       </div>
 
       {/* Formulário */}
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-white p-8 rounded-lg shadow-md">
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-white p-8 rounded-lg shadow-md border border-gray-300">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Campo Email */}
           <div>
