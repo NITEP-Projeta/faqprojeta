@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact } from "lucide-react"
+import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact, CalendarCheck2 } from "lucide-react"
 import { MessageCircle } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -38,17 +38,17 @@ export default function HomePage() {
               {
                 title: 'Missão',
                 desc: 'Oferecer soluções em engenharia com excelência técnica, inovação e compromisso com os resultados.',
-                icon: <Target className="mx-auto text-primary w-8 h-8" />,
+                icon: <Target className="mx-auto text-[#AF1B1B] w-8 h-8" />,
               },
               {
                 title: 'Visão',
                 desc: 'Ser referência nacional em engenharia consultiva, promovendo desenvolvimento sustentável.',
-                icon: <Eye className="mx-auto text-primary w-8 h-8" />,
+                icon: <Eye className="mx-auto text-[#AF1B1B] w-8 h-8" />,
               },
               {
                 title: 'Valores',
                 desc: 'Ética, transparência, segurança, melhoria contínua e foco no cliente.',
-                icon: <HeartHandshake className="mx-auto text-primary w-8 h-8" />,
+                icon: <HeartHandshake className="mx-auto text-[#AF1B1B] w-8 h-8" />,
               },
             ].map((item, i) => (
               <div
@@ -68,49 +68,55 @@ export default function HomePage() {
       <section className="w-auto grid md:grid-cols-3 place-items-center gap-8 pb-8">
         {[
           {
-            icon: <Book className="text-red-600 w-8 h-8" />,
+            icon: <Book className="w-8 h-8" />,
             title: "Manual do Colaborador",
             desc: "Conteúdos educativos, vídeos e orientações para todos os setores.",
             href: "/manualColaborador"
           },
           {
-            icon: <List className="text-amber-500 w-8 h-8" />,
+            icon: <List className="w-8 h-8" />,
             title: "Manual Interno",
             desc: "FAQ e suporte para colaboradores com dúvidas sobre os sistemas.",
             href: "/manualInterno"
           },
           {
-            icon: <ShieldCheck className="text-green-600 w-8 h-8" />,
+            icon: <ShieldCheck className="w-8 h-8" />,
             title: "Diretrizes Internas",
-            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            desc: "Guia com procedimentos e padrões adotados pela organização.",
             href: "/diretrizesInternas"
           },
           {
-            icon: <Notebook className="text-green-500 w-8 h-8" />,
+            icon: <Notebook className="w-8 h-8" />,
             title: "SIPOC",
-            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            desc: "Documentos de referência para análise de fluxos e etapas do processo.",
             href: "/sipoc"
           },
           {
-            icon: <Car className="text-teal-600 w-8 h-8" />,
+            icon: <Car className="w-8 h-8" />,
             title: "Termo Veículos",
-            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            desc: "Documentos para controle, uso e responsabilidade sobre veículos da empresa.",
             href: "/termoVeiculos"
           },
           {
-            icon: <Contact className="text-lime-600 w-8 h-8" />,
+            icon: <Contact className="w-8 h-8" />,
             title: "Caderno De Cargos",
-            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            desc: "Guia com funções, atribuições e requisitos dos cargos corporativos.",
             href: "/cadernoCargos"
           },
           {
-            icon: <HelpCircle className="text-yellow-500 w-8 h-8" />,
+            icon: <CalendarCheck2 className="w-8 h-8" />,
+            title: "Manual de Ponto",
+            desc: "Orientações e diretrizes para registro e gestão de ponto eletrônico.",
+            href: "/ponto"
+          },
+          {
+            icon: <HelpCircle className="w-8 h-8" />,
             title: "Tira Dúvidas",
-            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
+            desc: "Canal para envio de perguntas e esclarecimento de dúvidas internas.",
             href: "/faq"
           },
           {
-            icon: <ShieldCheck className="text-green-600 w-8 h-8" />,
+            icon: <ShieldCheck className="w-8 h-8" />,
             title: "Área Administrativa",
             desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
             href: "/admin"
@@ -121,7 +127,7 @@ export default function HomePage() {
             className="relative bg-white border-l-4 rounded-md shadow-sm hover:shadow-lg p-6 flex flex-col items-center text-center w-full transition-transform transform hover:-translate-y-1"
           >
             {/* Ícone */}
-            <div className="mb-3">
+            <div className="mb-3 text-[#AF1B1B]">
               {item.icon}
             </div>
 
@@ -137,7 +143,8 @@ export default function HomePage() {
 
             {/* Botão */}
             <Link href={item.href}>
-              <Button className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all cursor-pointer">
+              <Button className="px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
+hover:scale-105 hover:shadow-lg">
                 Acessar
               </Button>
             </Link>

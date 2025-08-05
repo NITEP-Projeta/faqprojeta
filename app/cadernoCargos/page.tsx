@@ -12,31 +12,31 @@ const cadernoCargosData = [
     title: "Estrutura de Cargos",
     description: "Organograma com a hierarquia de cargos e funções dentro da empresa.",
     slug: "estrutura-de-cargos",
-    icon: <FiUsers size={28} className="text-[#D96C06]" />,
+    icon: <FiUsers size={28}/>,
   },
   {
     title: "Descrição de Funções",
     description: "Documento com as atividades, responsabilidades e requisitos de cada função.",
     slug: "descricao-de-funcoes",
-    icon: <FiFileText size={28} className="text-[#D96C06]" />,
+    icon: <FiFileText size={28}/>,
   },
   {
     title: "Plano de Carreira",
     description: "Guia para evolução de cargos e crescimento profissional na organização.",
     slug: "plano-de-carreira",
-    icon: <FiAward size={28} className="text-[#D96C06]" />,
+    icon: <FiAward size={28}/>,
   },
   {
     title: "Tabela Salarial",
     description: "Informações sobre faixas salariais correspondentes a cada cargo.",
     slug: "tabela-salarial",
-    icon: <FiList size={28} className="text-[#D96C06]" />,
+    icon: <FiList size={28}/>,
   },
   {
     title: "Competências por Cargo",
     description: "Habilidades e conhecimentos necessários para cada posição.",
     slug: "competencias-por-cargo",
-    icon: <FiBriefcase size={28} className="text-[#D96C06]" />,
+    icon: <FiBriefcase size={28}/>,
   },
 ]
 
@@ -55,8 +55,8 @@ export default function CadernoCargosPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Caderno de <span className="text-[#D96C06]">Cargos</span></h1>
-          <div className="w-28 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Caderno de <span className="text-[#AF1B1B]">Cargos</span></h1>
+          <div className="w-28 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
             Documentos com informações sobre cargos, funções, competências e planos de carreira.
           </p>
@@ -76,7 +76,7 @@ export default function CadernoCargosPage() {
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
             >
-              <div className="mb-3">{item.icon}</div>
+              <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
               <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
                 <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
                 <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
@@ -85,7 +85,8 @@ export default function CadernoCargosPage() {
               <CardContent className="flex justify-center mt-2">
                 <Button
                   onClick={() => setPdfSlug(item.slug)}
-                  className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all cursor-pointer"
+                  className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
+hover:scale-105 hover:shadow-lg"
                 >
                   Acessar
                 </Button>

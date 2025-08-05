@@ -12,31 +12,31 @@ const sipocData = [
     title: "Fornecedores (Suppliers)",
     description: "Identificação dos fornecedores que fornecem entradas para o processo.",
     slug: "fornecedores-sipoc",
-    icon: <FiUsers size={28} className="text-[#D96C06]" />,
+    icon: <FiUsers size={28}/>,
   },
   {
     title: "Entradas (Inputs)",
     description: "Recursos, informações ou materiais que alimentam o processo SIPOC.",
     slug: "entradas-sipoc",
-    icon: <FiPackage size={28} className="text-[#D96C06]" />,
+    icon: <FiPackage size={28}/>,
   },
   {
     title: "Processo (Process)",
     description: "Etapas e atividades que transformam entradas em saídas.",
     slug: "processo-sipoc",
-    icon: <FiGitBranch size={28} className="text-[#D96C06]" />,
+    icon: <FiGitBranch size={28}/>,
   },
   {
     title: "Saídas (Outputs)",
     description: "Produtos, serviços ou resultados gerados pelo processo.",
     slug: "saidas-sipoc",
-    icon: <FiClipboard size={28} className="text-[#D96C06]" />,
+    icon: <FiClipboard size={28}/>,
   },
   {
     title: "Clientes (Customers)",
     description: "Destinatários ou usuários finais das saídas do processo.",
     slug: "clientes-sipoc",
-    icon: <FiActivity size={28} className="text-[#D96C06]" />,
+    icon: <FiActivity size={28}/>,
   },
 ]
 
@@ -55,8 +55,8 @@ export default function SipocPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Mapa <span className="text-[#D96C06]">SIPOC</span></h1>
-          <div className="w-28 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Mapa <span className="text-[#AF1B1B]">SIPOC</span></h1>
+          <div className="w-28 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
             Ferramenta visual para compreender, mapear e padronizar processos-chave da organização.
           </p>
@@ -76,7 +76,7 @@ export default function SipocPage() {
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
             >
-              <div className="mb-3">{item.icon}</div>
+              <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
               <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
                 <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
                 <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
@@ -85,7 +85,8 @@ export default function SipocPage() {
               <CardContent className="flex justify-center mt-2">
                 <Button
                   onClick={() => setPdfSlug(item.slug)}
-                  className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all cursor-pointer"
+                  className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
+hover:scale-105 hover:shadow-lg"
                 >
                   Acessar
                 </Button>

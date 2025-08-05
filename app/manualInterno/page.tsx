@@ -12,31 +12,31 @@ const manualInternoData = [
     title: "Processos Internos",
     description: "Guia com os processos internos da empresa para melhor organização e execução das tarefas.",
     slug: "processos-internos",
-    icon: <FiFileText size={28} className="text-[#D96C06]" />,
+    icon: <FiFileText size={28}/>,
   },
   {
     title: "Gestão de Documentos",
     description: "Regras e práticas para armazenamento e gerenciamento seguro de documentos internos.",
     slug: "gestao-de-documentos",
-    icon: <FiSettings size={28} className="text-[#D96C06]" />,
+    icon: <FiSettings size={28}/>,
   },
   {
     title: "Políticas de Comunicação",
     description: "Diretrizes para comunicação interna, garantindo alinhamento entre setores.",
     slug: "politicas-de-comunicacao",
-    icon: <FiMessageSquare size={28} className="text-[#D96C06]" />,
+    icon: <FiMessageSquare size={28}/>,
   },
   {
     title: "Fluxo de Aprovações",
     description: "Passo a passo dos fluxos de aprovação e responsáveis por cada etapa.",
     slug: "fluxo-de-aprovacoes",
-    icon: <FiGitPullRequest size={28} className="text-[#D96C06]" />,
+    icon: <FiGitPullRequest size={28}/>,
   },
   {
     title: "Normas de Segurança Digital",
     description: "Orientações para proteger os dados internos e evitar vulnerabilidades.",
     slug: "normas-de-seguranca-digital",
-    icon: <FiLock size={28} className="text-[#D96C06]" />,
+    icon: <FiLock size={28}/>,
   },
 ]
 
@@ -55,8 +55,8 @@ export default function ManualInternoPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual <span className="text-[#D96C06]">Interno</span></h1>
-          <div className="w-24 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Manual <span className="text-[#AF1B1B]">Interno</span></h1>
+          <div className="w-24 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
             Consulte normas, processos e diretrizes internas para manter a eficiência corporativa.
           </p>
@@ -76,7 +76,7 @@ export default function ManualInternoPage() {
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
             >
-              <div className="mb-3">{item.icon}</div>
+              <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
               <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
                 <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
                 <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
@@ -85,7 +85,8 @@ export default function ManualInternoPage() {
               <CardContent className="flex justify-center mt-2">
                 <Button
                   onClick={() => setPdfSlug(item.slug)}
-                  className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all cursor-pointer"
+                  className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
+hover:scale-105 hover:shadow-lg"
                 >
                   Acessar
                 </Button>

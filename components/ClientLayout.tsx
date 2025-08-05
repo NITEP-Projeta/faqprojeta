@@ -15,6 +15,17 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
+import { 
+  Home,
+  Book,
+  List,
+  ShieldCheck,
+  Notebook,
+  Car,
+  Contact,
+  CalendarCheck2
+} from "lucide-react";
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const auth = getAuth(app);
@@ -95,7 +106,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                           aria-label="Ir para a página principal"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
-                          <i className="pi pi-home" />
+                          <Home className="w-5 h-5" />
                           <span className="font-medium">Início</span>
                       </Link>
                   </li>
@@ -106,7 +117,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                           aria-label="Abrir Manual do Colaborador"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
-                          <i className="pi pi-book"></i>
+                          <Book className="w-5 h-5" />
                           <span className="font-medium">Manual do Colaborador</span>
                       </Link>
                   </li>
@@ -117,7 +128,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                           aria-label="Abrir Manual Interno"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
-                          <i className="pi pi-file"></i>
+                          <List className="w-5 h-5" />
                           <span className="font-medium">Manual Interno</span>
                       </Link>
                   </li>
@@ -128,7 +139,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                           aria-label="Abrir Diretrizes Internas"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
-                          <i className="pi pi-align-justify"></i>
+                          <ShieldCheck className="w-5 h-5" />
                           <span className="font-medium">Diretrizes Internas</span>
                       </Link>
                   </li>
@@ -139,7 +150,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                           aria-label="Abrir SIPOC"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
-                          <i className="pi pi-sitemap"></i>
+                          <Notebook className="w-5 h-5" />
                           <span className="font-medium">SIPOC</span>
                       </Link>
                   </li>
@@ -150,7 +161,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                           aria-label="Abrir Termo Veículos"
                           className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]"
                       >
-                          <i className="pi pi-car"></i>
+                          <Car className="w-5 h-5" />
                           <span className="font-medium">Termo Veículos</span>
                       </Link>
                   </li>
@@ -160,8 +171,18 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         aria-label="Abrir Caderno de Cargos"
                         className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
                     >
-                        <i className="pi pi-briefcase"></i>
+                        <Contact className="w-5 h-5" />
                         <span className="font-medium">Caderno de Cargos</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                        href="/ponto"
+                        aria-label="Manual de Ponto"
+                        className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
+                    >
+                        <CalendarCheck2 className="w-5 h-5" />
+                        <span className="font-medium">Manul de Ponto</span>
                     </Link>
                   </li>
               </ul>

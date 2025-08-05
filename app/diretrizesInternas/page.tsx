@@ -12,31 +12,31 @@ const diretrizesData = [
     title: "Ética Profissional",
     description: "Princípios éticos que norteiam nossas atividades e relações internas e externas.",
     slug: "etica-profissional",
-    icon: <FiBookOpen size={28} className="text-[#D96C06]" />,
+    icon: <FiBookOpen size={28}/>,
   },
   {
     title: "Conduta Organizacional",
     description: "Normas de comportamento e relacionamento entre colaboradores e setores.",
     slug: "conduta-organizacional",
-    icon: <FiUsers size={28} className="text-[#D96C06]" />,
+    icon: <FiUsers size={28}/>,
   },
   {
     title: "Segurança da Informação",
     description: "Diretrizes para proteção de dados internos, confidencialidade e boas práticas digitais.",
     slug: "seguranca-da-informacao",
-    icon: <FiShield size={28} className="text-[#D96C06]" />,
+    icon: <FiShield size={28}/>,
   },
   {
     title: "Gestão de Políticas Internas",
     description: "Documentos oficiais e padrões que regem procedimentos internos.",
     slug: "gestao-politicas-internas",
-    icon: <FiFileText size={28} className="text-[#D96C06]" />,
+    icon: <FiFileText size={28}/>,
   },
   {
     title: "Conformidade e Auditorias",
     description: "Regras para garantir conformidade com normas internas e externas, incluindo auditorias periódicas.",
     slug: "conformidade-auditorias",
-    icon: <FiCheckCircle size={28} className="text-[#D96C06]" />,
+    icon: <FiCheckCircle size={28}/>,
   },
 ]
 
@@ -55,8 +55,8 @@ export default function DiretrizesInternasPage() {
           transition={{ duration: 1.2 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Diretrizes <span className="text-[#D96C06]">Internas</span></h1>
-          <div className="w-28 h-1 bg-[#D96C06] mx-auto rounded"></div>
+          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Diretrizes <span className="text-[#AF1B1B]">Internas</span></h1>
+          <div className="w-28 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">
             Consulte as diretrizes corporativas para garantir alinhamento, ética e segurança em nossas operações.
           </p>
@@ -76,7 +76,7 @@ export default function DiretrizesInternasPage() {
               key={item.slug}
               className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
             >
-              <div className="mb-3">{item.icon}</div>
+              <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
               <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
                 <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
                 <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
@@ -85,7 +85,8 @@ export default function DiretrizesInternasPage() {
               <CardContent className="flex justify-center mt-2">
                 <Button
                   onClick={() => setPdfSlug(item.slug)}
-                  className="px-5 py-2 bg-[#D96C06] hover:bg-[#bf5f05] text-white rounded-md transition-all cursor-pointer"
+                  className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
+hover:scale-105 hover:shadow-lg"
                 >
                   Acessar
                 </Button>
