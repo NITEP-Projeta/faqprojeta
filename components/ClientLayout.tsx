@@ -94,7 +94,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               >
                 <span className='text-lg font-extrabold text-black'>Biblioteca Corporativa</span>
                 <i
-                  className={`pi ${isFavoritesOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#F2C14E] duration-300`}
+                  className={`pi ${isFavoritesOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#AF1B1B] duration-300`}
                 ></i>
               </button>
 
@@ -182,7 +182,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
                     >
                         <CalendarCheck2 className="w-5 h-5" />
-                        <span className="font-medium">Manul de Ponto</span>
+                        <span className="font-medium">Manual de Ponto</span>
                     </Link>
                   </li>
               </ul>
@@ -198,7 +198,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               >
                 <span className='text-lg font-extrabold text-black'>Painel de Controle</span>
                 <i
-                  className={`pi ${isApplicationOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#F2C14E] duration-300`}
+                  className={`pi ${isApplicationOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#AF1B1B] duration-300`}
                 ></i>
               </button>
 
@@ -232,11 +232,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
 
           {/* RODAPÉ COM USUÁRIO */}
-          <div className="p-4 bg-[#1A1A1A] border-t border-neutral-800">
+          <div className="p-4 bg-[#AF1B1B] hover:bg-[#8C1616] transition-colors duration-300 text-white transition-all duration-300 ease-in-out 
+hover:scale-105 hover:shadow-lg">
             <div className="flex items-center justify-between gap-3">
               {/* Avatar e nome */}
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">
+                <span className="text-sm font-black text-white truncate max-w-[180px]">
                   {displayName || "Usuário"}
                 </span>
               </div>
@@ -245,7 +246,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               <button
                 onClick={handleLogout}
                 title="Sair"
-                className="p-2 rounded-md hover:bg-[#dc2e1c]/10 transition-colors text-gray-300 hover:text-[#dc2e1c] cursor-pointer"
+                className="p-2 rounded-md hover:bg-black transition-colors text-white hover:text-[#dc2e1c] cursor-pointer transition-all duration-300 ease-in-out 
+hover:scale-105 hover:shadow-lg"
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -258,9 +260,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {!isSidebarOpen && (
         <button
           onClick={() => setIsSidebarOpen(true)}
-          className="fixed top-4 left-4 z-50 bg-[#8B0D0D] border border-[#d4a72c] shadow-md p-3 rounded-md text-white font-bold hover:bg-[#1A1A1A] hover:text-[#F2C14E] transition-all duration-300 cursor-pointer"
+          className="fixed top-4 left-4 z-50 bg-[#EAEAEA] p-2 shadow-md border-4 border-[#AF1B1B] border-solid rounded-md transition-all duration-300 cursor-pointer"
         >
-          <i className="pi pi-bars"></i>
+          <i className="pi pi-bars text-[#AF1B1B]"></i>
         </button>
       )}
 
