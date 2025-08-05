@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare } from "react-icons/fi"
+import { FiUsers, FiBriefcase, FiHome, FiShield, FiCheckSquare, FiCreditCard } from "react-icons/fi"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 
 const manualData = [
@@ -38,6 +38,12 @@ const manualData = [
     slug: "vestimenta-profissional",
     icon: <FiCheckSquare size={28}/>,
   },
+  {
+    title: "Política de Reembolso",
+    description: "Orientações sobre como solicitar reembolsos de despesas corporativas.",
+    slug: "politica-de-reembolso",
+    icon: <FiCreditCard size={28} />,
+  }
 ]
 
 export default function ManualPage() {
@@ -85,7 +91,7 @@ export default function ManualPage() {
               <CardContent className="flex justify-center mt-2">
                 <Button
                   onClick={() => setPdfSlug(item.slug)}
-                  className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
+                  className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
 hover:scale-105 hover:shadow-lg"
                 >
                   Acessar
