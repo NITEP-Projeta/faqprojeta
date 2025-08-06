@@ -1,25 +1,74 @@
 "use client";
 
-import Link from "next/link";
-import { enviarEmailDeRecuperacao } from "@/src/auth";
 import { useState } from "react";
 
+import Link from "next/link";
+
+import { enviarEmailDeRecuperacao } from "@/src/auth";
+
+import { ToastContainer, toast } from "react-toastify";
+
 export default function EsqueciSenhaPage() {
+
+  const [loading, setLoading] = useState(false);
+
+  // Estado para o e-mail
   const [email, setEmail] = useState("");
-  const [mensagem, setMensagem] = useState("");
-  const [erro, setErro] = useState("");
 
+  const [emailError, setEmailError] = useState("");
+
+  // Estado para desabilitar o botão após o envio
+  const [desabilitar, setDesabilitar] = useState(false);
+
+  // Regex para validar e-mail
+  const regex = /^[^\s@]+@projetacs\.com$/i;
+
+  // Funções para validação dos campos
+  const handleEmailBlur = () => {
+    if (!email) {
+      setEmailError("⚠️ O campo e-mail é obrigatório.");
+      setDesabilitar(true)
+    } else if (!regex.test(email)) {
+      setEmailError("⚠️ Só aceitamos e-mails do domínio projetacs.com");
+      setDesabilitar(true)
+    } else {
+      setEmailError("");
+      setDesabilitar(false)
+    }
+  };
+
+  // Função para lidar com o envio do e-mail de recuperação
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // evita recarregamento
-
-    setMensagem("");
-    setErro("");
+    setLoading(true);
+    // Previne o comportamento padrão do formulário
+    e.preventDefault();
 
     try {
       await enviarEmailDeRecuperacao(email);
-      setMensagem("Instruções enviadas para o seu e-mail.");
+      // Desabilita o botão para evitar múltiplos envios
+      setDesabilitar(true);
+
+      // Exibe mensagem de sucesso
+      toast.success("Verifique seu e-mail", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "light",
+        hideProgressBar: false,
+        pauseOnHover: true,
+        progress: undefined,
+      });
     } catch (err: any) {
-      setErro("Erro ao enviar e-mail. Verifique se o endereço está correto.");
+      // Se ocorrer um erro, exibe mensagem de erro
+      toast.error("Erro ao enviar o e-mail de recuperação.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "light",
+        hideProgressBar: false,
+        pauseOnHover: true,
+        progress: undefined,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,28 +104,55 @@ export default function EsqueciSenhaPage() {
                 type="email"
                 required
                 value={email}
+                onBlur={handleEmailBlur}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Digite seu e-mail cadastrado"
                 className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
               />
+              {emailError && <p className="mt-4 text-red-600 text-sm text-center">{emailError}</p>}
             </div>
           </div>
-
           {/* Botão Enviar */}
           <div>
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-[#8B0D0D] px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#1A1A1A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all"
+              disabled={desabilitar}
+              className={`flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-md transition-all cursor-pointer
+              ${desabilitar ? "bg-gray-400 cursor-not-allowed" : "bg-[#8B0D0D] hover:bg-[#1A1A1A]"}`}
             >
-              Enviar instruções
+              {loading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect width={48} height={48} fill="white" fillOpacity={0.01} />
+                  <path
+                    d="M4 24C4 35.0457 12.9543 44 24 44V44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4"
+                    stroke="currentColor"
+                    strokeWidth={4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M36 24C36 17.3726 30.6274 12 24 12C17.3726 12 12 17.3726 12 24C12 30.6274 17.3726 36 24 36V36"
+                    stroke="currentColor"
+                    strokeWidth={4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Carregando...
+              </>
+            ) : (
+              "Enviar instruções"
+            )}
             </button>
           </div>
         </form>
-
-        {/* Mensagens de feedback */}
-        {mensagem && <p className="mt-4 text-green-600 text-sm text-center">{mensagem}</p>}
-        {erro && <p className="mt-4 text-red-600 text-sm text-center">{erro}</p>}
-
+        
         {/* Link para Login */}
         <p className="mt-8 text-center text-sm text-gray-500">
           Lembrou sua senha?{" "}
@@ -84,6 +160,7 @@ export default function EsqueciSenhaPage() {
             Voltar para o login
           </Link>
         </p>
+        <ToastContainer />
       </div>
     </div>
   );

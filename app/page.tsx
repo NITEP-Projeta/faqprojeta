@@ -1,29 +1,20 @@
 'use client'
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact, CalendarCheck2 } from "lucide-react"
-import { MessageCircle } from "lucide-react";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+
+import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact, CalendarCheck2 } from "lucide-react";
+
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export default function HomePage() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
+  // Proteção de rota para garantir que apenas usuários autenticados acessem a página
   <ProtectedRoute>
-    <div className="flex flex-col items-center justify-center gap-5">
-
-      {/* HERO */}
+    {/* Div principal que contém todo o conteúdo da página */}
+    <div className="flex flex-col items-center justify-center gap-5"> 
+      {/* SEÇÃO DE BEM-VINDO */}
       <section className="bg-muted py-20 text-center pt-20">
         <div>
           <h1 className="text-5xl font-bold tracking-tight mb-4">
@@ -32,7 +23,7 @@ export default function HomePage() {
           <p className="text-muted-foreground text-lg mb-8">
             Acesse treinamentos, tire dúvidas e acompanhe comunicações institucionais.
           </p>
-                {/* MISSÃO, VISÃO, VALORES */}
+          {/* MISSÃO, VISÃO, VALORES */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center pt-5 pb-5 w-full h-auto">
             {[
               {
@@ -63,8 +54,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* FUNCIONALIDADES */}
+      {/* Cards principais */}
       <section className="w-auto grid md:grid-cols-3 place-items-center gap-8 pb-8">
         {[
           {
@@ -124,24 +114,16 @@ export default function HomePage() {
         ].map((item, idx) => (
           <div
             key={idx}
-            className="relative bg-white border-l-4 rounded-md shadow-sm hover:shadow-lg p-6 flex flex-col items-center text-center w-full transition-transform transform hover:-translate-y-1"
-          >
-            {/* Ícone */}
+            className="relative bg-white border-l-4 rounded-md shadow-sm hover:shadow-lg p-6 flex flex-col items-center text-center w-full transition-transform transform hover:-translate-y-1">
             <div className="mb-3 text-[#AF1B1B]">
               {item.icon}
             </div>
-
-            {/* Título */}
             <h2 className="text-lg font-semibold text-[#1A1A1A] mb-2">
               {item.title}
             </h2>
-
-            {/* Descrição */}
             <p className="text-sm text-[#555] mb-4">
               {item.desc}
             </p>
-
-            {/* Botão */}
             <Link href={item.href}>
               <Button className="px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out 
 hover:scale-105 hover:shadow-lg">
@@ -151,16 +133,6 @@ hover:scale-105 hover:shadow-lg">
           </div>
         ))}
       </section>
-
-      <section>
-        <div className="fixed bottom-6 right-6 z-50">
-          <button className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition">
-            <MessageCircle className="w-6 h-6" />
-          </button>
-        </div>
-      </section>
-
-      {/* RODAPÉ */}
       <footer className="text-sm text-center text-muted-foreground py-6">
         © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
       </footer>
