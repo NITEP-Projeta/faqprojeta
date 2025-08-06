@@ -232,8 +232,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
 
           {/* RODAPÉ COM USUÁRIO */}
-          <div className="p-4 bg-[#AF1B1B] hover:bg-[#8C1616] transition-colors duration-300 text-white transition-all duration-300 ease-in-out 
-hover:scale-105 hover:shadow-lg">
+          <div className="p-4 bg-[#AF1B1B] hover:bg-[#8C1616] transition-colors duration-300 text-white transition-all duration-700 ease-in-out 
+hover:scale-105 hover:shadow-lg delay-150">
             <div className="flex items-center justify-between gap-3">
               {/* Avatar e nome */}
               <div className="flex items-center gap-3">
