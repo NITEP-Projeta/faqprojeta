@@ -1,39 +1,45 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import { PrismaService } from 'src/prisma/prisma.service';
 
 /* eslint-disable prettier/prettier */
 @Injectable()
 export class MetricsService {
-    constructor(private readonly prisma: PrismaService) { } d
+  constructor(private readonly prisma: PrismaService) { }
 
-    // visitantes únicos
-    async totalVisitors(): Promise<{ totalVisitors: number }> {
-        const total = await this.prisma.accessLog.groupBy({
-            by: ['userId'],
-        }).then(result => result.length);
-        return { totalVisitors: total };
-    }
+  async dailyActiveUsers(days = 30): Promise<{ date: string; count: number }[]> {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    return this.prisma.$queryRaw<
+      { date: string; count: number }[]
+    >`
+      SELECT
+        to_char(timestamp::date, 'YYYY-MM-DD') as date,
+        COUNT(DISTINCT user_id) as count
+      FROM "AccessLog"
+      WHERE timestamp >= ${since}
+      GROUP BY date
+      ORDER BY date;
+    `;
+  }
 
-    // treinamentos ativos (ou seja: com progress > 0)
-    async activeTrainings(): Promise<{ activeTrainings: number }> {
-        const total = await this.prisma.trainingProgress.groupBy({
-            by: ['trainingId'],
-            where: { watchedMinutes: { gt: 0 } },
-        }).then(result => result.length);
-        return { activeTrainings: total };
-    }
-
-    // acesso médio diário nos últimos N dias
-    async averageDailyAccess(days = 7): Promise<{ averageDailyAccess: number }> {
-        const since = new Date();
-        since.setDate(since.getDate() - days);
-        const totalAccesses = await this.prisma.accessLog.count({
-            where: { timestamp: { gte: since } },
-        });
-        return { averageDailyAccess: totalAccesses / days };
-    }
+  async monthlyActiveUsers(months = 6): Promise<{ month: string; count: number }[]> {
+    const since = new Date();
+    since.setMonth(since.getMonth() - months);
+    return this.prisma.$queryRaw<
+      { month: string; count: number }[]
+    >`
+      SELECT
+        to_char(timestamp, 'YYYY-MM') as month,
+        COUNT(DISTINCT user_id) as count
+      FROM "AccessLog"
+      WHERE timestamp >= ${since}
+      GROUP BY month
+      ORDER BY month;
+    `;
+  }
 }
+function Injectable(): (target: typeof MetricsService) => void | typeof MetricsService {
+  throw new Error("Function not implemented.");
+}
+

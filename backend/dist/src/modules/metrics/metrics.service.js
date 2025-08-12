@@ -10,39 +10,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetricsService = void 0;
-const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 let MetricsService = class MetricsService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
-    d;
-    async totalVisitors() {
-        const total = await this.prisma.accessLog.groupBy({
-            by: ['userId'],
-        }).then(result => result.length);
-        return { totalVisitors: total };
-    }
-    async activeTrainings() {
-        const total = await this.prisma.trainingProgress.groupBy({
-            by: ['trainingId'],
-            where: { watchedMinutes: { gt: 0 } },
-        }).then(result => result.length);
-        return { activeTrainings: total };
-    }
-    async averageDailyAccess(days = 7) {
+    async dailyActiveUsers(days = 30) {
         const since = new Date();
         since.setDate(since.getDate() - days);
-        const totalAccesses = await this.prisma.accessLog.count({
-            where: { timestamp: { gte: since } },
-        });
-        return { averageDailyAccess: totalAccesses / days };
+        return this.prisma.$queryRaw `
+      SELECT
+        to_char(timestamp::date, 'YYYY-MM-DD') as date,
+        COUNT(DISTINCT user_id) as count
+      FROM "AccessLog"
+      WHERE timestamp >= ${since}
+      GROUP BY date
+      ORDER BY date;
+    `;
+    }
+    async monthlyActiveUsers(months = 6) {
+        const since = new Date();
+        since.setMonth(since.getMonth() - months);
+        return this.prisma.$queryRaw `
+      SELECT
+        to_char(timestamp, 'YYYY-MM') as month,
+        COUNT(DISTINCT user_id) as count
+      FROM "AccessLog"
+      WHERE timestamp >= ${since}
+      GROUP BY month
+      ORDER BY month;
+    `;
     }
 };
 exports.MetricsService = MetricsService;
 exports.MetricsService = MetricsService = __decorate([
-    (0, common_1.Injectable)(),
+    Injectable(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], MetricsService);
+function Injectable() {
+    throw new Error("Function not implemented.");
+}
 //# sourceMappingURL=metrics.service.js.map

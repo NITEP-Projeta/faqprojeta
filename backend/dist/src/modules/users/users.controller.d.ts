@@ -3,9 +3,34 @@ import { CreateUserDto } from './dto/create-user.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    findAll(): any;
-    findOne(id: number): any;
-    create(createUserDto: CreateUserDto): any;
-    update(id: number, createUserDto: CreateUserDto): any;
-    remove(id: number): any;
+    findAll(): import(".prisma/client").Prisma.PrismaPromise<{
+        id: number;
+        name: string;
+        email: string;
+        role: string;
+    }[]>;
+    findOne(id: number): import(".prisma/client").Prisma.Prisma__UserClient<{
+        id: number;
+        name: string;
+        email: string;
+        role: string;
+    } | null, null, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    create(createUserDto: CreateUserDto): import(".prisma/client").Prisma.Prisma__UserClient<{
+        id: number;
+        name: string;
+        email: string;
+        role: string;
+    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    update(id: number, createUserDto: CreateUserDto): import(".prisma/client").Prisma.Prisma__UserClient<{
+        id: number;
+        name: string;
+        email: string;
+        role: string;
+    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    remove(id: number): import(".prisma/client").Prisma.Prisma__UserClient<{
+        id: number;
+        name: string;
+        email: string;
+        role: string;
+    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
 }

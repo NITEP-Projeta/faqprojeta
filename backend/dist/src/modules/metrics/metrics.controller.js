@@ -20,37 +20,28 @@ let MetricsController = class MetricsController {
     constructor(metricsService) {
         this.metricsService = metricsService;
     }
-    getVisitors() {
-        return this.metricsService.totalVisitors();
+    getDaily(days) {
+        return this.metricsService.dailyActiveUsers(days ? +days : 30);
     }
-    getActiveTrainings() {
-        return this.metricsService.activeTrainings();
-    }
-    getAverageDailyAccess(days) {
-        const d = days ? parseInt(days, 10) : 7;
-        return this.metricsService.averageDailyAccess(d);
+    getMonthly(months) {
+        return this.metricsService.monthlyActiveUsers(months ? +months : 6);
     }
 };
 exports.MetricsController = MetricsController;
 __decorate([
-    (0, common_1.Get)('visitors'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], MetricsController.prototype, "getVisitors", null);
-__decorate([
-    (0, common_1.Get)('active-trainings'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], MetricsController.prototype, "getActiveTrainings", null);
-__decorate([
-    (0, common_1.Get)('avg-daily-access'),
+    (0, common_1.Get)('daily-active'),
     __param(0, (0, common_1.Query)('days')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], MetricsController.prototype, "getAverageDailyAccess", null);
+], MetricsController.prototype, "getDaily", null);
+__decorate([
+    (0, common_1.Get)('monthly-active'),
+    __param(0, (0, common_1.Query)('months')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], MetricsController.prototype, "getMonthly", null);
 exports.MetricsController = MetricsController = __decorate([
     (0, common_1.Controller)('metrics'),
     __metadata("design:paramtypes", [metrics_service_1.MetricsService])

@@ -2,13 +2,12 @@ import { MetricsService } from './metrics.service';
 export declare class MetricsController {
     private readonly metricsService;
     constructor(metricsService: MetricsService);
-    getVisitors(): Promise<{
-        totalVisitors: number;
-    }>;
-    getActiveTrainings(): Promise<{
-        activeTrainings: number;
-    }>;
-    getAverageDailyAccess(days?: string): Promise<{
-        averageDailyAccess: number;
-    }>;
+    getDaily(days?: string): Promise<{
+        date: string;
+        count: number;
+    }[]>;
+    getMonthly(months?: string): Promise<{
+        month: string;
+        count: number;
+    }[]>;
 }

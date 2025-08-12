@@ -1,15 +1,13 @@
-import { PrismaService } from "../../prisma/prisma.service";
+import { PrismaService } from 'src/prisma/prisma.service';
 export declare class MetricsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
-    d: any;
-    totalVisitors(): Promise<{
-        totalVisitors: number;
-    }>;
-    activeTrainings(): Promise<{
-        activeTrainings: number;
-    }>;
-    averageDailyAccess(days?: number): Promise<{
-        averageDailyAccess: number;
-    }>;
+    dailyActiveUsers(days?: number): Promise<{
+        date: string;
+        count: number;
+    }[]>;
+    monthlyActiveUsers(months?: number): Promise<{
+        month: string;
+        count: number;
+    }[]>;
 }
