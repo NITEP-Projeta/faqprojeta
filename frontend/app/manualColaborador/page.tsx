@@ -26,12 +26,6 @@ const manualData = [
     icon: <FiBriefcase size={28}/>,
   },
   {
-    title: "Política de Home Office",
-    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
-    icon: <FiHome size={28}/>,
-  },
-  {
     title: "Segurança no Trabalho",
     description: "Normas e práticas para garantir um ambiente seguro para todos.",
     slug: "seguranca-no-trabalho",
