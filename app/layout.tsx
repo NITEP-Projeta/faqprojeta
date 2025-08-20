@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import AppWrapper from "@/components/appWrapper";
+import AnalyticsListener from "./analytics-listener";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AnalyticsListener/>
         <AppWrapper>{children}</AppWrapper>
       </body>
     </html>
