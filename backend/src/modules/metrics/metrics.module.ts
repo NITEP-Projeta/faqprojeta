@@ -1,13 +1,11 @@
 /* eslint-disable prettier/prettier */
-// src/modules/metrics/metrics.module.ts
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { MetricsService } from './metrics.service';
-import { MetricsController } from './metrics.controller';
+import { Module } from '@nestjs/common'
+import { MetricsController } from './metrics.controller'
+import { MetricsService } from './metrics.service'
+import { FirebaseService } from './../../firebase/firebase.service'
 
 @Module({
-    imports: [PrismaModule],
-    providers: [MetricsService],
     controllers: [MetricsController],
+    providers: [MetricsService, FirebaseService],
 })
 export class MetricsModule { }

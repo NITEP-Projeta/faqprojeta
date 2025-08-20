@@ -1,48 +1,46 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { FirebaseService } from '../../firebase/firebase.service';
 
 @Injectable()
-export class UsersService {
-    constructor(private readonly prisma: PrismaService) { }
+export class UsersService {   // 👈 precisa do "export"
+    constructor(private readonly firebase: FirebaseService) { }
 
-    /** Retorna todos os usuários */
-    findAll() {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this.prisma.user.findMany();
+    async findAll() {
+        const auth = this.firebase.auth();
+        const listUsers = await auth.listUsers();
+        return listUsers.users.map(user => ({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+        }));
     }
 
-    /** Retorna um usuário pelo ID */
-    findOne(id: number) {
-        return this.prisma.user.findUnique({
-            where: { id },
+    async findOne(uid: string) {
+        const auth = this.firebase.auth();
+        return auth.getUser(uid);
+    }
+
+    async create(data: { email: string; password: string; displayName?: string }) {
+        const auth = this.firebase.auth();
+        return auth.createUser({
+            email: data.email,
+            password: data.password,
+            displayName: data.displayName,
         });
     }
 
-    /** Cria um novo usuário */
-    create(data: CreateUserDto) {
-        return this.prisma.user.create({
-            data,
+    async update(uid: string, data: { email?: string; password?: string; displayName?: string }) {
+        const auth = this.firebase.auth();
+        return auth.updateUser(uid, {
+            email: data.email,
+            password: data.password,
+            displayName: data.displayName,
         });
     }
 
-    /** Atualiza um usuário existente */
-    update(id: number, data: CreateUserDto) {
-        return this.prisma.user.update({
-            where: { id },
-            data,
-        });
-    }
-
-    /** Remove um usuário pelo ID */
-    remove(id: number) {
-        return this.prisma.user.delete({
-            where: { id },
-        });
+    async remove(uid: string) {
+        const auth = this.firebase.auth();
+        return auth.deleteUser(uid);
     }
 }

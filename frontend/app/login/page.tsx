@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword, signOut, UserCredential } from "firebase/auth";
-import { auth } from "@/src/auth";
+import { auth } from "@/src/services/auth";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function LoginPage() {

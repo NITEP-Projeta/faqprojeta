@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { cadastrarComEmailESenha } from "@/src/auth";
+import { cadastrarComEmailESenha } from "@/src/services/auth";
 
 import { sendEmailVerification } from "firebase/auth";
 

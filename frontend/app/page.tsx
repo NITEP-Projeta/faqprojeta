@@ -8,6 +8,7 @@ import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, 
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
+
 export default function HomePage() {
   return (
   // Proteção de rota para garantir que apenas usuários autenticados acessem a página

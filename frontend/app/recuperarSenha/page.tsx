@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import Link from "next/link";
 
-import { enviarEmailDeRecuperacao } from "@/src/auth";
+import { enviarEmailDeRecuperacao } from "@/src/services/auth";
 
 import { ToastContainer, toast } from "react-toastify";
 

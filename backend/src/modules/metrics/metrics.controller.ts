@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Controller, Get, Query } from '@nestjs/common';
 import { MetricsService } from './metrics.service';
 
@@ -7,12 +6,12 @@ export class MetricsController {
     constructor(private readonly metricsService: MetricsService) { }
 
     @Get('daily-active')
-    getDaily(@Query('days') days?: string) {
-        return this.metricsService.dailyActiveUsers(days ? +days : 30);
+    async getDailyActive(@Query('days') days: string) {
+        return this.metricsService.getDailyActive(Number(days) || 30);
     }
 
     @Get('monthly-active')
-    getMonthly(@Query('months') months?: string) {
-        return this.metricsService.monthlyActiveUsers(months ? +months : 6);
+    async getMonthlyActive(@Query('months') months: string) {
+        return this.metricsService.getMonthlyActive(Number(months) || 6);
     }
 }
