@@ -1,24 +1,42 @@
 "use client";
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 import { ApexOptions } from "apexcharts";
-
 import dynamic from "next/dynamic";
-// Dynamically import the ReactApexChart component
+
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
 export default function BarChartOne() {
+  const [series, setSeries] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchMetrics() {
+      try {
+        const res = await fetch("http://localhost:3001/metrics/monthly-active");
+        const data = await res.json();
+
+        // 🔹 Exemplo esperado do backend: { month: "Jan", total: 200 }
+        const months = data.map((d: any) => d.month);
+        const totals = data.map((d: any) => d.total || 0);
+
+        setCategories(months);
+        setSeries([{ name: "Usuários Ativos", data: totals }]);
+      } catch (err) {
+        console.error("Erro ao carregar métricas:", err);
+      }
+    }
+    fetchMetrics();
+  }, []);
+
   const options: ApexOptions = {
-    colors: ["#465fff"],
+    colors: ["#AF1B1B"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "bar",
       height: 180,
-      toolbar: {
-        show: false,
-      },
+      toolbar: { show: false },
     },
     plotOptions: {
       bar: {
@@ -28,35 +46,12 @@ export default function BarChartOne() {
         borderRadiusApplication: "end",
       },
     },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      show: true,
-      width: 4,
-      colors: ["transparent"],
-    },
+    dataLabels: { enabled: false },
+    stroke: { show: true, width: 4, colors: ["transparent"] },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
+      categories: categories, // 🔹 agora vem da API
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
     legend: {
       show: true,
@@ -64,37 +59,15 @@ export default function BarChartOne() {
       horizontalAlign: "left",
       fontFamily: "Outfit",
     },
-    yaxis: {
-      title: {
-        text: undefined,
-      },
-    },
-    grid: {
-      yaxis: {
-        lines: {
-          show: true,
-        },
-      },
-    },
-    fill: {
-      opacity: 1,
-    },
-
+    yaxis: { title: { text: undefined } },
+    grid: { yaxis: { lines: { show: true } } },
+    fill: { opacity: 1 },
     tooltip: {
-      x: {
-        show: false,
-      },
-      y: {
-        formatter: (val: number) => `${val}`,
-      },
+      x: { show: false },
+      y: { formatter: (val: number) => `${val}` },
     },
   };
-  const series = [
-    {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
-    },
-  ];
+
   return (
     <div className="max-w-full overflow-x-auto custom-scrollbar">
       <div id="chartOne" className="min-w-[1000px]">
