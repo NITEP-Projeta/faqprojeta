@@ -36,7 +36,7 @@ export default function AdminDuvidasPage() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-4 text-2xl font-bold">Dúvidas (Admin)</h1>
+      <h1 className="mb-4 text-2xl font-bold">Painel De Dúvidas</h1>
       <AdminDuvidas />
     </div>
   );

@@ -18,6 +18,7 @@ type DuvidaItem = {
   id: string;
   subject: string;
   status: Status;
+  name?: string
   email?: string;
   message?: string;
   createdAt?: any;   // Firestore Timestamp
@@ -111,7 +112,7 @@ export function AdminDuvidas() {
     try {
       await updateDoc(doc(db, "tiraDuvidas", id), {
         answer: text,
-        status: "em_andamento",      // muda para "em_andamento" ao responder
+        status: "Em Andamento",
         answeredBy: user.uid,
         answeredAt: serverTimestamp(),
       });
@@ -164,9 +165,9 @@ export function AdminDuvidas() {
                 className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
               >
                 <div className="flex items-center gap-3">
-                  <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
                   <div className="flex flex-col">
-                    <span className="font-medium text-gray-900">{d.subject}</span>
+                    <span className="font-extrabold text-black">{d.subject}</span>
                     <span className="text-xs text-gray-500">{toDateSafe(d.createdAt)}</span>
                   </div>
                 </div>
@@ -190,18 +191,29 @@ export function AdminDuvidas() {
               >
                 <div className="overflow-hidden">
                   <div className="px-4 pb-4 pt-1 text-sm text-gray-700">
-                    <div className="flex flex-wrap items-center gap-2 text-gray-600">
-                      <span className="font-medium">E-mail:</span>
-                      <span className="select-all">{d.email || "-"}</span>
+
+                    <div className="flex flex-wrap items-center text-sm gap-1">
+                      <span className="font-bold text-black">Nome:</span>
+                      <span className="select-all text-gray-700 font-medium">{d.name}</span>
                     </div>
 
-                    <div className="mt-2 whitespace-pre-wrap">{d.message}</div>
+                    <div className="flex flex-wrap items-center text-sm gap-1">
+                      <span className="font-bold text-black">E-mail:</span>
+                      <span className="select-all text-gray-700 font-medium">{d.email}</span>
+                    </div>
+
+                    {d.message && (
+                      <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
+                        <div className="text-xs text-gray-900 font-semibold">Dúvida:</div>
+                        <div className="text-sm text-gray-700 whitespace-pre-wrap">{d.message}</div>
+                      </div>
+                    )}
 
                     {/* Se já houver resposta gravada, mostre */}
                     {d.answer && (
                       <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
-                        <div className="text-xs text-gray-500">Resposta atual</div>
-                        <div className="text-sm text-gray-800 whitespace-pre-wrap">{d.answer}</div>
+                        <div className="text-xs text-gray-900 font-semibold">Resposta:</div>
+                        <div className="text-sm text-gray-700 whitespace-pre-wrap">{d.answer}</div>
                       </div>
                     )}
 
@@ -215,12 +227,12 @@ export function AdminDuvidas() {
                           setAnswerMap((prev) => ({ ...prev, [d.id]: e.target.value }))
                         }
                         disabled={saving || d.status === "encerrado"}
-                        className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+                        className="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600/50 disabled:bg-gray-100"
                       />
                       <button
                         onClick={() => sendAnswer(d.id)}
                         disabled={saving || !currentAnswer.trim() || d.status === "encerrado"}
-                        className="rounded-lg bg-indigo-600 text-white px-3 py-2 text-sm font-medium hover:bg-indigo-700 disabled:opacity-60"
+                        className="rounded-lg bg-[#AF1B1B] text-white px-3 py-2 text-sm font-medium hover:bg-red-700 disabled:opacity-80 cursor-pointer"
                       >
                         {saving ? "Enviando…" : "Responder"}
                       </button>
