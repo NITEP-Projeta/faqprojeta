@@ -162,7 +162,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </li>
                   <li>
                     <Link href="/admDuvidas" aria-label="Ir para a página de Dashboard" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                      <i className="pi pi-chart-bar"></i>
+                      <i className="pi pi-question-circle"></i>
                       <span>Duvidas</span>
                     </Link>
                   </li>                  

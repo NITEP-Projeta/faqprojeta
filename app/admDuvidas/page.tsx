@@ -35,9 +35,11 @@ export default function AdminDuvidasPage() {
   if (!isAdmin) return <p>Acesso negado.</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="mb-4 text-2xl font-bold">Painel De Dúvidas</h1>
-      <AdminDuvidas />
+    <div className="min-h-screen bg-gray-50 flex items-start md:items-start justify-center py-10">
+      <div className="w-full max-w-3xl px-4 sm:px-6">
+        <h1 className="text-2xl font-bold text-center mb-6">Painel De Dúvidas</h1>
+        <AdminDuvidas />
+      </div>
     </div>
   );
 }

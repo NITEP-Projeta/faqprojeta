@@ -1,4 +1,3 @@
-// src/components/duvidas/MinhasDuvidas.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -20,6 +19,8 @@ type Doubt = {
   answer?: string;
   createdAt?: any;
   answeredAt?: any;
+  answeredBy?: string;
+  answeredByName?: string;
 };
 
 function toDateSafe(ts: any): string {
@@ -72,6 +73,7 @@ export function MinhasDuvidas() {
       const unsub = onSnapshot(
         q,
         (snap) => {
+
           const rows = snap.docs.map((d) => {
             const data = d.data() as DocumentData;
             return {
@@ -84,6 +86,8 @@ export function MinhasDuvidas() {
               answer: data.answer ?? "",
               createdAt: data.createdAt,
               answeredAt: data.answeredAt,
+              answeredBy: data.answeredBy ?? "",
+              answeredByName: data.answeredByName ?? "",
             } as Doubt;
           });
           setItems(rows);
@@ -156,34 +160,39 @@ export function MinhasDuvidas() {
             >
               <div className="overflow-hidden">
                 <div className="px-4 pb-4 pt-1 text-sm text-gray-700">
-                  <div className="text-xs text-gray-500">
-                    <div>{d.name}</div>
-                    <p>{d.email}</p>
+
+                  <div className="flex flex-wrap items-center justify-start sm:justify-start text-sm gap-1">
+                    <span className="font-bold text-black">Nome:</span>
+                    <span className="select-all text-gray-700 font-medium text-wrap">{d.name}</span>
                   </div>
 
-                  <div>
-                    <span className="text-xs  text-gray-500">Sua mensagem:</span>
-                    <span className="mt-1 whitespace-pre-wrap">{d.message}</span>
+                  <div className="flex flex-wrap items-center justify-start sm:justify-start text-sm gap-1">
+                    <span className="font-bold text-black">E-mail:</span>
+                    <span className="select-all text-gray-700 font-medium text-wrap">{d.email}</span>
                   </div>
+                  
+                  {d.message && (
+                    <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
+                      <div className="text-sm text-gray-900 font-semibold text-start sm:text-left">Mensagem:</div>
+                      <div className="text-xs text-gray-700 whitespace-pre-wrap">{d.message}</div>
+                    </div>
+                  )}                  
 
                   {/* Resposta do ADM */}
-                  <div className="mt-4">
-                    <div className="text-xs text-gray-500">Resposta do suporte:</div>
-                    {d.answer ? (
-                      <div className="mt-1 rounded-lg bg-gray-50 border px-3 py-2">
-                        <div className="text-sm text-gray-800 whitespace-pre-wrap">{d.answer}</div>
-                        {d.answeredAt && (
-                          <div className="mt-1 text-xs text-gray-500">
-                            Respondido em: {toDateSafe(d.answeredAt)}
-                          </div>
-                        )}
+                    {d.answer && (
+                    <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
+                      <div className="text-sm font-extrabold text-gray-900 font-semibold text-start sm:text-start">Resposta:</div>
+                      <div className="text-xs text-gray-700 whitespace-pre-wrap">{d.answer}</div>
+                      <div className="mt-1 text-xs text-gray-500">{toDateSafe(d.answeredAt)}
                       </div>
-                    ) : (
-                      <div className="mt-1 text-sm text-gray-500">
-                        Ainda sem resposta. Aguarde, por favor. 🙂
-                      </div>
-                    )}
+                    </div>
+                  )}
+                  {d.status === "encerrado" && (
+                  <div className="mt-2 text-xs text-gray-600">
+                    Encerrado por <span className="font-medium">{d.answeredByName || "Administrador"}</span>
+                    {d.answeredAt && <> em {toDateSafe(d.answeredAt)}</>}
                   </div>
+                  )}
                 </div>
               </div>
             </div>
