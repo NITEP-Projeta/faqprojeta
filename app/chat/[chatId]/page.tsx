@@ -5,28 +5,20 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Shield, User, Send, MessageCircle } from "lucide-react";
 import { auth, rtdb, db } from "@/src/firebase/firebase";
 import {
-  ref,
-  push,
-  update,
-  onValue,
-  query,
-  orderByChild,
-  orderByKey,
-  limitToLast,
-  serverTimestamp,
-  get,
-  set, // 👈 necessário para ensureParticipant
+  ref, push, update, onValue, query,
+  orderByChild, orderByKey, limitToLast,
+  serverTimestamp, get, set,
 } from "firebase/database";
 import { onAuthStateChanged, getIdTokenResult } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
-/** Splash/Loader full-screen */
+/* Splash */
 function FullScreenSplash({ label = "Abrindo chat..." }: { label?: string }) {
   return (
-    <div className="min-h-screen bg-gray-50 grid place-items-center">
+    <div className="min-h-screen grid place-items-center bg-[#EAEAEA]">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-12 w-12 rounded-full border-4 border-gray-300 border-t-blue-600 animate-spin" />
-        <div className="text-sm text-gray-600">{label}</div>
+        <div className="h-12 w-12 rounded-full border-4 border-white border-t-[#AF1B1B] animate-spin" />
+        <div className="text-sm text-[#1A1A1A]">{label}</div>
       </div>
     </div>
   );
@@ -38,15 +30,12 @@ type ChatMsg = {
   senderId: string;
   senderName: string;
   isAdmin?: boolean;
-  timestamp?: number; // RTDB devolve epoch (ms) após resolver o serverTimestamp
+  timestamp?: number;
 };
 
-/** ——— helpers ——— */
+/* Helpers */
 async function resolveIsAdmin(uid: string): Promise<boolean> {
-  try {
-    const a = await get(ref(rtdb, `admins/${uid}`));
-    if (a.exists() && a.val() === true) return true;
-  } catch {}
+  try { const a = await get(ref(rtdb, `admins/${uid}`)); if (a.exists() && a.val() === true) return true; } catch {}
   try {
     const s = await getDoc(doc(db, "users", uid));
     if (s.exists()) {
@@ -55,15 +44,11 @@ async function resolveIsAdmin(uid: string): Promise<boolean> {
       if (String(u?.role || "").toLowerCase() === "admin") return true;
     }
   } catch {}
-  try {
-    const token = await getIdTokenResult(auth.currentUser!);
-    if (token.claims?.admin === true) return true;
-  } catch {}
+  try { const t = await getIdTokenResult(auth.currentUser!, true); if ((t as any)?.claims?.admin) return true; } catch {}
   return false;
 }
 
 async function resolveMyName(uid: string): Promise<string> {
-  // tenta users/{uid}.name → displayName; cai para auth.displayName → parte do e-mail → "Usuário"
   try {
     const s = await getDoc(doc(db, "users", uid));
     if (s.exists()) {
@@ -78,14 +63,9 @@ async function resolveMyName(uid: string): Promise<string> {
   return "Usuário";
 }
 
-/** Garante que o usuário é participante antes de qualquer update/push */
+/** vira participante (sem criar o nó do chat) */
 async function ensureParticipant(chatId: string, uid: string) {
-  try {
-    await set(ref(rtdb, `chats/${chatId}/participants/${uid}`), true);
-  } catch (e) {
-    console.warn("ensureParticipant error:", e);
-    throw e;
-  }
+  await set(ref(rtdb, `chats/${chatId}/participants/${uid}`), true);
 }
 
 export default function ChatRoomPage() {
@@ -93,14 +73,9 @@ export default function ChatRoomPage() {
   const { chatId: raw } = useParams() as { chatId: string };
   const chatId = String(raw);
 
-  const [me, setMe] = useState<{ uid: string; name: string; isAdmin: boolean }>({
-    uid: "",
-    name: "",
-    isAdmin: false,
-  });
-
-  const [loading, setLoading] = useState(true);         // auth/dados
-  const [bootLoading, setBootLoading] = useState(true); // "charme" na abertura
+  const [me, setMe] = useState<{ uid: string; name: string; isAdmin: boolean }>({ uid: "", name: "", isAdmin: false });
+  const [loading, setLoading] = useState(true);
+  const [bootLoading, setBootLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -108,15 +83,13 @@ export default function ChatRoomPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => endRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  /** Splash inicial (ajuste a duração se quiser) */
+  /* Splash */
   useEffect(() => {
-    const BOOT_MS = 1200;
-    setBootLoading(true);
-    const t = setTimeout(() => setBootLoading(false), BOOT_MS);
+    const t = setTimeout(() => setBootLoading(false), 1200);
     return () => clearTimeout(t);
   }, [chatId]);
 
-  /** Auth + papel + nome */
+  /* Auth + papel + nome */
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       if (!u) {
@@ -131,132 +104,111 @@ export default function ChatRoomPage() {
     return () => unsub();
   }, [chatId, router]);
 
-  /** Garante participantes + metadados do chat ao abrir (duas etapas) */
+  /* só vira participante ao abrir */
   useEffect(() => {
-    const u = auth.currentUser;
-    if (!chatId || !u) return;
-
     (async () => {
+      const u = auth.currentUser;
+      if (!chatId || !u) return;
       try {
-        // 1) vira participante (regra permite o próprio uid escrever em participants)
         await ensureParticipant(chatId, u.uid);
-
-        // 2) agora atualiza/cria metadados com permissão garantida
-        const chatRef = ref(rtdb, `chats/${chatId}`);
-        const s = await get(chatRef);
-
-        if (!s.exists()) {
-          await update(chatRef, {
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            isAdminChat: true, // opcional
-          });
-        } else {
-          const v = s.val() || {};
-          const updates: any = { updatedAt: serverTimestamp() };
-          if (typeof v.createdAt !== "number") {
-            updates.createdAt = serverTimestamp();
-          }
-          await update(chatRef, updates);
-        }
+        try { await get(ref(rtdb, `chats/${chatId}/participants/${u.uid}`)); } catch {}
       } catch (e) {
-        console.warn("init chat meta error:", e);
+        console.warn("[init] ensureParticipant error:", e);
       }
     })();
   }, [chatId]);
 
-  /** Streaming de mensagens (robusto com fallback e normalização) */
+  /* streaming mensagens */
   useEffect(() => {
-    if (!chatId) return;
+    let stopped = false;
+    let detach: (() => void) | null = null;
 
-    setMessages([]);
+    (async () => {
+      if (!chatId) return;
+      setMessages([]);
 
-    const basePath = `chats/${chatId}/messages`;
+      const u = auth.currentUser;
+      if (!u) return;
 
-    // Normaliza o snapshot em ChatMsg[]
-    const buildList = (snap: any): ChatMsg[] => {
-      const list: ChatMsg[] = [];
-      snap.forEach((child: any) => {
-        const v = child.val();
-        const ts =
-          typeof v?.timestamp === "number" ? v.timestamp :
-          typeof v?.createdAt === "number" ? v.createdAt :
-          typeof v?.sentAt === "number" ? v.sentAt :
-          typeof v?.updatedAt === "number" ? v.updatedAt :
-          (v?.timestamp && !Number.isNaN(Number(v.timestamp)) ? Number(v.timestamp) : undefined);
-
-        list.push({
-          id: child.key!,
-          text: v?.text ?? v?.message ?? v?.content ?? "",
-          senderId: v?.senderId ?? v?.uid ?? "",
-          senderName: v?.senderName ?? v?.name ?? "Usuário",
-          isAdmin: !!(v?.isAdmin || v?.from === "admin"),
-          timestamp: ts,
-        });
-      });
-      list.sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0));
-      return list;
-    };
-
-    let stopCurrent: (() => void) | null = null;
-
-    // Fallback: orderByKey() para mensagens antigas sem timestamp
-    const attachByKey = () => {
-      const byKeyRef = query(ref(rtdb, basePath), orderByKey(), limitToLast(200));
-      const off = onValue(
-        byKeyRef,
-        (snap2) => {
-          const list = buildList(snap2);
-          setMessages(list);
-          setTimeout(scrollToBottom, 100);
-        },
-        (err) => console.error("fallback orderByKey error:", err)
-      );
-      stopCurrent = () => off();
-    };
-
-    // Principal: orderByChild('timestamp')
-    const byTsRef = query(ref(rtdb, basePath), orderByChild("timestamp"), limitToLast(200));
-    const offMain = onValue(
-      byTsRef,
-      (snap) => {
-        if (snap.exists()) {
-          const list = buildList(snap);
-          setMessages(list);
-          setTimeout(scrollToBottom, 100);
-        } else {
-          console.warn("Sem mensagens com timestamp; usando fallback por key…");
-          offMain();        // desliga o listener principal
-          attachByKey();    // ativa fallback
-        }
-      },
-      (err) => {
-        console.error("messages by timestamp error:", err);
-        offMain();          // desliga o listener principal em caso de erro (ex.: permission_denied)
-        attachByKey();      // tenta por key mesmo assim
+      try {
+        await ensureParticipant(chatId, u.uid);
+        try { await get(ref(rtdb, `chats/${chatId}/participants/${u.uid}`)); } catch {}
+      } catch (e) {
+        console.error("[stream] ensureParticipant error:", e);
+        return;
       }
-    );
+      if (stopped) return;
 
-    // por padrão, o listener ativo é o principal
-    stopCurrent = () => offMain();
+      const basePath = `chats/${chatId}/messages`;
+
+      const buildList = (snap: any): ChatMsg[] => {
+        const list: ChatMsg[] = [];
+        snap.forEach((child: any) => {
+          const v = child.val();
+          const ts =
+            typeof v?.timestamp === "number" ? v.timestamp :
+            typeof v?.createdAt === "number" ? v.createdAt :
+            typeof v?.sentAt === "number" ? v.sentAt :
+            typeof v?.updatedAt === "number" ? v.updatedAt :
+            (v?.timestamp && !Number.isNaN(Number(v.timestamp)) ? Number(v.timestamp) : undefined);
+          list.push({
+            id: child.key!,
+            text: v?.text ?? v?.message ?? v?.content ?? "",
+            senderId: v?.senderId ?? v?.uid ?? "",
+            senderName: v?.senderName ?? v?.name ?? "Usuário",
+            isAdmin: !!(v?.isAdmin || v?.from === "admin"),
+            timestamp: ts,
+          });
+        });
+        list.sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0));
+        return list;
+      };
+
+      const byTsRef = query(ref(rtdb, basePath), orderByChild("timestamp"), limitToLast(200));
+      const offMain = onValue(
+        byTsRef,
+        (snap) => {
+          if (snap.exists()) {
+            setMessages(buildList(snap));
+            setTimeout(scrollToBottom, 80);
+          } else {
+            const byKeyRef = query(ref(rtdb, basePath), orderByKey(), limitToLast(200));
+            const offKey = onValue(byKeyRef, (snap2) => {
+              setMessages(buildList(snap2));
+              setTimeout(scrollToBottom, 80);
+            });
+            detach = () => offKey();
+          }
+        },
+        () => {
+          const byKeyRef = query(ref(rtdb, basePath), orderByKey(), limitToLast(200));
+          const offKey = onValue(byKeyRef, (snap2) => {
+            setMessages(buildList(snap2));
+            setTimeout(scrollToBottom, 80);
+          });
+          detach = () => offKey();
+        }
+      );
+
+      detach = detach ?? (() => offMain());
+    })();
 
     return () => {
-      try { stopCurrent && stopCurrent(); } catch {}
+      stopped = true;
+      try { detach && detach(); } catch {}
       setMessages([]);
     };
-  }, [chatId, rtdb]);  // <- inclua rtdb aqui se não estava
+  }, [chatId]);
 
-  /** Enviar mensagem */
+  /* enviar */
   const handleSend = async () => {
     const text = newMessage.trim();
     if (!text || !me.uid || sending) return;
 
     setSending(true);
     try {
-      // 1) garante participação antes de escrever em messages/metadados
       await ensureParticipant(chatId, me.uid);
 
-      // 2) envia a mensagem
       const msgsRef = ref(rtdb, `chats/${chatId}/messages`);
       await push(msgsRef, {
         text,
@@ -266,20 +218,33 @@ export default function ChatRoomPage() {
         timestamp: serverTimestamp(),
       });
 
-      // 3) atualiza metadados do chat
       const chatRef = ref(rtdb, `chats/${chatId}`);
-      await update(chatRef, {
+      const chatSnap = await get(chatRef);
+
+      const updates: any = {
         lastMessage: text,
         lastMessageTime: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        // FALLBACK local enquanto o serverTimestamp não resolve
+        hasMessages: true,
         lastMessageTimeClient: Date.now(),
-      });
+      };
+
+      if (!chatSnap.exists()) {
+        updates.createdAt = serverTimestamp();
+        updates.createdById = me.uid;
+        updates.createdByName = me.name;
+      }
+      if (!me.isAdmin) {
+        updates.lastSenderId = me.uid;
+        updates.lastSenderName = me.name;
+        updates.lastIsAdmin = false;
+      }
+      await update(chatRef, updates);
 
       setNewMessage("");
-      setTimeout(scrollToBottom, 100);
-    } catch (e: any) {
-      console.error("Erro ao enviar (RTDB):", e?.code, e?.message || e);
+      setTimeout(scrollToBottom, 80);
+    } catch (e) {
+      console.error("[send] error:", e);
     } finally {
       setSending(false);
     }
@@ -292,40 +257,35 @@ export default function ChatRoomPage() {
     }
   };
 
-  const goBack = () => router.back();
-
-  if (loading || bootLoading) {
-    return <FullScreenSplash label="Abrindo chat..." />;
-  }
+  if (loading || bootLoading) return <FullScreenSplash label="Abrindo chat..." />;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-[#EAEAEA] to-white">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white border-b border-[#EAEAEA]">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={goBack}
-              className="p-2 hover:bg-gray-100 rounded-full transition"
+              onClick={() => router.back()}
+              className="p-2 hover:bg-[#EAEAEA] rounded-full transition"
               aria-label="Voltar"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-5 h-5 text-[#7A7A7A]" />
             </button>
             <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-blue-600" />
-              <h1 className="text-xl font-semibold text-gray-800">Suporte Técnico</h1>
+              <Shield className="w-6 h-6 text-[#AF1B1B]" />
+              <h1 className="text-xl font-semibold text-[#1A1A1A]">Suporte Técnico</h1>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Container do chat */}
+      {/* Chat */}
       <div className="max-w-4xl mx-auto p-4">
-        <div className="bg-white rounded-lg shadow-lg h-[calc(100vh-180px)] flex flex-col">
-          {/* Mensagens */}
-          <div className="flex-1 p-6 overflow-y-auto space-y-4">
+        <div className="bg-white rounded-2xl shadow-lg border border-[#EAEAEA] h-[calc(100vh-180px)] flex flex-col">
+          <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-white">
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-[#7A7A7A] py-8">
                 <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Nenhuma mensagem ainda. Comece a conversa!</p>
               </div>
@@ -334,32 +294,33 @@ export default function ChatRoomPage() {
                 const mine = m.senderId === me.uid;
                 const time =
                   typeof m.timestamp === "number"
-                    ? new Date(m.timestamp).toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
+                    ? new Date(m.timestamp).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
                     : "";
+                const isAdmin = !!m.isAdmin;
                 return (
                   <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                     <div
-                      className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
-                        mine
-                          ? "bg-blue-600 text-white rounded-br-sm"
-                          : "bg-gray-100 text-gray-800 rounded-bl-sm"
-                      }`}
+                      className={[
+                        "max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm",
+                        isAdmin
+                          ? "bg-[#AF1B1B] text-white rounded-br-sm"
+                          : mine
+                          ? "bg-[#1F4E5F] text-white rounded-br-sm"
+                          : "bg-white text-[#1A1A1A] rounded-bl-sm border border-[#EAEAEA]",
+                      ].join(" ")}
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        {m.isAdmin ? (
-                          <Shield className={`w-3 h-3 ${mine ? "text-blue-200" : "text-blue-500"}`} />
+                        {isAdmin ? (
+                          <Shield className="w-3 h-3 text-white/80" />
                         ) : (
-                          <User className={`w-3 h-3 ${mine ? "opacity-80" : "text-gray-500"}`} />
+                          <User className={`w-3 h-3 ${mine ? "text-white/80" : "text-[#7A7A7A]"}`} />
                         )}
-                        <span className={`text-xs font-medium ${mine ? "text-blue-100" : "text-gray-600"}`}>
+                        <span className={`text-xs font-medium ${mine || isAdmin ? "text-white/90" : "text-[#7A7A7A]"}`}>
                           {m.senderName}
                         </span>
                       </div>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.text}</p>
-                      <div className="mt-2 text-xs opacity-70">{time}</div>
+                      <div className={`mt-2 text-xs ${mine || isAdmin ? "text-white/80" : "text-[#7A7A7A]"}`}>{time}</div>
                     </div>
                   </div>
                 );
@@ -369,24 +330,21 @@ export default function ChatRoomPage() {
           </div>
 
           {/* Input */}
-          <div className="border-t bg-gray-50 p-4 rounded-b-lg">
+          <div className="border-t border-[#EAEAEA] bg-[#F8F8F8] p-4 rounded-b-2xl">
             <div className="flex gap-3 items-end">
-              <div className="flex-1">
-                <textarea
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={onKeyDown}
-                  placeholder="Digite sua mensagem... (Shift + Enter = quebra de linha)"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={1}
-                  style={{ maxHeight: "120px" }}
-                />
-              </div>
-
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={onKeyDown}
+                placeholder="Digite sua mensagem..."
+                className="flex-1 px-4 py-3 border border-[#EAEAEA] rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-[#1F4E5F] focus:border-transparent text-[#1A1A1A] placeholder-[#7A7A7A] bg-white"
+                rows={1}
+                style={{ maxHeight: 120 }}
+              />
               <button
                 onClick={handleSend}
                 disabled={!newMessage.trim() || sending}
-                className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition flex items-center justify-center"
+                className="p-3 bg-[#1F4E5F] text-white rounded-xl hover:opacity-90 disabled:bg-[#7A7A7A] disabled:cursor-not-allowed transition inline-flex items-center justify-center"
                 aria-label="Enviar"
               >
                 <Send className="w-5 h-5" />

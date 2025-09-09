@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, getIdTokenResult } from "firebase/auth";
 import { auth, rtdb, db } from "@/src/firebase/firebase";
@@ -10,9 +10,11 @@ import {
   query,
   limitToLast,
   orderByKey,
-  get,
   orderByChild,
+  get,
   set,
+  remove,
+  update,
 } from "firebase/database";
 import {
   Shield,
@@ -23,14 +25,24 @@ import {
   ExternalLink,
   Bug,
   RefreshCw,
+  Search,
+  MoreVertical,
+  Trash2,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
+import RtdbDebugTools from "@/components/RtdbDebugTools";
 
+/* ============================== Types ============================== */
 type ChatRow = {
   id: string;
   lastMessage?: string;
   lastMessageTime?: number;
   messageCount?: number;
+  lastSenderName?: string;
+  createdByName?: string;
+  hasMessages?: boolean;
 };
 
 type ChatMsg = {
@@ -42,22 +54,23 @@ type ChatMsg = {
   timestamp?: number;
 };
 
+/* ============================== Helpers ============================== */
 async function resolveIsAdmin(uid: string): Promise<boolean> {
   try {
-    const snap = await get(ref(rtdb, `admins/${uid}`));
-    if (snap.exists() && snap.val() === true) return true;
+    const a = await get(ref(rtdb, `admins/${uid}`));
+    if (a.exists() && a.val() === true) return true;
   } catch {}
   try {
-    const snap = await getDoc(doc(db, "users", uid));
-    if (snap.exists()) {
-      const data = snap.data() as any;
-      if (data?.isAdmin === true) return true;
-      if (String(data?.role || "").toLowerCase() === "admin") return true;
+    const s = await getDoc(doc(db, "users", uid));
+    if (s.exists()) {
+      const u = s.data() as any;
+      if (u?.isAdmin === true) return true;
+      if (String(u?.role || "").toLowerCase() === "admin") return true;
     }
   } catch {}
   try {
-    const token = await getIdTokenResult(auth.currentUser!);
-    if (token.claims?.admin === true) return true;
+    const token = await getIdTokenResult(auth.currentUser!, true);
+    if ((token as any)?.claims?.admin === true) return true;
   } catch {}
   return false;
 }
@@ -66,20 +79,31 @@ async function ensureParticipantAdmin(chatId: string, uid: string) {
   await set(ref(rtdb, `chats/${chatId}/participants/${uid}`), true);
 }
 
+/* ============================== Component ============================== */
 export default function AdminChatInboxPage() {
   const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+
   const [rows, setRows] = useState<ChatRow[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
+
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
-  const [showDebug, setShowDebug] = useState(false);
+
   const [permError, setPermError] = useState<string | null>(null);
   const [chatNotFound, setChatNotFound] = useState(false);
 
-  // Auth + checagem de admin
+  const [showDebug, setShowDebug] = useState(false);
+
+  // UI
+  const [search, setSearch] = useState("");
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; last?: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  /* ------------------------------ Auth/Admin ------------------------------ */
   useEffect(() => {
     let mounted = true;
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -93,7 +117,6 @@ export default function AdminChatInboxPage() {
 
       try {
         const ok = await resolveIsAdmin(u.uid);
-        console.log("🔐 Admin check result:", ok, "for user:", u.uid);
         if (!mounted) return;
         setIsAdmin(ok);
         setLoading(false);
@@ -111,29 +134,25 @@ export default function AdminChatInboxPage() {
     };
   }, [router]);
 
-  // Lista de chats
+  /* ------------------------------ Listar chats ------------------------------ */
   useEffect(() => {
     if (!isAdmin) {
       setRows([]);
       return;
     }
 
-    const qRef = query(ref(rtdb, "chats"), orderByKey(), limitToLast(100));
-    const handle = (snap: any) => {
-      const list: ChatRow[] = [];
-      const debug: any = {};
+    const qRef = query(ref(rtdb, "chats"), orderByKey(), limitToLast(200));
 
-      snap.forEach((child: any) => {
+    const unsubscribe = onValue(qRef, (snap) => {
+      const list: ChatRow[] = [];
+
+      snap.forEach((child) => {
         const v = child.val() || {};
         const chatId = child.key as string;
 
-        debug[chatId] = {
-          rawData: v,
-          hasMessages: !!v.messages,
-          messageCount: v.messages ? Object.keys(v.messages).length : 0,
-          lastMessage: v.lastMessage,
-          lastMessageTime: v.lastMessageTime,
-        };
+        // filtra chats SEM mensagens
+        const hasMsgs = v.hasMessages === true || (v.messages && Object.keys(v.messages).length > 0);
+        if (!hasMsgs) return;
 
         const ts =
           typeof v.lastMessageTime === "number"
@@ -144,29 +163,27 @@ export default function AdminChatInboxPage() {
             ? v.createdAt
             : typeof v.lastMessageTimeClient === "number"
             ? v.lastMessageTimeClient
-            : Date.now();
+            : 0;
 
         list.push({
           id: chatId,
           lastMessage: v.lastMessage || "Sem mensagens",
           lastMessageTime: ts,
-          messageCount: v.messages ? Object.keys(v.messages).length : 0,
+          messageCount: v.messages ? Object.keys(v.messages).length : v.messageCount || 0,
+          lastSenderName: v.lastSenderName ?? v.last_sender_name,
+          createdByName: v.createdByName ?? v.created_by_name,
+          hasMessages: true,
         });
       });
 
       list.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
-      setDebugInfo(debug);
       setRows(list);
-    };
+    });
 
-    const unsubscribe = onValue(qRef, handle);
-    return () => {
-      unsubscribe();
-      setRows([]);
-    };
+    return () => unsubscribe();
   }, [isAdmin]);
 
-  // Mensagens do chat selecionado (participants + sanity + byKey→byTimestamp)
+  /* ------------------------------ Mensagens (chat selecionado) ------------------------------ */
   useEffect(() => {
     if (!selectedChat) {
       setMessages([]);
@@ -216,49 +233,70 @@ export default function AdminChatInboxPage() {
       const tsRef = query(
         ref(rtdb, `chats/${selectedChat}/messages`),
         orderByChild("timestamp"),
-        limitToLast(100)
+        limitToLast(200)
       );
-      const off = onValue(
-        tsRef,
-        (snap: any) => {
-          if (!snap.exists() || snap.numChildren() === 0) {
-            setMessages([]);
-            setMessagesLoading(false);
-            return;
-          }
-          setMessages(buildListFromSnap(snap));
+
+      let unsubscribe: (() => void) | null = null;
+
+      const handler = (snap: any) => {
+        const count = snap.exists() ? Object.keys(snap.val() || {}).length : 0;
+        if (count === 0) {
+          setMessages([]);
           setMessagesLoading(false);
-        },
-        (error: any) => {
-          console.error("❌ [ADMIN] byTimestamp error:", error?.code, error?.message || error);
-          setPermError(`${error?.code || "error"}: ${error?.message || ""}`);
-          setMessagesLoading(false);
+          return;
         }
-      );
-      stopCurrent = () => off();
+        setMessages(buildListFromSnap(snap));
+        setMessagesLoading(false);
+      };
+
+      const errHandler = (error: any) => {
+        console.error("❌ [ADMIN] byTimestamp error:", error?.code, error?.message || error);
+        setPermError(`${error?.code || "error"}: ${error?.message || ""}`);
+        setMessagesLoading(false);
+      };
+
+      unsubscribe = onValue(tsRef, handler, errHandler);
+      stopCurrent = () => {
+        const u = unsubscribe;
+        unsubscribe = null;
+        if (u) u();
+      };
     };
 
     const attachByKey = () => {
-      const keyRef = query(ref(rtdb, `chats/${selectedChat}/messages`), orderByKey(), limitToLast(100));
-      const off = onValue(
-        keyRef,
-        (snap: any) => {
-          if (!snap.exists() || snap.numChildren() === 0) {
-            // sem msgs por key → tenta timestamp
-            off();
-            attachByTimestamp();
-            return;
-          }
-          setMessages(buildListFromSnap(snap));
-          setMessagesLoading(false);
-        },
-        (err: any) => {
-          console.error("❌ [ADMIN] byKey error:", err?.code, err?.message || err);
-          setPermError(`${err?.code || "error"}: ${err?.message || ""}`);
-          setMessagesLoading(false);
-        }
+      const keyRef = query(
+        ref(rtdb, `chats/${selectedChat}/messages`),
+        orderByKey(),
+        limitToLast(200)
       );
-      stopCurrent = () => off();
+
+      let unsubscribe: (() => void) | null = null;
+
+      const handler = (snap: any) => {
+        const count = snap.exists() ? Object.keys(snap.val() || {}).length : 0;
+        if (count === 0) {
+          const u = unsubscribe;
+          unsubscribe = null;
+          if (u) setTimeout(() => u(), 0);
+          attachByTimestamp();
+          return;
+        }
+        setMessages(buildListFromSnap(snap));
+        setMessagesLoading(false);
+      };
+
+      const errHandler = (err: any) => {
+        console.error("❌ [ADMIN] byKey error:", err?.code, err?.message || err);
+        setPermError(`${err?.code || "error"}: ${err?.message || ""}`);
+        setMessagesLoading(false);
+      };
+
+      unsubscribe = onValue(keyRef, handler, errHandler);
+      stopCurrent = () => {
+        const u = unsubscribe;
+        unsubscribe = null;
+        if (u) u();
+      };
     };
 
     (async () => {
@@ -266,10 +304,12 @@ export default function AdminChatInboxPage() {
         const u = auth.currentUser;
         if (!u) throw new Error("not-authenticated(admin)");
 
-        // vira participant
-        await ensureParticipantAdmin(selectedChat, u.uid);
+        try {
+          await ensureParticipantAdmin(selectedChat, u.uid);
+        } catch (e) {
+          console.warn("ensureParticipantAdmin:", e);
+        }
 
-        // sanity: existe o chat?
         const chatSnap = await get(ref(rtdb, `chats/${selectedChat}`));
         if (!chatSnap.exists()) {
           setChatNotFound(true);
@@ -278,10 +318,9 @@ export default function AdminChatInboxPage() {
           return;
         }
 
-        // listener principal por key
         attachByKey();
       } catch (e: any) {
-        console.error("❌ [ADMIN] boot/ensureParticipant error:", e?.code, e?.message || e);
+        console.error("❌ [ADMIN] boot error:", e?.code, e?.message || e);
         setPermError(`${e?.code || "error"}: ${e?.message || ""}`);
         setMessagesLoading(false);
       }
@@ -294,11 +333,11 @@ export default function AdminChatInboxPage() {
       setMessages([]);
       setMessagesLoading(false);
     };
-  }, [selectedChat, rtdb]);
+  }, [selectedChat]);
 
-  const openChatInNewTab = (chatId: string) => {
-    window.open(`/chat/${encodeURIComponent(chatId)}`, "_blank");
-  };
+  /* ------------------------------ Ações ------------------------------ */
+  const refreshChats = () => window.location.reload();
+  const openChatInNewTab = (chatId: string) => window.open(`/chat/${encodeURIComponent(chatId)}`, "_blank");
 
   const selectChat = async (chatId: string) => {
     try {
@@ -311,98 +350,160 @@ export default function AdminChatInboxPage() {
     }
   };
 
-  const refreshChats = () => window.location.reload();
+  const requestDeleteChat = (id: string, last?: string) => {
+    setMenuOpenId(null);
+    setDeleteTarget({ id, last });
+  };
 
+  const confirmDeleteChat = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await update(ref(rtdb, `chats/${deleteTarget.id}`), { deletedAt: Date.now() });
+      await remove(ref(rtdb, `chats/${deleteTarget.id}`));
+      if (selectedChat === deleteTarget.id) setSelectedChat(null);
+      setDeleteTarget(null);
+    } catch (e) {
+      console.error("Erro ao excluir chat:", e);
+      alert("Não foi possível excluir o chat. Verifique permissões/rede.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  /* ------------------------------ Busca ------------------------------ */
+  const filteredRows = useMemo(() => {
+    const t = search.trim().toLowerCase();
+    if (!t) return rows;
+    return rows.filter((r) => {
+      const id = r.id.toLowerCase();
+      const last = (r.lastMessage || "").toLowerCase();
+      const who = (r.lastSenderName || r.createdByName || "").toLowerCase();
+      return id.includes(t) || last.includes(t) || who.includes(t);
+    });
+  }, [rows, search]);
+
+  const selectedChatRow = useMemo(
+    () => (selectedChat ? rows.find(r => r.id === selectedChat) ?? null : null),
+    [selectedChat, rows]
+  );
+
+
+  /* ------------------------------ UI ------------------------------ */
   if (loading) {
     return (
-      <div className="min-h-screen grid place-items-center bg-gray-50">
+      <div className="min-h-screen grid place-items-center bg-[#EAEAEA]">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-4 border-gray-300 border-t-blue-600 animate-spin" />
-          <div className="text-sm text-gray-600">Carregando conversas…</div>
+          <div className="h-12 w-12 rounded-full border-4 border-[#7A7A7A] border-t-[#AF1B1B] animate-spin" />
+          <div className="text-sm text-[#1A1A1A]">Carregando conversas…</div>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-100">
-      <header className="bg-white border-b shadow-sm">
+    <main className="min-h-screen bg-gradient-to-br from-[#EAEAEA] to-white">
+      {/* Topbar */}
+      <header className="sticky top-0 z-10 backdrop-blur bg-white/85 border-b border-[#EAEAEA]">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-600" />
-            <h1 className="text-lg font-semibold text-gray-800">
-              {selectedChat ? `Chat: ${selectedChat}` : "Inbox do Suporte"}
-            </h1>
+            <Shield className="w-5 h-5 text-[#AF1B1B]" />
+              <h1 className="text-lg font-semibold text-gray-800">
+                {selectedChat
+                  ? `Chat: ${selectedChatRow?.lastSenderName || selectedChatRow?.createdByName || selectedChat}`
+                  : "Inbox do Suporte"}
+              </h1>
           </div>
           <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border border-[#EAEAEA] bg-white">
+              <Search className="w-4 h-4 text-[#7A7A7A]" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar por ID, nome ou mensagem…"
+                className="outline-none text-sm bg-transparent w-56 text-[#1A1A1A] placeholder-[#7A7A7A]"
+              />
+            </div>
             <button
-              onClick={() => setShowDebug(!showDebug)}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+              onClick={() => setShowDebug((v) => !v)}
+              className="p-2 text-[#7A7A7A] hover:bg-[#EAEAEA] rounded-lg transition"
               title="Toggle Debug"
             >
               <Bug className="w-4 h-4" />
             </button>
             <button
               onClick={refreshChats}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
-              title="Refresh"
+              className="p-2 text-[#7A7A7A] hover:bg-[#EAEAEA] rounded-lg transition"
+              title="Atualizar"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             {selectedChat && (
               <button
                 onClick={() => setSelectedChat(null)}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-sm bg-[#EAEAEA] hover:bg-[#D96C06]/10 text-[#1A1A1A] rounded-lg transition"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Voltar para Inbox
+                Voltar
               </button>
             )}
           </div>
         </div>
+
+        {/* busca mobile */}
+        <div className="sm:hidden border-t border-[#EAEAEA] bg-white">
+          <div className="max-w-7xl mx-auto px-4 py-2">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#EAEAEA] bg-white">
+              <Search className="w-4 h-4 text-[#7A7A7A]" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar por ID, nome ou mensagem…"
+                className="outline-none text-sm bg-transparent w-full text-[#1A1A1A] placeholder-[#7A7A7A]"
+              />
+            </div>
+          </div>
+        </div>
       </header>
 
+      {/* Alertas */}
       {permError && (
         <div className="max-w-7xl mx-auto mt-3">
-          <div className="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-            Permissão negada ao ler mensagens deste chat ({permError}). Verifique as regras do RTDB e se seu UID está em{" "}
-            <code>/admins</code> ou em <code>participants</code>.
+          <div className="rounded-md bg-[#F2C14E]/10 border border-[#F2C14E] p-3 text-sm text-[#1A1A1A]">
+            Permissão negada ({permError}). Verifique regras do RTDB e presença em <code>/admins</code> ou{" "}
+            <code>participants</code>.
           </div>
         </div>
       )}
-
       {chatNotFound && (
         <div className="max-w-7xl mx-auto mt-3">
-          <div className="rounded-md bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
-            Este chat (<code>{selectedChat}</code>) não foi encontrado em <code>chats/{'{'}selectedChat{'}'}</code>. Verifique
-            o <strong>ID</strong> e o ambiente do Realtime Database.
+          <div className="rounded-md bg-[#D96C06]/10 border border-[#D96C06] p-3 text-sm text-[#1A1A1A]">
+            Este chat (<code>{selectedChat}</code>) não foi encontrado em <code>chats/{'{'}selectedChat{'}'}</code>.
           </div>
         </div>
       )}
 
-      {/* Debug Panel */}
+      {/* Debug opcional */}
       {showDebug && (
-        <div className="bg-yellow-50 border-b border-yellow-200 p-4">
-          <div className="max-w-7xl mx-auto">
-            <h3 className="text-sm font-semibold text-yellow-800 mb-2">Debug Info</h3>
-            <div className="text-xs text-yellow-700 font-mono bg-white p-3 rounded overflow-x-auto">
-              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
-            </div>
+        <div className="bg-[#F2C14E]/10 border-y border-[#F2C14E]/40">
+          <div className="max-w-7xl mx-auto p-4">
+            <RtdbDebugTools selectedChat={selectedChat} />
           </div>
         </div>
       )}
 
       <div className="max-w-7xl mx-auto p-4">
         {!selectedChat ? (
-          rows.length === 0 ? (
-            <div className="rounded-xl border bg-white p-10 text-center text-gray-500">
+          /* GRID */
+          filteredRows.length === 0 ? (
+            <div className="rounded-2xl border border-[#EAEAEA] bg-white p-10 text-center text-[#7A7A7A] shadow-sm">
               <MessageSquare className="w-10 h-10 opacity-60 mx-auto mb-3" />
-              <p>Nenhuma conversa ainda.</p>
-              <p className="text-xs mt-2">Certifique-se de que existem chats no Realtime Database</p>
+              <p>Nenhuma conversa encontrada.</p>
+              <p className="text-xs mt-2">Tente limpar a busca ou aguarde novas mensagens.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-              {rows.map((c) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filteredRows.map((c) => {
                 const when = c.lastMessageTime
                   ? new Date(c.lastMessageTime).toLocaleString("pt-BR", {
                       day: "2-digit",
@@ -411,39 +512,70 @@ export default function AdminChatInboxPage() {
                       minute: "2-digit",
                     })
                   : "—";
-
+                const title = c.lastSenderName || c.createdByName || c.id;
                 return (
-                  <div key={c.id} className="rounded-2xl border bg-white p-4 shadow-sm hover:shadow-md transition">
-                    <div className="flex items-start justify-between gap-3 mb-4">
+                  <div
+                    key={c.id}
+                    className="group rounded-2xl border border-[#EAEAEA] bg-white p-4 shadow-sm hover:shadow-lg hover:border-[#AF1B1B]/40 transition relative"
+                  >
+                    <button
+                      onClick={() => setMenuOpenId(menuOpenId === c.id ? null : c.id)}
+                      className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-[#EAEAEA]"
+                      aria-label="Ações"
+                    >
+                      <MoreVertical className="w-4 h-4 text-[#7A7A7A]" />
+                    </button>
+
+                    {menuOpenId === c.id && (
+                      <div className="absolute top-9 right-3 w-44 rounded-xl border border-[#EAEAEA] bg-white shadow-lg z-10">
+                        <button
+                          onClick={() => {
+                            setMenuOpenId(null);
+                            openChatInNewTab(c.id);
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-[#EAEAEA] flex items-center gap-2 text-[#1A1A1A]"
+                        >
+                          <ExternalLink className="w-4 h-4 text-[#1F4E5F]" />
+                          Abrir em nova aba
+                        </button>
+                        <button
+                          onClick={() => requestDeleteChat(c.id, c.lastMessage)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-[#D96C06]/10 text-[#AF1B1B] flex items-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Excluir chat
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm text-gray-500 flex items-center gap-1 mb-1">
+                        <div className="text-xs text-[#7A7A7A] flex items-center gap-1 mb-1">
                           <Clock className="w-3.5 h-3.5" />
                           <span>{when}</span>
-                          <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                          <span className="ml-2 text-[11px] bg-[#F2C14E]/20 text-[#1A1A1A] px-2 py-0.5 rounded-full border border-[#F2C14E]/60">
                             {c.messageCount || 0} msgs
                           </span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 break-words text-sm">{c.id}</h3>
-                        <p className="mt-2 text-sm text-gray-700 line-clamp-2">
-                          {c.lastMessage || "Sem mensagens"}
-                        </p>
+                        <h3 className="font-semibold text-[#1A1A1A] break-words text-sm">{title}</h3>
+                        <p className="mt-2 text-sm text-[#7A7A7A] line-clamp-2">{c.lastMessage || "Sem mensagens"}</p>
                       </div>
                     </div>
 
                     <div className="flex gap-2">
                       <button
                         onClick={() => selectChat(c.id)}
-                        className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 transition"
+                        className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-[#EAEAEA] px-3 py-2 text-sm hover:bg-[#EAEAEA] transition text-[#1A1A1A]"
                       >
-                        <MessageSquare className="w-4 h-4" />
+                        <MessageSquare className="w-4 h-4 text-[#1F4E5F]" />
                         Ver mensagens
                       </button>
                       <button
                         onClick={() => openChatInNewTab(c.id)}
-                        className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 transition"
+                        className="inline-flex items-center gap-1 rounded-xl border border-[#EAEAEA] px-3 py-2 text-sm hover:bg-[#EAEAEA] transition text-[#1A1A1A]"
                         title="Abrir chat em nova aba"
                       >
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-4 h-4 text-[#1F4E5F]" />
                       </button>
                     </div>
                   </div>
@@ -452,33 +584,37 @@ export default function AdminChatInboxPage() {
             </div>
           )
         ) : (
-          <div className="bg-white rounded-xl shadow-lg">
-            <div className="border-b p-4 flex items-center justify-between">
+          /* MENSAGENS */
+          <div className="bg-white rounded-2xl shadow-lg border border-[#EAEAEA] overflow-hidden">
+            <div className="border-b border-[#EAEAEA] p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">Mensagens do Chat</h2>
-                <span className="text-sm text-gray-500">ID: {selectedChat}</span>
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                  {messages.length} mensagens
-                </span>
+                <h2 className="text-lg font-semibold text-[#1A1A1A]">Mensagens:</h2>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => openChatInNewTab(selectedChat)}
-                  className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-[#1F4E5F] text-white rounded-xl hover:opacity-90 transition"
                 >
                   <ExternalLink className="w-4 h-4" />
                   Responder
                 </button>
+                <button
+                  onClick={() => requestDeleteChat(selectedChat)}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-[#AF1B1B]/10 text-[#AF1B1B] rounded-xl hover:bg-[#AF1B1B]/20 border border-[#AF1B1B]/30 transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Excluir
+                </button>
               </div>
             </div>
 
-            <div className="h-96 overflow-y-auto p-4">
+            <div className="h-[70vh] overflow-y-auto p-4 bg-[#EAEAEA]">
               {messagesLoading ? (
                 <div className="flex justify-center items-center h-full">
-                  <div className="h-8 w-8 rounded-full border-4 border-gray-300 border-t-blue-600 animate-spin" />
+                  <div className="h-8 w-8 rounded-full border-4 border-white border-t-[#AF1B1B] animate-spin" />
                 </div>
               ) : messages.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-[#7A7A7A] py-8">
                   <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>Nenhuma mensagem neste chat ainda.</p>
                   <p className="text-xs mt-2">Caminho: chats/{selectedChat}/messages</p>
@@ -499,21 +635,25 @@ export default function AdminChatInboxPage() {
                       <div key={m.id} className={`flex ${m.isAdmin ? "justify-end" : "justify-start"}`}>
                         <div
                           className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
-                            m.isAdmin ? "bg-blue-600 text-white rounded-br-sm" : "bg-gray-100 text-gray-800 rounded-bl-sm"
+                            m.isAdmin
+                              ? "bg-[#AF1B1B] text-white rounded-br-sm"
+                              : "bg-white text-[#1A1A1A] rounded-bl-sm border border-[#EAEAEA]"
                           }`}
                         >
                           <div className="flex items-center gap-2 mb-1">
                             {m.isAdmin ? (
-                              <Shield className={`w-3 h-3 ${m.isAdmin ? "text-blue-200" : "text-blue-500"}`} />
+                              <Shield className="w-3 h-3 text-white/80" />
                             ) : (
-                              <User className={`w-3 h-3 ${m.isAdmin ? "opacity-80" : "text-gray-500"}`} />
+                              <User className="w-3 h-3 text-[#7A7A7A]" />
                             )}
-                            <span className={`text-xs font-medium ${m.isAdmin ? "text-blue-100" : "text-gray-600"}`}>
+                            <span className={`text-xs font-medium ${m.isAdmin ? "text-white/90" : "text-[#7A7A7A]"}`}>
                               {m.senderName}
                             </span>
                           </div>
                           <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.text}</p>
-                          <div className="mt-2 text-xs opacity-70">{time}</div>
+                          <div className={`mt-2 text-[11px] ${m.isAdmin ? "text-white/80" : "text-[#7A7A7A]"}`}>
+                            {time}
+                          </div>
                         </div>
                       </div>
                     );
@@ -524,6 +664,49 @@ export default function AdminChatInboxPage() {
           </div>
         )}
       </div>
+
+      {/* MODAL: confirmar exclusão */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#EAEAEA]">
+            <div className="p-4 border-b border-[#EAEAEA] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-[#D96C06]" />
+                <h3 className="font-semibold text-[#1A1A1A]">Excluir chat</h3>
+              </div>
+              <button onClick={() => setDeleteTarget(null)} className="p-2 rounded-lg hover:bg-[#EAEAEA]">
+                <X className="w-4 h-4 text-[#7A7A7A]" />
+              </button>
+            </div>
+            <div className="p-4 space-y-2">
+              <p className="text-sm text-[#1A1A1A]">
+                Tem certeza que deseja excluir o chat:
+                <span className="font-mono"> {deleteTarget.id}</span>?
+              </p>
+              <p className="text-xs text-[#7A7A7A]">
+                Isso removerá todas as mensagens e participantes deste chat. A ação não pode ser desfeita.
+              </p>
+            </div>
+            <div className="p-4 border-t border-[#EAEAEA] flex items-center justify-end gap-2">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="px-4 py-2 text-sm rounded-xl border border-[#EAEAEA] hover:bg-[#EAEAEA] disabled:opacity-50 text-[#1A1A1A]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDeleteChat}
+                disabled={deleting}
+                className="px-4 py-2 text-sm rounded-xl bg-[#AF1B1B] text-white hover:opacity-90 disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                {deleting ? "Excluindo…" : "Excluir"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
