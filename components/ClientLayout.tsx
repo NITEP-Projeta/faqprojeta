@@ -16,6 +16,8 @@ import { useRouter } from "next/navigation";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
+import useUnreadBadge from '@/hooks/useUnreadBadge';
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   // Router para navegação
   const router = useRouter();
@@ -33,6 +35,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   // Hook para verificar se o usuário é admin
   const { isAdmin } = useCurrentUser();
+
+  const unread = useUnreadBadge(isAdmin);
 
   // Hook para verificar se o usuário está autenticado
   useEffect(() => {
@@ -141,6 +145,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <span className="font-medium">Manual de Ponto</span>
                     </Link>
                   </li>
+                  {!isAdmin && (
+                    <li>
+                      <Link href="/chat" aria-label="Ir para a página de Chat" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
+                        <i className="pi pi-comments"></i>
+                        <span>Chat</span>
+                          {unread.total > 0 && (
+                            <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[11px] rounded-full bg-[#AF1B1B] text-white">
+                              {unread.total}
+                            </span>
+                          )}
+                      </Link>
+                    </li>
+                  )}
               </ul>
               )}
             </div>
@@ -167,9 +184,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     </Link>
                   </li>                  
                   <li>
-                    <Link href="/chat" aria-label="Ir para a página de Chat" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
+                    <Link href="/admin/chat" aria-label="Ir para a página de Chat" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
                       <i className="pi pi-comments"></i>
                       <span>Chat</span>
+                        {unread.total > 0 && (
+                          <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[11px] rounded-full bg-[#AF1B1B] text-white">
+                            {unread.total}
+                          </span>
+                        )}
                     </Link>
                   </li>
                 </ul>

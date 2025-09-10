@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef  } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, getIdTokenResult } from "firebase/auth";
 import { auth, rtdb, db } from "@/src/firebase/firebase";
@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import RtdbDebugTools from "@/components/RtdbDebugTools";
+import useUnreadBadge from "@/hooks/useUnreadBadge";
 
 /* ============================== Types ============================== */
 type ChatRow = {
@@ -103,6 +104,53 @@ export default function AdminChatInboxPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; last?: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  /* 🔔 unread badge + som */
+  const unread = useUnreadBadge(isAdmin); // { total, perChat, markRead }
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const prevUnread = useRef(0);
+  const firstRun = useRef(true);
+
+  useEffect(() => {
+    const a = new Audio("/sounds/notify.mp3"); // coloque o mp3 em public/sounds/
+    a.preload = "auto";
+    audioRef.current = a;
+
+    // ⚙️ desbloqueio por gesto do usuário
+    const unlock = () => {
+      a.play().then(() => a.pause()).catch(() => {});
+      window.removeEventListener("click", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+    window.addEventListener("click", unlock);
+    window.addEventListener("keydown", unlock);
+
+    return () => {
+      window.removeEventListener("click", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      prevUnread.current = unread.total;
+      return;
+    }
+    if (unread.total > prevUnread.current) {
+      // opcional: não tocar se o chat estiver aberto
+      if (selectedChat) return;
+
+      // opcional: não tocar se a aba estiver visível
+      if (document.visibilityState === "visible") return;
+
+      audioRef.current?.play().catch((err) => {
+        console.warn("🔇 Não foi possível reproduzir som:", err);
+      });
+    }
+    prevUnread.current = unread.total;
+  }, [unread.total]);
+
   /* ------------------------------ Auth/Admin ------------------------------ */
   useEffect(() => {
     let mounted = true;
@@ -151,7 +199,9 @@ export default function AdminChatInboxPage() {
         const chatId = child.key as string;
 
         // filtra chats SEM mensagens
-        const hasMsgs = v.hasMessages === true || (v.messages && Object.keys(v.messages).length > 0);
+        const hasMsgs =
+          v.hasMessages === true ||
+          (v.messages && typeof v.messages === "object" && Object.keys(v.messages).length > 0);
         if (!hasMsgs) return;
 
         const ts =
@@ -335,7 +385,23 @@ export default function AdminChatInboxPage() {
     };
   }, [selectedChat]);
 
-  /* ------------------------------ Ações ------------------------------ */
+  /* ------------------------------ Busca / seleção ------------------------------ */
+  const filteredRows = useMemo(() => {
+    const t = search.trim().toLowerCase();
+    if (!t) return rows;
+    return rows.filter((r) => {
+      const id = r.id.toLowerCase();
+      const last = (r.lastMessage || "").toLowerCase();
+      const who = (r.lastSenderName || r.createdByName || "").toLowerCase();
+      return id.includes(t) || last.includes(t) || who.includes(t);
+    });
+  }, [rows, search]);
+
+  const selectedChatRow = useMemo(
+    () => (selectedChat ? rows.find((r) => r.id === selectedChat) ?? null : null),
+    [selectedChat, rows]
+  );
+
   const refreshChats = () => window.location.reload();
   const openChatInNewTab = (chatId: string) => window.open(`/chat/${encodeURIComponent(chatId)}`, "_blank");
 
@@ -346,6 +412,9 @@ export default function AdminChatInboxPage() {
     } catch (e) {
       console.warn("ensureParticipant on selectChat:", e);
     } finally {
+      // ✅ zera badge desse chat usando o lastMessageTime da row
+      const row = rows.find((r) => r.id === chatId);
+      unread.markRead(chatId, row?.messageCount ?? 0);
       setSelectedChat(chatId);
     }
   };
@@ -371,24 +440,6 @@ export default function AdminChatInboxPage() {
     }
   };
 
-  /* ------------------------------ Busca ------------------------------ */
-  const filteredRows = useMemo(() => {
-    const t = search.trim().toLowerCase();
-    if (!t) return rows;
-    return rows.filter((r) => {
-      const id = r.id.toLowerCase();
-      const last = (r.lastMessage || "").toLowerCase();
-      const who = (r.lastSenderName || r.createdByName || "").toLowerCase();
-      return id.includes(t) || last.includes(t) || who.includes(t);
-    });
-  }, [rows, search]);
-
-  const selectedChatRow = useMemo(
-    () => (selectedChat ? rows.find(r => r.id === selectedChat) ?? null : null),
-    [selectedChat, rows]
-  );
-
-
   /* ------------------------------ UI ------------------------------ */
   if (loading) {
     return (
@@ -401,6 +452,11 @@ export default function AdminChatInboxPage() {
     );
   }
 
+  const currentTitle =
+    selectedChat && selectedChatRow
+      ? `Chat: ${selectedChatRow.lastSenderName || selectedChatRow.createdByName || selectedChat}`
+      : "Inbox do Suporte";
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#EAEAEA] to-white">
       {/* Topbar */}
@@ -408,11 +464,9 @@ export default function AdminChatInboxPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-[#AF1B1B]" />
-              <h1 className="text-lg font-semibold text-gray-800">
-                {selectedChat
-                  ? `Chat: ${selectedChatRow?.lastSenderName || selectedChatRow?.createdByName || selectedChat}`
-                  : "Inbox do Suporte"}
-              </h1>
+            <h1 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              {currentTitle}
+            </h1>
           </div>
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border border-[#EAEAEA] bg-white">
@@ -438,15 +492,18 @@ export default function AdminChatInboxPage() {
             >
               <RefreshCw className="w-4 h-4" />
             </button>
-            {selectedChat && (
-              <button
-                onClick={() => setSelectedChat(null)}
-                className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-sm bg-[#EAEAEA] hover:bg-[#D96C06]/10 text-[#1A1A1A] rounded-lg transition"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Voltar
-              </button>
-            )}
+              {selectedChat && (
+                <button
+                  onClick={() => {
+                    window.location.reload();
+                    setSelectedChat(null);
+                  }}
+                  className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-sm bg-[#EAEAEA] hover:bg-[#D96C06]/10 text-[#1A1A1A] rounded-lg transition"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Voltar
+                </button>
+              )}
           </div>
         </div>
 
@@ -513,6 +570,8 @@ export default function AdminChatInboxPage() {
                     })
                   : "—";
                 const title = c.lastSenderName || c.createdByName || c.id;
+                const unreadCount = unread.perChat[c.id] || 0;
+
                 return (
                   <div
                     key={c.id}
@@ -553,9 +612,11 @@ export default function AdminChatInboxPage() {
                         <div className="text-xs text-[#7A7A7A] flex items-center gap-1 mb-1">
                           <Clock className="w-3.5 h-3.5" />
                           <span>{when}</span>
-                          <span className="ml-2 text-[11px] bg-[#F2C14E]/20 text-[#1A1A1A] px-2 py-0.5 rounded-full border border-[#F2C14E]/60">
-                            {c.messageCount || 0} msgs
-                          </span>
+                          {unreadCount > 0 && (
+                            <span className="ml-2 inline-flex items-center justify-center min-w-[16px] h-[16px] text-[10px] rounded-full bg-[#AF1B1B] text-white">
+                              {unreadCount}
+                            </span>
+                          )}
                         </div>
                         <h3 className="font-semibold text-[#1A1A1A] break-words text-sm">{title}</h3>
                         <p className="mt-2 text-sm text-[#7A7A7A] line-clamp-2">{c.lastMessage || "Sem mensagens"}</p>
@@ -588,7 +649,12 @@ export default function AdminChatInboxPage() {
           <div className="bg-white rounded-2xl shadow-lg border border-[#EAEAEA] overflow-hidden">
             <div className="border-b border-[#EAEAEA] p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold text-[#1A1A1A]">Mensagens:</h2>
+                <h2 className="text-lg font-semibold text-[#1A1A1A]">
+                  Mensagens — {selectedChatRow?.lastSenderName || selectedChatRow?.createdByName || selectedChat}
+                </h2>
+                <span className="text-xs bg-[#F2C14E]/20 text-[#1A1A1A] px-2 py-1 rounded-full border border-[#F2C14E]/60">
+                  {messages.length} mensagens
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -651,9 +717,7 @@ export default function AdminChatInboxPage() {
                             </span>
                           </div>
                           <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.text}</p>
-                          <div className={`mt-2 text-[11px] ${m.isAdmin ? "text-white/80" : "text-[#7A7A7A]"}`}>
-                            {time}
-                          </div>
+                          <div className={`mt-2 text-[11px] ${m.isAdmin ? "text-white/80" : "text-[#7A7A7A]"}`}>{time}</div>
                         </div>
                       </div>
                     );
