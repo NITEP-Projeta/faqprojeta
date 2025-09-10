@@ -1,120 +1,128 @@
-// /hooks/useUnreadBadge.ts
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { auth, rtdb } from "@/src/firebase/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { onValue, query, ref, orderByKey, limitToLast } from "firebase/database";
+import {
+  onValue,
+  ref,
+  update,
+  query,
+  orderByChild,
+  limitToLast,
+} from "firebase/database";
 
-type PerChatCounts = Record<string, number>;
+/**
+ * Calcula badge de não lidas por chat a partir de:
+ * - readReceipts por usuário: chats/{chatId}/readReceipts/{uid} = timestamp (ms)
+ * - mensagens com 'timestamp' numérico e 'senderId'
+ * Regra: conta mensagens com timestamp > lastReadAt E senderId !== uid
+ */
+type PerChat = Record<string, number>;
 
-function lsKey(uid: string) {
-  return `inbox_last_read_counts:${uid}`;
-}
-
-function loadLastRead(uid: string): PerChatCounts {
-  try {
-    const raw = localStorage.getItem(lsKey(uid));
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveLastRead(uid: string, data: PerChatCounts) {
-  try {
-    localStorage.setItem(lsKey(uid), JSON.stringify(data));
-  } catch {}
-}
-
-export default function useUnreadBadge(enabled: boolean) {
-  const [uid, setUid] = useState<string | null>(null);
-
-  // contagem atual de mensagens por chat (snapshot do RTDB)
-  const [currentCounts, setCurrentCounts] = useState<PerChatCounts>({});
-  // “até onde” o usuário leu por chat (persistido em localStorage)
-  const lastReadRef = useRef<PerChatCounts>({});
-
-  // pega UID para isolar o armazenamento
-  useEffect(() => {
-    if (!enabled) {
-      setUid(null);
-      return;
-    }
-    const unsub = onAuthStateChanged(auth, (u) => {
-      if (u) {
-        setUid(u.uid);
-        lastReadRef.current = loadLastRead(u.uid);
-      } else {
-        setUid(null);
-        lastReadRef.current = {};
-      }
-    });
-    return () => unsub();
-  }, [enabled]);
-
-  // escuta a lista de chats e lê a contagem de mensagens
-  useEffect(() => {
-    if (!enabled) {
-      setCurrentCounts({});
-      return;
-    }
-    const qRef = query(ref(rtdb, "chats"), orderByKey(), limitToLast(200));
-    const off = onValue(qRef, (snap) => {
-      const next: PerChatCounts = {};
-      snap.forEach((child) => {
-        const v = child.val() || {};
-        const id = child.key as string;
-
-        // preferir contagem direta se existir; senão contar as chaves de messages
-        const count =
-          typeof v.messageCount === "number"
-            ? v.messageCount
-            : v.messages && typeof v.messages === "object"
-            ? Object.keys(v.messages).length
-            : 0;
-
-        next[id] = count;
-      });
-      setCurrentCounts(next);
-    });
-    return () => off();
-  }, [enabled]);
-
-  // calcula perChat e total (somatório real)
-  const perChat = useMemo(() => {
-    const result: PerChatCounts = {};
-    for (const [chatId, curr] of Object.entries(currentCounts)) {
-      const last = lastReadRef.current[chatId] ?? 0;
-      const diff = curr - last;
-      result[chatId] = diff > 0 ? diff : 0;
-    }
-    return result;
-  }, [currentCounts]);
-
+export default function useUnreadBadge(isAdmin: boolean) {
+  const [perChat, setPerChat] = useState<PerChat>({});
   const total = useMemo(
-    () => Object.values(perChat).reduce((sum, n) => sum + n, 0),
+    () => Object.values(perChat).reduce((a, b) => a + b, 0),
     [perChat]
   );
 
-  // marca como lido: guarda a contagem atual (ou uma passada explicitamente)
-  function markRead(chatId: string, currentCount?: number) {
-    if (!uid) return;
-    const curr =
-      typeof currentCount === "number"
-        ? currentCount
-        : currentCounts[chatId] ?? 0;
+  const uidRef = useRef<string | null>(null);
+  useEffect(() => {
+    uidRef.current = auth.currentUser?.uid ?? null;
+  }, [auth.currentUser]);
 
-    const next = { ...lastReadRef.current, [chatId]: curr };
-    lastReadRef.current = next;
-    saveLastRead(uid, next);
+  useEffect(() => {
+    if (!isAdmin) {
+      setPerChat({});
+      return;
+    }
+
+    // Observa lista de chats que têm mensagens (pode ajustar o filtro ao seu schema)
+    const chatsRef = ref(rtdb, "chats");
+    const stopAll: Array<() => void> = [];
+
+    const unsubChats = onValue(chatsRef, (snap) => {
+      const uid = uidRef.current;
+      if (!uid || !snap.exists()) {
+        setPerChat({});
+        return;
+      }
+
+      const acc: PerChat = {};
+      const detachMap: Record<string, Array<() => void>> = {};
+
+      snap.forEach((child) => {
+        const chatId = child.key as string;
+        const v = child.val() || {};
+
+        // filtra chats sem mensagens
+        const hasMsgs =
+          v.hasMessages === true ||
+          (v.messages && typeof v.messages === "object" && Object.keys(v.messages).length > 0);
+        if (!hasMsgs) return;
+
+        // Observa recibo de leitura do usuário
+        const rrRef = ref(rtdb, `chats/${chatId}/readReceipts/${uid}`);
+        let lastReadAt = 0;
+
+        const stopRR = onValue(rrRef, (rrSnap) => {
+          lastReadAt = Number(rrSnap.val() || 0);
+        });
+
+        // Observa últimas N mensagens para contar não lidas
+        const msgsRef = query(
+          ref(rtdb, `chats/${chatId}/messages`),
+          orderByChild("timestamp"),
+          limitToLast(200) // pode ajustar
+        );
+
+        const stopMsgs = onValue(msgsRef, (msgsSnap) => {
+          if (!msgsSnap.exists()) {
+            acc[chatId] = 0;
+            setPerChat((old) => ({ ...old, ...acc }));
+            return;
+          }
+          const me = uidRef.current;
+          let cnt = 0;
+          msgsSnap.forEach((m) => {
+            const mv = m.val() || {};
+            const ts = Number(
+              typeof mv.timestamp === "number"
+                ? mv.timestamp
+                : mv.createdAt ?? mv.sentAt ?? mv.updatedAt ?? 0
+            );
+            const senderId = mv.senderId ?? mv.uid ?? "";
+            if (ts > lastReadAt && senderId && senderId !== me) cnt++;
+          });
+          acc[chatId] = cnt;
+          setPerChat((old) => ({ ...old, ...acc }));
+        });
+
+        detachMap[chatId] = [stopRR, stopMsgs];
+      });
+
+      // limpa handlers antigos a cada mudança grande
+      stopAll.forEach((f) => f());
+      stopAll.length = 0;
+      Object.values(detachMap).forEach((arr) => {
+        stopAll.push(...arr);
+      });
+    });
+
+    return () => {
+      unsubChats();
+      stopAll.forEach((f) => f());
+    };
+  }, [isAdmin]);
+
+  /** Marca como lido agora (por usuário) */
+  async function markRead(chatId: string) {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    await update(ref(rtdb, `chats/${chatId}/readReceipts`), {
+      [uid]: Date.now(),
+    });
   }
 
-  // utilitário opcional: marcar todos como lidos
-  function markAllRead() {
-    if (!uid) return;
-    const next = { ...currentCounts };
-    lastReadRef.current = next;
-    saveLastRead(uid, next);
-  }
-
-  return { total, perChat, markRead, markAllRead };
+  return { total, perChat, markRead };
 }

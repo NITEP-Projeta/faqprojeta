@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef  } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged, getIdTokenResult } from "firebase/auth";
 import { auth, rtdb, db } from "@/src/firebase/firebase";
 import {
   ref,
   onValue,
-  query,
+  query as rtdbQuery,
   limitToLast,
   orderByKey,
   orderByChild,
@@ -15,6 +15,7 @@ import {
   set,
   remove,
   update,
+  push,
 } from "firebase/database";
 import {
   Shield,
@@ -31,11 +32,24 @@ import {
   AlertTriangle,
   X,
 } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
+
+// Firestore (com alias para evitar conflitos com RTDB)
+import {
+  collection,
+  doc,
+  getDoc,
+  query as fsQuery,
+  orderBy as fsOrderBy,
+  startAt,
+  endAt,
+  limit as fsLimit,
+  getDoc as fsGetDoc,
+} from "firebase/firestore";
+
 import RtdbDebugTools from "@/components/RtdbDebugTools";
 import useUnreadBadge from "@/hooks/useUnreadBadge";
 
-/* ============================== Types ============================== */
+/* ============================== Tipos ============================== */
 type ChatRow = {
   id: string;
   lastMessage?: string;
@@ -57,10 +71,13 @@ type ChatMsg = {
 
 /* ============================== Helpers ============================== */
 async function resolveIsAdmin(uid: string): Promise<boolean> {
+  // 1) RTDB flag
   try {
     const a = await get(ref(rtdb, `admins/${uid}`));
     if (a.exists() && a.val() === true) return true;
   } catch {}
+
+  // 2) Firestore user doc
   try {
     const s = await getDoc(doc(db, "users", uid));
     if (s.exists()) {
@@ -69,10 +86,13 @@ async function resolveIsAdmin(uid: string): Promise<boolean> {
       if (String(u?.role || "").toLowerCase() === "admin") return true;
     }
   } catch {}
+
+  // 3) Custom claims
   try {
     const token = await getIdTokenResult(auth.currentUser!, true);
     if ((token as any)?.claims?.admin === true) return true;
   } catch {}
+
   return false;
 }
 
@@ -80,22 +100,60 @@ async function ensureParticipantAdmin(chatId: string, uid: string) {
   await set(ref(rtdb, `chats/${chatId}/participants/${uid}`), true);
 }
 
-/* ============================== Component ============================== */
+async function getOrCreateChatWithUser(targetUid: string) {
+  const me = auth.currentUser!;
+  const chatId = push(ref(rtdb, "chats")).key!;
+  const now = Date.now();
+
+  await update(ref(rtdb, `chats/${chatId}`), {
+    createdAt: now,
+    createdBy: me.uid,
+    createdByName: me.displayName || "Admin",
+    participants: {
+      [me.uid]: true,
+      [targetUid]: true,
+    },
+    hasMessages: false,
+  });
+
+  return chatId;
+}
+
+async function sendFirstMessage(chatId: string, text: string) {
+  const me = auth.currentUser!;
+  const now = Date.now();
+  const msgRef = push(ref(rtdb, `chats/${chatId}/messages`));
+
+  await set(msgRef, {
+    text,
+    senderId: me.uid,
+    senderName: me.displayName || "Admin",
+    isAdmin: true,
+    timestamp: now,
+  });
+
+  await update(ref(rtdb, `chats/${chatId}`), {
+    lastMessage: text,
+    lastMessageTime: now,
+    lastSenderName: me.displayName || "Admin",
+    hasMessages: true,
+    updatedAt: now,
+  });
+}
+
+/* ============================== Componente ============================== */
 export default function AdminChatInboxPage() {
   const router = useRouter();
 
+  // Estado principal
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-
   const [rows, setRows] = useState<ChatRow[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
-
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
-
   const [permError, setPermError] = useState<string | null>(null);
   const [chatNotFound, setChatNotFound] = useState(false);
-
   const [showDebug, setShowDebug] = useState(false);
 
   // UI
@@ -104,19 +162,22 @@ export default function AdminChatInboxPage() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; last?: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  /* 🔔 unread badge + som */
+  // Badge de não lidas + som de notificação
   const unread = useUnreadBadge(isAdmin); // { total, perChat, markRead }
-
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const prevUnread = useRef(0);
   const firstRun = useRef(true);
 
+  // Busca de usuários (Firestore)
+  const [userSearch, setUserSearch] = useState("");
+  const [userResults, setUserResults] = useState<any[]>([]);
+
+  /* ------------------------------ Som de notificação ------------------------------ */
   useEffect(() => {
-    const a = new Audio("/sounds/notify.mp3"); // coloque o mp3 em public/sounds/
+    const a = new Audio("/sounds/notify.mp3");
     a.preload = "auto";
     audioRef.current = a;
 
-    // ⚙️ desbloqueio por gesto do usuário
     const unlock = () => {
       a.play().then(() => a.pause()).catch(() => {});
       window.removeEventListener("click", unlock);
@@ -138,15 +199,7 @@ export default function AdminChatInboxPage() {
       return;
     }
     if (unread.total > prevUnread.current) {
-      // opcional: não tocar se o chat estiver aberto
-      if (selectedChat) return;
-
-      // opcional: não tocar se a aba estiver visível
-      if (document.visibilityState === "visible") return;
-
-      audioRef.current?.play().catch((err) => {
-        console.warn("🔇 Não foi possível reproduzir som:", err);
-      });
+      audioRef.current?.play().catch(() => {});
     }
     prevUnread.current = unread.total;
   }, [unread.total]);
@@ -182,15 +235,14 @@ export default function AdminChatInboxPage() {
     };
   }, [router]);
 
-  /* ------------------------------ Listar chats ------------------------------ */
+  /* ------------------------------ Listagem de chats ------------------------------ */
   useEffect(() => {
     if (!isAdmin) {
       setRows([]);
       return;
     }
 
-    const qRef = query(ref(rtdb, "chats"), orderByKey(), limitToLast(200));
-
+    const qRef = rtdbQuery(ref(rtdb, "chats"), orderByKey(), limitToLast(200));
     const unsubscribe = onValue(qRef, (snap) => {
       const list: ChatRow[] = [];
 
@@ -198,7 +250,6 @@ export default function AdminChatInboxPage() {
         const v = child.val() || {};
         const chatId = child.key as string;
 
-        // filtra chats SEM mensagens
         const hasMsgs =
           v.hasMessages === true ||
           (v.messages && typeof v.messages === "object" && Object.keys(v.messages).length > 0);
@@ -233,7 +284,7 @@ export default function AdminChatInboxPage() {
     return () => unsubscribe();
   }, [isAdmin]);
 
-  /* ------------------------------ Mensagens (chat selecionado) ------------------------------ */
+  /* ------------------------------ Mensagens do chat selecionado ------------------------------ */
   useEffect(() => {
     if (!selectedChat) {
       setMessages([]);
@@ -280,7 +331,7 @@ export default function AdminChatInboxPage() {
     };
 
     const attachByTimestamp = () => {
-      const tsRef = query(
+      const tsRef = rtdbQuery(
         ref(rtdb, `chats/${selectedChat}/messages`),
         orderByChild("timestamp"),
         limitToLast(200)
@@ -300,7 +351,6 @@ export default function AdminChatInboxPage() {
       };
 
       const errHandler = (error: any) => {
-        console.error("❌ [ADMIN] byTimestamp error:", error?.code, error?.message || error);
         setPermError(`${error?.code || "error"}: ${error?.message || ""}`);
         setMessagesLoading(false);
       };
@@ -314,7 +364,7 @@ export default function AdminChatInboxPage() {
     };
 
     const attachByKey = () => {
-      const keyRef = query(
+      const keyRef = rtdbQuery(
         ref(rtdb, `chats/${selectedChat}/messages`),
         orderByKey(),
         limitToLast(200)
@@ -336,7 +386,6 @@ export default function AdminChatInboxPage() {
       };
 
       const errHandler = (err: any) => {
-        console.error("❌ [ADMIN] byKey error:", err?.code, err?.message || err);
         setPermError(`${err?.code || "error"}: ${err?.message || ""}`);
         setMessagesLoading(false);
       };
@@ -356,9 +405,7 @@ export default function AdminChatInboxPage() {
 
         try {
           await ensureParticipantAdmin(selectedChat, u.uid);
-        } catch (e) {
-          console.warn("ensureParticipantAdmin:", e);
-        }
+        } catch {}
 
         const chatSnap = await get(ref(rtdb, `chats/${selectedChat}`));
         if (!chatSnap.exists()) {
@@ -370,7 +417,6 @@ export default function AdminChatInboxPage() {
 
         attachByKey();
       } catch (e: any) {
-        console.error("❌ [ADMIN] boot error:", e?.code, e?.message || e);
         setPermError(`${e?.code || "error"}: ${e?.message || ""}`);
         setMessagesLoading(false);
       }
@@ -385,7 +431,7 @@ export default function AdminChatInboxPage() {
     };
   }, [selectedChat]);
 
-  /* ------------------------------ Busca / seleção ------------------------------ */
+  /* ------------------------------ Busca e seleção ------------------------------ */
   const filteredRows = useMemo(() => {
     const t = search.trim().toLowerCase();
     if (!t) return rows;
@@ -409,14 +455,9 @@ export default function AdminChatInboxPage() {
     try {
       const u = auth.currentUser;
       if (u) await ensureParticipantAdmin(chatId, u.uid);
-    } catch (e) {
-      console.warn("ensureParticipant on selectChat:", e);
-    } finally {
-      // ✅ zera badge desse chat usando o lastMessageTime da row
-      const row = rows.find((r) => r.id === chatId);
-      unread.markRead(chatId, row?.messageCount ?? 0);
-      setSelectedChat(chatId);
-    }
+    } catch {}
+    await unread.markRead(chatId);
+    setSelectedChat(chatId);
   };
 
   const requestDeleteChat = (id: string, last?: string) => {
@@ -432,15 +473,62 @@ export default function AdminChatInboxPage() {
       await remove(ref(rtdb, `chats/${deleteTarget.id}`));
       if (selectedChat === deleteTarget.id) setSelectedChat(null);
       setDeleteTarget(null);
-    } catch (e) {
-      console.error("Erro ao excluir chat:", e);
+    } catch {
       alert("Não foi possível excluir o chat. Verifique permissões/rede.");
     } finally {
       setDeleting(false);
     }
   };
 
-  /* ------------------------------ UI ------------------------------ */
+  /* ------------------------------ Busca de usuários (Firestore) ------------------------------ */
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      const term = userSearch.trim();
+      if (!term) {
+        setUserResults([]);
+        return;
+      }
+
+      const coll = collection(db, "users");
+
+      // Se parece UID, tenta doc direto
+      if (/^[A-Za-z0-9_-]{10,}$/.test(term)) {
+        try {
+          const ds = await fsGetDoc(doc(db, "users", term));
+          if (!cancelled && ds.exists()) {
+            setUserResults([{ id: ds.id, ...ds.data() }]);
+            return;
+          }
+        } catch {}
+      }
+
+      const lc = term.toLowerCase();
+      const q = fsQuery(coll, fsOrderBy("nameLower"), startAt(lc), endAt(lc + "\uf8ff"), fsLimit(5));
+
+      const unsub = (await import("firebase/firestore")).onSnapshot(
+        q,
+        (snap) => {
+          if (cancelled) return;
+          setUserResults(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        },
+        () => setUserResults([])
+      );
+
+      return () => unsub();
+    };
+
+    let cleaner: void | (() => void);
+    run().then((c) => (cleaner = c));
+
+    return () => {
+      cancelled = true;
+      if (typeof cleaner === "function") cleaner();
+    };
+  }, [userSearch]);
+
+  /* ------------------------------ Render ------------------------------ */
   if (loading) {
     return (
       <div className="min-h-screen grid place-items-center bg-[#EAEAEA]">
@@ -464,20 +552,39 @@ export default function AdminChatInboxPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-[#AF1B1B]" />
-            <h1 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-              {currentTitle}
-            </h1>
+            <h1 className="text-lg font-semibold text-gray-800 flex items-center gap-2">{currentTitle}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border border-[#EAEAEA] bg-white">
+            {/* Busca de usuários */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border border-[#EAEAEA] bg-white relative z-20">
               <Search className="w-4 h-4 text-[#7A7A7A]" />
               <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por ID, nome ou mensagem…"
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                placeholder="Buscar usuário por ID ou nome…"
                 className="outline-none text-sm bg-transparent w-56 text-[#1A1A1A] placeholder-[#7A7A7A]"
               />
+              {userResults.length > 0 && (
+                <div className="absolute left-0 top-full mt-1 w-64 bg-white border border-[#EAEAEA] rounded-lg shadow-lg">
+                  {userResults.map((u) => (
+                    <button
+                      key={(u as any).id}
+                      onClick={async () => {
+                        const chatId = await getOrCreateChatWithUser((u as any).id);
+                        await sendFirstMessage(chatId, "Olá, posso ajudar?");
+                        setSelectedChat(chatId);
+                        setUserSearch("");
+                        setUserResults([]);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#EAEAEA]"
+                    >
+                      {(u as any).name || (u as any).displayName || (u as any).id}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
             <button
               onClick={() => setShowDebug((v) => !v)}
               className="p-2 text-[#7A7A7A] hover:bg-[#EAEAEA] rounded-lg transition"
@@ -492,22 +599,22 @@ export default function AdminChatInboxPage() {
             >
               <RefreshCw className="w-4 h-4" />
             </button>
-              {selectedChat && (
-                <button
-                  onClick={() => {
-                    window.location.reload();
-                    setSelectedChat(null);
-                  }}
-                  className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-sm bg-[#EAEAEA] hover:bg-[#D96C06]/10 text-[#1A1A1A] rounded-lg transition"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Voltar
-                </button>
-              )}
+            {selectedChat && (
+              <button
+                onClick={() => {
+                  window.location.reload();
+                  setSelectedChat(null);
+                }}
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-2 text-sm bg-[#EAEAEA] hover:bg-[#D96C06]/10 text-[#1A1A1A] rounded-lg transition"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar
+              </button>
+            )}
           </div>
         </div>
-
-        {/* busca mobile */}
+        
+        {/* Busca mobile (chats) */}
         <div className="sm:hidden border-t border-[#EAEAEA] bg-white">
           <div className="max-w-7xl mx-auto px-4 py-2">
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#EAEAEA] bg-white">
@@ -527,15 +634,14 @@ export default function AdminChatInboxPage() {
       {permError && (
         <div className="max-w-7xl mx-auto mt-3">
           <div className="rounded-md bg-[#F2C14E]/10 border border-[#F2C14E] p-3 text-sm text-[#1A1A1A]">
-            Permissão negada ({permError}). Verifique regras do RTDB e presença em <code>/admins</code> ou{" "}
-            <code>participants</code>.
+            Permissão negada ({permError}). Verifique regras do RTDB e presença em <code>/admins</code> ou <code>participants</code>.
           </div>
         </div>
       )}
       {chatNotFound && (
         <div className="max-w-7xl mx-auto mt-3">
           <div className="rounded-md bg-[#D96C06]/10 border border-[#D96C06] p-3 text-sm text-[#1A1A1A]">
-            Este chat (<code>{selectedChat}</code>) não foi encontrado em <code>chats/{'{'}selectedChat{'}'}</code>.
+            Este chat (<code>{selectedChat}</code>) não foi encontrado em <code>chats/{selectedChat}</code>
           </div>
         </div>
       )}
@@ -551,7 +657,7 @@ export default function AdminChatInboxPage() {
 
       <div className="max-w-7xl mx-auto p-4">
         {!selectedChat ? (
-          /* GRID */
+          // GRID de conversas
           filteredRows.length === 0 ? (
             <div className="rounded-2xl border border-[#EAEAEA] bg-white p-10 text-center text-[#7A7A7A] shadow-sm">
               <MessageSquare className="w-10 h-10 opacity-60 mx-auto mb-3" />
@@ -645,7 +751,7 @@ export default function AdminChatInboxPage() {
             </div>
           )
         ) : (
-          /* MENSAGENS */
+          // MENSAGENS
           <div className="bg-white rounded-2xl shadow-lg border border-[#EAEAEA] overflow-hidden">
             <div className="border-b border-[#EAEAEA] p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -729,7 +835,7 @@ export default function AdminChatInboxPage() {
         )}
       </div>
 
-      {/* MODAL: confirmar exclusão */}
+      {/* Modal de exclusão */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#EAEAEA]">
@@ -747,9 +853,7 @@ export default function AdminChatInboxPage() {
                 Tem certeza que deseja excluir o chat:
                 <span className="font-mono"> {deleteTarget.id}</span>?
               </p>
-              <p className="text-xs text-[#7A7A7A]">
-                Isso removerá todas as mensagens e participantes deste chat. A ação não pode ser desfeita.
-              </p>
+              <p className="text-xs text-[#7A7A7A]">Isso removerá todas as mensagens e participantes deste chat. A ação não pode ser desfeita.</p>
             </div>
             <div className="p-4 border-t border-[#EAEAEA] flex items-center justify-end gap-2">
               <button
