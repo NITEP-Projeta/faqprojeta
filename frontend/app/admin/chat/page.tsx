@@ -584,7 +584,7 @@ export default function AdminChatInboxPage() {
                 </div>
               )}
             </div>
-
+            {/* Ações 
             <button
               onClick={() => setShowDebug((v) => !v)}
               className="p-2 text-[#7A7A7A] hover:bg-[#EAEAEA] rounded-lg transition"
@@ -592,6 +592,7 @@ export default function AdminChatInboxPage() {
             >
               <Bug className="w-4 h-4" />
             </button>
+            */}
             <button
               onClick={refreshChats}
               className="p-2 text-[#7A7A7A] hover:bg-[#EAEAEA] rounded-lg transition"
@@ -756,11 +757,8 @@ export default function AdminChatInboxPage() {
             <div className="border-b border-[#EAEAEA] p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <h2 className="text-lg font-semibold text-[#1A1A1A]">
-                  Mensagens — {selectedChatRow?.lastSenderName || selectedChatRow?.createdByName || selectedChat}
+                  Mensagens:
                 </h2>
-                <span className="text-xs bg-[#F2C14E]/20 text-[#1A1A1A] px-2 py-1 rounded-full border border-[#F2C14E]/60">
-                  {messages.length} mensagens
-                </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
