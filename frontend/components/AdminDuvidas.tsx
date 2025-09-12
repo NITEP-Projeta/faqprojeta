@@ -1,13 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   collection, query, where, orderBy, limit, onSnapshot,
-  startAfter, getDocs, updateDoc, doc, serverTimestamp, getDoc,
+  startAfter, getDocs, updateDoc, deleteDoc, doc, serverTimestamp, getDoc,
   type DocumentData, type QueryDocumentSnapshot
 } from "firebase/firestore";
+
 import { db } from "@/src/firebase/firebase";
+
 import { getAuth } from "firebase/auth";
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 type Status = "aberto" | "em_andamento" | "encerrado";
 
@@ -203,6 +210,35 @@ export function AdminDuvidas() {
     }
   }
 
+  async function deleteDoubt(id: string) {
+    setSavingId(id);
+    try {
+      await deleteDoc(doc(db, "tiraDuvidas", id));
+
+      toast.success("Dúvida deletada com sucesso.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "light",
+        hideProgressBar: false,
+        pauseOnHover: true,
+        progress: undefined,
+      });
+    } catch (e) {
+      console.error("Erro ao deletar:", e);
+
+      toast.error("Não foi possível deletar a dúvida.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "light",
+        hideProgressBar: false,
+        pauseOnHover: true,
+        progress: undefined,
+      });
+    } finally {
+      setSavingId(null);
+    }
+  }
+
   if (loading) return <p>Carregando…</p>;
   if (err) return <p className="text-red-600 text-sm">{err}</p>;
 
@@ -306,19 +342,31 @@ export function AdminDuvidas() {
                   {/* Status + botão Encerrar */}
                   <div className="flex items-center gap-2">
                     <StatusBadge status={d.status} />
-                    {!isClosed && (
+                  {!isClosed ? (
+                        <button
+                          title="Encerrar"
+                          onClick={() => closeDoubt(d.id)}
+                          disabled={saving}
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 transition disabled:opacity-60"
+                          aria-label="Encerrar dúvida"
+                        >
+                          <svg viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.25 7.25a1 1 0 01-1.42 0L3.296 9.52a1 1 0 111.414-1.414l3.027 3.027 6.536-6.536a1 1 0 011.431 0z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                  ) : (
                       <button
-                        title="Encerrar"
-                        onClick={() => closeDoubt(d.id)}
+                        title="Deletar"
+                        onClick={() => deleteDoubt(d.id)}
                         disabled={saving}
-                        className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-gray-600 hover:text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 transition disabled:opacity-60"
-                        aria-label="Encerrar dúvida"
+                        className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-gray-300 text-red-600 hover:text-white hover:bg-red-600 hover:border-red-600 transition disabled:opacity-60 cursor-pointer"
+                        aria-label="Deletar dúvida encerrada"
                       >
-                        <svg viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.25 7.25a1 1 0 01-1.42 0L3.296 9.52a1 1 0 111.414-1.414l3.027 3.027 6.536-6.536a1 1 0 011.431 0z" clipRule="evenodd" />
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                          <path d="M9 3h6a1 1 0 0 1 1 1v1h4v2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4V5h4V4a1 1 0 0 1 1-1Zm1 4H7v12h10V7h-3H10Zm1 2h2v8h-2V9Z"/>
                         </svg>
                       </button>
-                    )}
+                  )}
                   </div>
                 </div>
 
@@ -390,31 +438,36 @@ export function AdminDuvidas() {
 
         {/* Paginação */}
         <div className="flex justify-center py-6">
-          {hasMore ? (
-            <button
-              onClick={loadMore}
-              disabled={loadingMore}
-              className="group inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:-translate-y-px hover:shadow transition disabled:opacity-60"
-              aria-live="polite"
-            >
-              {loadingMore ? (
-                <>
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25"/>
-                    <path d="M21 12a9 9 0 0 1-9 9" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                  Carregando…
-                </>
-              ) : (
-                <>
-                  Carregar mais
-                  <svg className="h-4 w-4 text-gray-500 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 0 1 0-1.414L10.586 10 7.293 6.707a1 1 0 1 1 1.414-1.414l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414 0Z" clipRule="evenodd"/>
-                  </svg>
-                </>
-              )}
-            </button>
-          ) : (
+        {hasMore ? (
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="group inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:-translate-y-px hover:shadow transition disabled:opacity-60"
+            aria-live="polite"
+          >
+            {loadingMore ? (
+              <>
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25"/>
+                  <path d="M21 12a9 9 0 0 1-9 9" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                </svg>
+                Carregando…
+              </>
+            ) : (
+              <>
+                Carregar mais
+                <svg className="h-4 w-4 text-gray-500 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 0 1 0-1.414L10.586 10 7.293 6.707a1 1 0 1 1 1.414-1.414l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414 0Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </>
+            )}
+          </button>
+        ) : (
+          items.length >= 10 && (
             <div className="inline-flex items-center gap-3 rounded-full bg-gray-100 px-4 py-2 text-xs text-gray-600">
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path d="M10 18a8 8 0 100-16 8 8 0 000 16ZM9 9V5h2v4H9Zm0 6v-2h2v2H9Z"/>
@@ -427,7 +480,8 @@ export function AdminDuvidas() {
                 voltar ao topo
               </button>
             </div>
-          )}
+          )
+        )}
         </div>
       </div>
     </div>

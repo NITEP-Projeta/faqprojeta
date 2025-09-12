@@ -176,7 +176,7 @@ export default function TiraDuvidasPage() {
                     <button
                       type="submit"
                       disabled={loading || !emailLoaded}
-                      className="inline-flex w-full items-center justify-center rounded-lg bg-[#8B0D0D] px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#6f0a0a] disabled:opacity-60 disabled:cursor-not-allowed transition"
+                      className="inline-flex w-full items-center justify-center rounded-lg bg-[#8B0D0D] px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#6f0a0a] disabled:opacity-60 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       {loading ? (
                         <>

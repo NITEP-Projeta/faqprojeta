@@ -50,22 +50,28 @@ function StatusBadge({ status }: { status?: Status }) {
 
 export function MinhasDuvidas() {
   const auth = getAuth();
+
+  const INITIAL_COUNT = 5;  // ← quantos itens mostrar inicialmente
+  const STEP = 5;           // ← quantos itens acrescentar ao clicar
+
   const [items, setItems] = useState<Doubt[]>([]);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [openIds, setOpenIds] = useState<Set<string>>(new Set()); // controla cards abertos
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (u) => {
       if (!u) {
         setItems([]);
+        setVisibleCount(INITIAL_COUNT);
         setLoading(false);
         return;
       }
 
       const q = query(
         collection(db, "tiraDuvidas"),
-        where("uid", "==", u.uid),       // bate com as regras
+        where("uid", "==", u.uid),
         orderBy("createdAt", "desc"),
         limit(20)
       );
@@ -73,7 +79,6 @@ export function MinhasDuvidas() {
       const unsub = onSnapshot(
         q,
         (snap) => {
-
           const rows = snap.docs.map((d) => {
             const data = d.data() as DocumentData;
             return {
@@ -90,7 +95,10 @@ export function MinhasDuvidas() {
               answeredByName: data.answeredByName ?? "",
             } as Doubt;
           });
+
           setItems(rows);
+          // mantém entre INITIAL_COUNT e o total disponível
+          setVisibleCount((prev) => Math.min(Math.max(prev, INITIAL_COUNT), rows.length));
           setErr(null);
           setLoading(false);
         },
@@ -119,86 +127,105 @@ export function MinhasDuvidas() {
   if (err) return <p className="text-red-600 text-sm">{err}</p>;
   if (!items.length) return <p>Você ainda não enviou dúvidas.</p>;
 
+  const visibleItems = items.slice(0, visibleCount);
+  const hasHidden = items.length > visibleCount;
+
   return (
-    <ul className="space-y-3">
-      {items.map((d) => {
-        const isOpen = openIds.has(d.id);
-        return (
-          <li key={d.id} className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-            {/* Cabeçalho clicável (título + status + data) */}
-            <button
-              type="button"
-              onClick={() => toggle(d.id)}
-              aria-expanded={isOpen}
-              aria-controls={`duvida-${d.id}`}
-              className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
-            >
-              <div className="flex items-center gap-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
-                <div className="flex flex-col">
-                  <span className="font-medium text-gray-900">{d.subject}</span>
-                  <span className="text-xs text-gray-500">{toDateSafe(d.createdAt)}</span>
+    <div className="flex flex-col gap-3">
+      <ul className="space-y-3">
+        {visibleItems.map((d) => {
+          const isOpen = openIds.has(d.id);
+          return (
+            <li key={d.id} className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+              {/* Cabeçalho clicável */}
+              <button
+                type="button"
+                onClick={() => toggle(d.id)}
+                aria-expanded={isOpen}
+                aria-controls={`duvida-${d.id}`}
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="h-2.5 w-2.5 rounded-full bg-gray-300" />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-900">{d.subject}</span>
+                    <span className="text-xs text-gray-500">{toDateSafe(d.createdAt)}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <StatusBadge status={d.status as Status} />
-                <svg
-                  className={`h-5 w-5 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                  viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
-                >
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.25 8.27a.75.75 0 01-.02-1.06z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </button>
+                <div className="flex items-center gap-3">
+                  <StatusBadge status={d.status as Status} />
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.25 8.27a.75.75 0 01-.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
 
-            {/* Conteúdo expandido (mensagem do usuário + resposta do ADM) */}
-            <div
-              id={`duvida-${d.id}`}
-              className={`grid transition-all duration-200 ease-out ${
-                isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-              }`}
-            >
-              <div className="overflow-hidden">
-                <div className="px-4 pb-4 pt-1 text-sm text-gray-700">
-
-                  <div className="flex flex-wrap items-center justify-start sm:justify-start text-sm gap-1">
-                    <span className="font-bold text-black">Nome:</span>
-                    <span className="select-all text-gray-700 font-medium text-wrap">{d.name}</span>
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-start sm:justify-start text-sm gap-1">
-                    <span className="font-bold text-black">E-mail:</span>
-                    <span className="select-all text-gray-700 font-medium text-wrap">{d.email}</span>
-                  </div>
-                  
-                  {d.message && (
-                    <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
-                      <div className="text-sm text-gray-900 font-semibold text-start sm:text-left">Mensagem:</div>
-                      <div className="text-xs text-gray-700 whitespace-pre-wrap">{d.message}</div>
+              {/* Conteúdo expandido */}
+              <div
+                id={`duvida-${d.id}`}
+                className={`grid transition-all duration-200 ease-out ${
+                  isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="px-4 pb-4 pt-1 text-sm text-gray-700">
+                    <div className="flex flex-wrap items-center text-sm gap-1">
+                      <span className="font-bold text-black">Nome:</span>
+                      <span className="select-all text-gray-700 font-medium text-wrap">{d.name}</span>
                     </div>
-                  )}                  
 
-                  {/* Resposta do ADM */}
-                    {d.answer && (
-                    <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
-                      <div className="text-sm font-extrabold text-gray-900 font-semibold text-start sm:text-start">Resposta:</div>
-                      <div className="text-xs text-gray-700 whitespace-pre-wrap">{d.answer}</div>
-                      <div className="mt-1 text-xs text-gray-500">{toDateSafe(d.answeredAt)}
+                    <div className="flex flex-wrap items-center text-sm gap-1">
+                      <span className="font-bold text-black">E-mail:</span>
+                      <span className="select-all text-gray-700 font-medium text-wrap">{d.email}</span>
+                    </div>
+
+                    {d.message && (
+                      <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
+                        <div className="text-sm text-gray-900 font-semibold">Mensagem:</div>
+                        <div className="text-xs text-gray-700 whitespace-pre-wrap">{d.message}</div>
                       </div>
-                    </div>
-                  )}
-                  {d.status === "encerrado" && (
-                  <div className="mt-2 text-xs text-gray-600">
-                    Encerrado por <span className="font-medium">{d.answeredByName || "Administrador"}</span>
-                    {d.answeredAt && <> em {toDateSafe(d.answeredAt)}</>}
+                    )}
+
+                    {d.answer && (
+                      <div className="mt-3 rounded-lg bg-gray-50 border px-3 py-2">
+                        <div className="text-sm font-extrabold text-gray-900">Resposta:</div>
+                        <div className="text-xs text-gray-700 whitespace-pre-wrap">{d.answer}</div>
+                        <div className="mt-1 text-xs text-gray-500">{toDateSafe(d.answeredAt)}</div>
+                      </div>
+                    )}
+
+                    {d.status === "encerrado" && (
+                      <div className="mt-2 text-xs text-gray-600">
+                        Encerrado por <span className="font-medium">{d.answeredByName || "Administrador"}</span>
+                        {d.answeredAt && <> em {toDateSafe(d.answeredAt)}</>}
+                      </div>
+                    )}
                   </div>
-                  )}
                 </div>
               </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+            </li>
+          );
+        })}
+      </ul>
+
+      {hasHidden && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setVisibleCount((c) => Math.min(c + STEP, items.length))}
+            className="inline-flex w-full gap-2 items-center justify-center rounded-lg bg-[#8B0D0D] px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#6f0a0a] disabled:opacity-60 disabled:cursor-not-allowed transition cursor-pointer"
+          >
+            Exibir mais dúvidas
+            <span className="text-xs text-white-500">({items.length - visibleCount} restantes)</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
