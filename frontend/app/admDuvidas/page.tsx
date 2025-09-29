@@ -6,6 +6,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "@/src/firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { AdminDuvidas } from "@/components/AdminDuvidas";
+import { ToastContainer } from "react-toastify";
 
 export default function AdminDuvidasPage() {
   const auth = getAuth();
@@ -39,6 +40,7 @@ export default function AdminDuvidasPage() {
       <div className="w-full max-w-3xl px-4 sm:px-6">
         <h1 className="text-2xl font-bold text-center mb-6">Painel De Dúvidas</h1>
         <AdminDuvidas />
+        <ToastContainer/>
       </div>
     </div>
   );
