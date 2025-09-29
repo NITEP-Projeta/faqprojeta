@@ -1,15 +1,18 @@
-// src/firebase/firebase.admin.ts
 import * as admin from 'firebase-admin';
-import { join } from 'path';
 
-// Carregue o JSON de credenciais que você baixou do Console do Firebase
-// (lembre-se de NÃO comitar esse JSON no Git)
-const serviceAccount = require(join(__dirname, 'firebase-credentials.json'));
+const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+if (!serviceAccountJson) {
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set in .env');
+}
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    // Se você usar outras features, por ex. storage, adicione aqui:
-    // storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-});
+try {
+    const serviceAccount = JSON.parse(serviceAccountJson);
 
-export { admin };
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+    });
+} catch (error) {
+    throw new Error('Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY: ' + (error as Error).message);
+}
+
+export = admin;

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword, signOut, UserCredential } from "firebase/auth";
 import { auth } from "@/src/services/auth";
 import { ToastContainer, toast } from "react-toastify";
+import { logAnalyticsEvent } from "@/src/firebase/analytics.client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,6 +38,8 @@ export default function LoginPage() {
     try {
       // Login do usuário
       const userCredential: UserCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      await logAnalyticsEvent("login", { method: "password", debug_mode: true });
       const user = userCredential.user;
 
       // Verificação se o e-mail foi confirmado

@@ -2,7 +2,7 @@
 import { Module } from '@nestjs/common'
 import { MetricsController } from './metrics.controller'
 import { MetricsService } from './metrics.service'
-import { FirebaseService } from './../../firebase/firebase.service'
+import { FirebaseService } from '../../shared/firebase.service';
 
 @Module({
     controllers: [MetricsController],

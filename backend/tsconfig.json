@@ -18,6 +18,11 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true, // 👈 Adicione esta linha
-    "esModuleInterop": true // 👈 E esta linha
+    "esModuleInterop": true, // 👈 E esta linha
+    "paths": {
+      "firebase-admin": [
+        "src/firebase/firebase.admin"
+      ]
+    }
   }
 }

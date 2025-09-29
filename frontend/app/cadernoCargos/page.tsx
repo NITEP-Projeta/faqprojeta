@@ -56,7 +56,7 @@ export default function CadernoCargosPage() {
       <div className="w-full max-w-7xl">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2 }} className="text-center">
           <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Caderno de <span className="text-[#AF1B1B]">Cargos</span></h1>
-          <div className="w-28 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
+          <div className="w-28 h-1 bg-[# AF1B1B] mx-auto rounded"></div>
           <p className="text-[#555] mt-3">Documentos com informações sobre cargos, funções, competências e planos de carreira.</p>
         </motion.div>
       </div>
