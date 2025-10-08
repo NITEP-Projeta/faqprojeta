@@ -30,12 +30,6 @@ const manualData = [
     icon: <FiBriefcase size={28}/>,
   },
   {
-    title: "Política de Home Office",
-    description: "Diretrizes para trabalho remoto com segurança e produtividade.",
-    slug: "politica-home-office",
-    icon: <FiHome size={28}/>,
-  },
-  {
     title: "Segurança no Trabalho",
     description: "Normas e práticas para garantir um ambiente seguro para todos.",
     slug: "seguranca-no-trabalho",
@@ -128,11 +122,12 @@ export default function ManualPage() {
                   Flash Benefícios
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <Image src="/images/beneficios/flash.png" alt="Flash Benefícios" width={100} height={100} />
-                  <p className="text-base leading-relaxed text-[#333]">
-                    Cesta básica – parceria Flash Benefícios, entregue toda 2ª quarta-feira de cada mês.
+                  <p className="text-base leading-relaxed text-[#333] text-justify">
+                    A Projeta oferece aos colaboradores o benefício de Cesta Básica, disponibilizado por meio da plataforma Flash Benefícios, garantindo praticidade, transparência e autonomia na gestão dos créditos.
+                    As cestas são entregues na 2ª quarta-feira de cada mês, conforme calendário interno, assegurando regularidade e atendimento a todos os colaboradores elegíveis.
+                    O programa tem como objetivo valorizar o bem-estar dos colaboradores, simplificar a administração dos benefícios e fortalecer o vínculo entre empresa e equipe por meio de uma solução moderna e digital.
                   </p>
-                  <Image src="/images/beneficios/parceiros.png" alt="Parceiros Flash" width={250} height={250} className="rounded-md shadow" />
+                  <Image src="/images/beneficios/flash_beneficios.jpeg" alt="Parceiros Flash" width={800} height={250} className="rounded-md shadow mx-auto" />
                 </AccordionContent>
               </AccordionItem>
 
@@ -142,48 +137,40 @@ export default function ManualPage() {
                   Vale Transporte
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <p className="text-base leading-relaxed text-[#333]">
-                    Desconto de 6% ou conforme Convenção Coletiva.
+                  <p className="text-base leading-relaxed text-[#333] text-justify">
+                    Benefício concedido aos colaboradores para custeio do deslocamento residência–trabalho e trabalho–residência, em conformidade com a legislação vigente (Lei nº 7.418/1985).
+                    O desconto aplicado é de 6% sobre o salário base ou conforme disposto na Convenção Coletiva de Trabalho aplicável à categoria.
+                    A concessão do vale-transporte visa garantir o acesso regular e seguro ao local de trabalho, promovendo pontualidade e assiduidade dos colaboradores.
                   </p>
+                  <Image src="/images/beneficios/vale_transporte.png" alt="Parceiros Flash" width={500} height={250} className="rounded-md shadow mx-auto" />                  
                 </AccordionContent>
               </AccordionItem>
 
               {/* Hapvida */}
               <AccordionItem value="hapvida">
                 <AccordionTrigger className="text-base font-semibold text-[#AF1B1B] cursor-pointer">
-                  Plano de Saúde Hapvida
+                  Plano de Saúde
                 </AccordionTrigger>
                 <AccordionContent className="pt-3 space-y-3">
-                  <Image src="/images/beneficios/hapvida.png" alt="Hapvida" width={200} height={80} />
-                  <p className="text-base leading-relaxed text-[#333]">
-                    Plano de saúde Hapvida (50% empresa / 50% funcionário).
+                  <p className="text-base leading-relaxed text-[#333] text-justify">
+                    A Projeta oferece o Plano de Saúde Hapvida, com custo compartilhado entre empresa (50%) e colaborador (50%), garantindo acesso a uma ampla rede credenciada de clínicas, hospitais e laboratórios.
+                    O benefício visa promover o bem-estar e a segurança dos colaboradores, proporcionando atendimento médico de qualidade e incentivando o cuidado preventivo com a saúde.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Wellhub */}
-              <AccordionItem value="wellhub">
-                <AccordionTrigger className="text-base font-semibold text-[#AF1B1B] cursor-pointer">
-                  Wellhub
-                </AccordionTrigger>
-                <AccordionContent className="pt-3 space-y-3">
-                  <Image src="/images/beneficios/wellhub.png" alt="Wellhub" width={200} height={80} />
-                  <p className="text-base leading-relaxed text-[#333]">
-                    Wellhub – empresas associadas.
-                  </p>
+                  <Image src="/images/beneficios/hapvida_plano.png" alt="Parceiros Flash" width={500} height={250} className="rounded-md shadow mx-auto" />                  
                 </AccordionContent>
               </AccordionItem>
 
               {/* Icatu */}
               <AccordionItem value="icatu">
                 <AccordionTrigger className="text-base font-semibold text-[#AF1B1B] cursor-pointer">
-                  Icatu Seguros
+                  Seguro de Vida
                 </AccordionTrigger>
                 <AccordionContent className="pt-3 space-y-3">
-                  <Image src="/images/beneficios/icatu.png" alt="Icatu" width={200} height={80} />
-                  <p className="text-base leading-relaxed text-[#333]">
-                    Seguro de vida Icatu Seguros (sem desconto ao empregado).
+                  <p className="text-base leading-relaxed text-[#333] text-justify">
+                    A Projeta disponibiliza o Seguro de Vida Icatu Seguros a todos os colaboradores, sem desconto em folha, garantindo proteção financeira em casos de falecimento, invalidez ou outros eventos cobertos pela apólice.
+                    O benefício reforça o compromisso da empresa com a segurança e o amparo às famílias dos colaboradores, assegurando tranquilidade e suporte em situações imprevistas.
                   </p>
+                  <Image src="/images/beneficios/icatu_seguros_banner.jpg" alt="Parceiros Flash" width={800} height={250} className="rounded-md shadow mx-auto" />                  
                 </AccordionContent>
               </AccordionItem>
 
@@ -193,16 +180,25 @@ export default function ManualPage() {
                 Férias
               </AccordionTrigger>
               <AccordionContent className="pt-3">
-                <ul className="list-disc pl-6 space-y-3 text-base leading-relaxed text-[#333]">
-                <li>30 dias após 12 meses de trabalho (período aquisitivo)</li>
-                <li>Concessão até 12 meses após período aquisitivo</li>
-                <li>Possibilidade de férias coletivas (com acordo e ciência do sindicato)</li>
-                <li>Notificação via app do ponto, assinada pelo empregado</li>
-                <li>Proibido início de férias em 2 dias antes de feriado ou descanso semanal</li>
-                <li>Abono pecuniário: venda de até 1/3 das férias</li>
-                <li>Fracionamento em até 3 períodos (mínimo 14 dias + 5 + 5)</li>
-                <li>Pagamento até 2 dias antes do início do período</li>
-                </ul>
+                <div className="space-y-8 text-base leading-relaxed text-[#333]">
+                  <p className="text-base leading-relaxed text-[#333] text-justify">
+                    As férias constituem um direito trabalhista garantido pela Consolidação das Leis do Trabalho (CLT), destinado ao descanso e à recuperação física e mental do colaborador após o período de 12 meses de serviço.
+                    A política da Projeta segue integralmente a legislação vigente, assegurando transparência, planejamento e conformidade em todo o processo de concessão, programação e pagamento das férias.
+                  </p>
+
+                  <ul className="list-disc pl-6 space-y-3 text-base leading-relaxed text-[#333]">
+                  <li>30 dias após 12 meses de trabalho (período aquisitivo)</li>
+                  <li>Concessão até 12 meses após período aquisitivo</li>
+                  <li>Possibilidade de férias coletivas (com acordo e ciência do sindicato)</li>
+                  <li>Notificação via app do ponto, assinada pelo empregado</li>
+                  <li>Proibido início de férias em 2 dias antes de feriado ou descanso semanal</li>
+                  <li>Abono pecuniário: venda de até 1/3 das férias</li>
+                  <li>Fracionamento em até 3 períodos (mínimo 14 dias + 5 + 5)</li>
+                  <li>Pagamento até 2 dias antes do início do período</li>
+                  </ul>
+
+                  <Image src="/images/beneficios/ferias.jpg" alt="Parceiros Flash" width={500} height={250} className="rounded-md shadow mx-auto" />                  
+                </div>
               </AccordionContent>
             </AccordionItem>
             </Accordion>

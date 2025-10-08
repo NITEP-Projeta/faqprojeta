@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-import { FiTruck, FiFileText, FiKey, FiShield, FiAlertTriangle } from "react-icons/fi";
+import { FiTruck, FiFileText, FiKey, FiShield, FiAlertTriangle, FiX } from "react-icons/fi";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -16,10 +16,10 @@ const termoVeiculosData = [
   {
     title: "Termo de Responsabilidade",
     description: "Documento de compromisso do colaborador ao utilizar veículos da empresa.",
-    slug: "termo-de-responsabilidade",
+    slug: "termo_de_responsabilidade",
     icon: <FiFileText size={28}/>,
   },
-  {
+  /*{
     title: "Controle de Entrega de Chaves",
     description: "Registro de retirada e devolução de chaves dos veículos corporativos.",
     slug: "controle-entrega-chaves",
@@ -42,7 +42,7 @@ const termoVeiculosData = [
     description: "Formulário para anotar incidentes ou problemas ocorridos durante o uso.",
     slug: "registro-ocorrencias-veiculos",
     icon: <FiAlertTriangle size={28}/>,
-  },
+  },*/
 ]
 
 export default function TermoVeiculosPage() {
@@ -92,9 +92,13 @@ export default function TermoVeiculosPage() {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4">
           <div className="relative w-full max-w-5xl h-[90vh] bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
             {/* PDF Iframe */}
-            <iframe src={`/pdfs/${pdfSlug}.pdf`} className="w-full h-full" title={`Termo Veículos - ${pdfSlug}`}/>
-            <button onClick={() => setPdfSlug(null)} className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-full text-sm sm:text-base">
-              Fechar
+            <iframe src={`/pdfs/veiculo/${pdfSlug}.pdf`} className="w-full h-full" title={`Termo Veículos - ${pdfSlug}`}/>
+            <button
+              onClick={() => setPdfSlug(null)}
+              className="absolute top-8 right-2 bg-[#AF1B1B] hover:bg-[#8C1616] text-white p-2 rounded-full shadow-md transition-all duration-300 cursor-pointer"
+              aria-label="Fechar"
+            >
+              <FiX size={18} />
             </button>
           </div>
         </div>

@@ -8,18 +8,18 @@ import { Button } from "@/components/ui/button";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-import { FiUsers, FiFileText, FiAward, FiList, FiBriefcase } from "react-icons/fi";
+import { FiMap , FiFileText, FiAward, FiList, FiBriefcase, FiX } from "react-icons/fi";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const cadernoCargosData = [
   {
-    title: "Estrutura de Cargos",
-    description: "Organograma com a hierarquia de cargos e funções dentro da empresa.",
-    slug: "estrutura-de-cargos",
-    icon: <FiUsers size={28}/>,
+    title: "Mapa de Cargos e Responsabilidades",
+    description: "Apresenta as funções, responsabilidades e níveis hierárquicos da organização, garantindo clareza na definição de papéis.",
+    slug: "mapa_cargos_responsabilidades",
+    icon: <FiMap  size={28}/>,
   },
-  {
+  /*{
     title: "Descrição de Funções",
     description: "Documento com as atividades, responsabilidades e requisitos de cada função.",
     slug: "descricao-de-funcoes",
@@ -42,7 +42,7 @@ const cadernoCargosData = [
     description: "Habilidades e conhecimentos necessários para cada posição.",
     slug: "competencias-por-cargo",
     icon: <FiBriefcase size={28}/>,
-  },
+  },*/
 ]
 
 export default function CadernoCargosPage() {
@@ -87,9 +87,13 @@ export default function CadernoCargosPage() {
       {pdfSlug && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4">
           <div className="relative w-full max-w-5xl h-[90vh] bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
-            <iframe src={`/pdfs/${pdfSlug}.pdf`} className="w-full h-full"title={`Caderno de Cargos - ${pdfSlug}`}/>
-            <button onClick={() => setPdfSlug(null)} className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-full text-sm sm:text-base">
-              Fechar
+            <iframe src={`/pdfs/cargos/${pdfSlug}.pdf`} className="w-full h-full"title={`Caderno de Cargos - ${pdfSlug}`}/>
+            <button
+              onClick={() => setPdfSlug(null)}
+              className="absolute top-8 right-2 bg-[#AF1B1B] hover:bg-[#8C1616] text-white p-2 rounded-full shadow-md transition-all duration-300 cursor-pointer"
+              aria-label="Fechar"
+            >
+              <FiX size={18} />
             </button>
           </div>
         </div>

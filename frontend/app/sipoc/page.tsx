@@ -8,41 +8,29 @@ import { Button } from "@/components/ui/button";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-import { FiGitBranch, FiUsers, FiPackage, FiClipboard, FiActivity } from "react-icons/fi";
+import { FiTruck , FiUserPlus , FiUserCheck, FiX   } from "react-icons/fi";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const sipocData = [
   {
-    title: "Fornecedores (Suppliers)",
-    description: "Identificação dos fornecedores que fornecem entradas para o processo.",
-    slug: "fornecedores-sipoc",
-    icon: <FiUsers size={28}/>,
+    title: "Processo De Admissão De Pessoas",
+    description: "Gerencia a entrada de novos colaboradores, garantindo conformidade legal e integração à empresa.",
+    slug: "processo_de_admissao_de_pessoas",
+    icon: <FiUserPlus  size={28}/>,
   },
   {
-    title: "Entradas (Inputs)",
-    description: "Recursos, informações ou materiais que alimentam o processo SIPOC.",
-    slug: "entradas-sipoc",
-    icon: <FiPackage size={28}/>,
+    title: "Processo De Contratação De Capital Intelectual",
+    description: "Atrai e seleciona profissionais qualificados alinhados aos objetivos estratégicos da empresa.",
+    slug: "processo_de_contratacao_de_capital_intelectual",
+    icon: <FiUserCheck  size={28}/>,
   },
   {
-    title: "Processo (Process)",
-    description: "Etapas e atividades que transformam entradas em saídas.",
-    slug: "processo-sipoc",
-    icon: <FiGitBranch size={28}/>,
-  },
-  {
-    title: "Saídas (Outputs)",
-    description: "Produtos, serviços ou resultados gerados pelo processo.",
-    slug: "saidas-sipoc",
-    icon: <FiClipboard size={28}/>,
-  },
-  {
-    title: "Clientes (Customers)",
-    description: "Destinatários ou usuários finais das saídas do processo.",
-    slug: "clientes-sipoc",
-    icon: <FiActivity size={28}/>,
-  },
+    title: "Processo De Mobilização De Pessoas",
+    description: "Planeja e executa o envio de colaboradores para projetos, assegurando requisitos logísticos e de segurança.",
+    slug: "processo_de_mobilizacao_de_pessoas",
+    icon: <FiTruck  size={28}/>,
+  }
 ]
 
 export default function SipocPage() {
@@ -68,7 +56,7 @@ export default function SipocPage() {
               <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
               <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
                 <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
-                <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
+                <CardDescription className="text-sm text-[#555] text-xs">{item.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center mt-2">
                 <Button onClick={() => setPdfSlug(item.slug)} className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -88,9 +76,14 @@ export default function SipocPage() {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4">
           <div className="relative w-full max-w-5xl h-[90vh] bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
             {/* PDF Iframe */}
-            <iframe src={`/pdfs/${pdfSlug}.pdf`} className="w-full h-full" title={`SIPOC - ${pdfSlug}`}/>
-            <button onClick={() => setPdfSlug(null)} className="absolute bottom-3 right-3 bg-[#D96C06] hover:bg-[#bf5f05] text-white px-4 py-2 rounded-full text-sm sm:text-base">
-              Fechar
+            <iframe src={`/pdfs/sipoc/${pdfSlug}.pdf`}
+            className="w-full h-full" title={`SIPOC - ${pdfSlug}`}/>
+            <button
+              onClick={() => setPdfSlug(null)}
+              className="absolute top-8 right-2 bg-[#AF1B1B] hover:bg-[#8C1616] text-white p-2 rounded-full shadow-md transition-all duration-300 cursor-pointer"
+              aria-label="Fechar"
+            >
+              <FiX size={18} />
             </button>
           </div>
         </div>
