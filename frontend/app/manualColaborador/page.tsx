@@ -16,6 +16,10 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import { Autoplay } from "swiper/modules";
+
 const manualData = [
   {
     title: "Código de Conduta",
@@ -119,15 +123,21 @@ export default function ManualPage() {
               {/* Flash Benefícios */}
               <AccordionItem value="flash">
                 <AccordionTrigger className="text-base font-semibold text-[#AF1B1B] cursor-pointer">
-                  Flash Benefícios
+                  Alimentação
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-4 text-balance">
                   <p className="text-base leading-relaxed text-[#333] text-justify">
-                    A Projeta oferece aos colaboradores o benefício de Cesta Básica, disponibilizado por meio da plataforma Flash Benefícios, garantindo praticidade, transparência e autonomia na gestão dos créditos.
+                    A <span className="font-bold">Projeta</span> oferece aos colaboradores o benefício de Cesta Básica, disponibilizado por meio da <span className="font-bold">Plataforma Flash Benefícios</span>, garantindo praticidade, transparência e autonomia na gestão dos créditos.
                     As cestas são entregues na 2ª quarta-feira de cada mês, conforme calendário interno, assegurando regularidade e atendimento a todos os colaboradores elegíveis.
                     O programa tem como objetivo valorizar o bem-estar dos colaboradores, simplificar a administração dos benefícios e fortalecer o vínculo entre empresa e equipe por meio de uma solução moderna e digital.
                   </p>
-                  <Image src="/images/beneficios/flash_beneficios.jpeg" alt="Parceiros Flash" width={800} height={250} className="rounded-md shadow mx-auto" />
+                  <Image src="/images/beneficios/flash1.png" alt="Parceiros Flash" width={500} height={250} className="rounded-md shadow mx-auto" />
+
+                  <Swiper modules={[Autoplay]} spaceBetween={20} slidesPerView={3} loop={true} autoplay={{ delay: 20,   disableOnInteraction: false, pauseOnMouseEnter: false  }} speed={1000}>
+                    <SwiperSlide><Image src="/images/beneficios/mcdonalds.png" alt="Parceiro Flash 1" width={40} height={120} className="rounded-md shadow mx-auto" /></SwiperSlide>
+                    <SwiperSlide><Image src="/images/beneficios/localiza.png" alt="Parceiro Flash 2" width={40} height={120} className="rounded-md shadow mx-auto" /></SwiperSlide>
+                    <SwiperSlide><Image src="/images/beneficios/outback.png" alt="Parceiro Flash 3" width={40} height={120} className="rounded-md shadow mx-auto" /></SwiperSlide>
+                  </Swiper>
                 </AccordionContent>
               </AccordionItem>
 
