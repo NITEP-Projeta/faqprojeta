@@ -16,10 +16,6 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import { Autoplay } from "swiper/modules";
-
 const manualData = [
   {
     title: "Código de Conduta",
@@ -120,26 +116,48 @@ export default function ManualPage() {
 
             <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="flash">
               
-              {/* Flash Benefícios */}
-              <AccordionItem value="flash">
-                <AccordionTrigger className="text-base font-semibold text-[#AF1B1B] cursor-pointer">
-                  Alimentação
-                </AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-4 text-balance">
-                  <p className="text-base leading-relaxed text-[#333] text-justify">
-                    A <span className="font-bold">Projeta</span> oferece aos colaboradores o benefício de Cesta Básica, disponibilizado por meio da <span className="font-bold">Plataforma Flash Benefícios</span>, garantindo praticidade, transparência e autonomia na gestão dos créditos.
-                    As cestas são entregues na 2ª quarta-feira de cada mês, conforme calendário interno, assegurando regularidade e atendimento a todos os colaboradores elegíveis.
-                    O programa tem como objetivo valorizar o bem-estar dos colaboradores, simplificar a administração dos benefícios e fortalecer o vínculo entre empresa e equipe por meio de uma solução moderna e digital.
-                  </p>
-                  <Image src="/images/beneficios/flash1.png" alt="Parceiros Flash" width={500} height={250} className="rounded-md shadow mx-auto" />
+            {/* Flash Benefícios */}
+            <AccordionItem value="flash">
+              <AccordionTrigger className="text-base font-semibold text-[#AF1B1B] cursor-pointer">
+                Alimentação
+              </AccordionTrigger>
 
-                  <Swiper modules={[Autoplay]} spaceBetween={20} slidesPerView={3} loop={true} autoplay={{ delay: 20,   disableOnInteraction: false, pauseOnMouseEnter: false  }} speed={1000}>
-                    <SwiperSlide><Image src="/images/beneficios/mcdonalds.png" alt="Parceiro Flash 1" width={40} height={120} className="rounded-md shadow mx-auto" /></SwiperSlide>
-                    <SwiperSlide><Image src="/images/beneficios/localiza.png" alt="Parceiro Flash 2" width={40} height={120} className="rounded-md shadow mx-auto" /></SwiperSlide>
-                    <SwiperSlide><Image src="/images/beneficios/outback.png" alt="Parceiro Flash 3" width={40} height={120} className="rounded-md shadow mx-auto" /></SwiperSlide>
-                  </Swiper>
-                </AccordionContent>
-              </AccordionItem>
+              <AccordionContent className="flex flex-col gap-4 text-balance">
+                <p className="text-base leading-relaxed text-[#333] text-justify">
+                  A <span className="font-bold">Projeta</span> oferece aos colaboradores o benefício de Cesta Básica, disponibilizado por meio da <span className="font-bold">Plataforma Flash Benefícios</span>, garantindo praticidade, transparência e autonomia na gestão dos créditos.
+                  As cestas são entregues na 2ª quarta-feira de cada mês, conforme calendário interno, assegurando regularidade e atendimento a todos os colaboradores elegíveis.
+                  O programa tem como objetivo valorizar o bem-estar dos colaboradores, simplificar a administração dos benefícios e fortalecer o vínculo entre empresa e equipe por meio de uma solução moderna e digital.
+                </p>
+
+                <p className="text-base leading-relaxed text-[#333] text-justify">
+                  O <span className="font-bold">cartão Flash</span> funciona como um cartão <span className="font-semibold">pré-pago</span>, sendo aceito em diversos estabelecimentos físicos e online em todo o Brasil. 
+                  Ele oferece flexibilidade para o colaborador escolher onde utilizar seus benefícios, dentro das categorias permitidas, de forma prática e segura.
+                </p>
+
+                  <Image src="/images/beneficios/flash1.png" alt="Parceiros Flash" width={300} height={250} className="rounded-md shadow mx-auto" />                 
+
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <h3 className="text-lg font-semibold text-[#AF1B1B]">Parceiros</h3>
+                  <ul className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-base font-medium text-[#333]">
+                    <li>MC Donald's</li>
+                    <li>Carrefour</li>
+                    <li>Salú</li>
+                    <li>Oracle</li>
+                    <li>Globoplay</li>
+                    <li>ePharma</li>
+                    <li>Allu</li>
+                    <li>ClickBus</li>
+                    <li>Localiza</li>
+                    <li>Insider</li>
+                    <li>Americanas</li>
+                    <li>Cinemark</li>
+                    <li>Uber</li>
+                    <li>AWS</li>
+                    <li>E muito mais...</li>
+                  </ul>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
               {/* Vale Transporte */}
               <AccordionItem value="vale-transporte">
@@ -152,7 +170,7 @@ export default function ManualPage() {
                     O desconto aplicado é de 6% sobre o salário base ou conforme disposto na Convenção Coletiva de Trabalho aplicável à categoria.
                     A concessão do vale-transporte visa garantir o acesso regular e seguro ao local de trabalho, promovendo pontualidade e assiduidade dos colaboradores.
                   </p>
-                  <Image src="/images/beneficios/vale_transporte.png" alt="Parceiros Flash" width={500} height={250} className="rounded-md shadow mx-auto" />                  
+                  <Image src="/images/beneficios/vale_transporte.png" alt="Parceiros Flash" width={400} height={250} className="rounded-md shadow mx-auto" />                  
                 </AccordionContent>
               </AccordionItem>
 
@@ -163,8 +181,9 @@ export default function ManualPage() {
                 </AccordionTrigger>
                 <AccordionContent className="pt-3 space-y-3">
                   <p className="text-base leading-relaxed text-[#333] text-justify">
-                    A Projeta oferece o Plano de Saúde Hapvida, com custo compartilhado entre empresa (50%) e colaborador (50%), garantindo acesso a uma ampla rede credenciada de clínicas, hospitais e laboratórios.
-                    O benefício visa promover o bem-estar e a segurança dos colaboradores, proporcionando atendimento médico de qualidade e incentivando o cuidado preventivo com a saúde.
+                  A Projeta oferece o Plano de Saúde Hapvida, com custo compartilhado entre empresa (50%) e colaborador (50%) para o titular, garantindo acesso a uma ampla rede credenciada de clínicas, hospitais e laboratórios.
+                  A inclusão de dependentes é opcional, sendo o custeio integral (100%) de responsabilidade do colaborador.
+                  O benefício visa promover o bem-estar e a segurança dos colaboradores, proporcionando atendimento médico de qualidade e incentivando o cuidado preventivo com a saúde.
                   </p>
                   <Image src="/images/beneficios/hapvida_plano.png" alt="Parceiros Flash" width={500} height={250} className="rounded-md shadow mx-auto" />                  
                 </AccordionContent>

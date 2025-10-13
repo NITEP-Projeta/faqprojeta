@@ -14,16 +14,16 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const sipocData = [
   {
-    title: "Processo De Admissão De Pessoas",
-    description: "Gerencia a entrada de novos colaboradores, garantindo conformidade legal e integração à empresa.",
-    slug: "processo_de_admissao_de_pessoas",
-    icon: <FiUserPlus  size={28}/>,
-  },
-  {
     title: "Processo De Contratação De Capital Intelectual",
     description: "Atrai e seleciona profissionais qualificados alinhados aos objetivos estratégicos da empresa.",
     slug: "processo_de_contratacao_de_capital_intelectual",
     icon: <FiUserCheck  size={28}/>,
+  },
+  {
+    title: "Processo De Admissão De Pessoas",
+    description: "Gerencia a entrada de novos colaboradores, garantindo conformidade legal e integração à empresa.",
+    slug: "processo_de_admissao_de_pessoas",
+    icon: <FiUserPlus  size={28}/>,
   },
   {
     title: "Processo De Mobilização De Pessoas",
