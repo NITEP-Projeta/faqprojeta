@@ -25,7 +25,7 @@ export class FirebaseService {
     }
 }
 }
-}
+
         } else {
     this.app = getApp();
 }
@@ -38,4 +38,4 @@ auth() {
 firestore() {
     return admin.firestore();
 }
-}
+

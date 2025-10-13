@@ -1,12 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { FirebaseService } from '../../shared/firebase.service';
+import { UsersController } from './users.controller';
 
 @Module({
-  controllers: [UsersController],
-  providers: [UsersService, FirebaseService],
-  exports: [UsersService],
+  providers: [UsersService],
+  controllers: [UsersController]
 })
 export class UsersModule { }

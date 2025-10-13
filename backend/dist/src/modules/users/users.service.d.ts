@@ -8,39 +8,29 @@ export declare class UsersService {
         name: string;
         email: string;
         role: string;
-        createdAt: Date;
-        updatedAt: Date;
     }[]>;
     findOne(id: number): import(".prisma/client").Prisma.Prisma__UserClient<{
         id: number;
         name: string;
         email: string;
         role: string;
-        createdAt: Date;
-        updatedAt: Date;
     } | null, null, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
     create(data: CreateUserDto): import(".prisma/client").Prisma.Prisma__UserClient<{
         id: number;
         name: string;
         email: string;
         role: string;
-        createdAt: Date;
-        updatedAt: Date;
     }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
     update(id: number, data: CreateUserDto): import(".prisma/client").Prisma.Prisma__UserClient<{
         id: number;
         name: string;
         email: string;
         role: string;
-        createdAt: Date;
-        updatedAt: Date;
     }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
     remove(id: number): import(".prisma/client").Prisma.Prisma__UserClient<{
         id: number;
         name: string;
         email: string;
         role: string;
-        createdAt: Date;
-        updatedAt: Date;
     }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
 }
