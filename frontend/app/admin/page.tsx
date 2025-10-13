@@ -8,103 +8,190 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { BarChart, LineChart } from "lucide-react"
+import { LineChart as LineChartIcon, BarChart as BarChartIcon, PieChart as PieChartIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import InteractiveSparkline from "@/components/InteractiveSparkline"
+import { BarChart, DonutChart } from "@/components/ui/chart"
 
 export default function AdminDashboard() {
   const [dateRange] = useState("Últimos 30 dias")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [apiBase, setApiBase] = useState<string>("")
+  const [visitors, setVisitors] = useState<number | null>(null)
+  const [avgDailyAccess, setAvgDailyAccess] = useState<number | null>(null)
+  const [dailySeries, setDailySeries] = useState<Array<{ date: string; count: number }>>([])
+  const [weeklySeries, setWeeklySeries] = useState<Array<{ label: string; count: number }>>([])
+  const [roleSegments, setRoleSegments] = useState<Array<{ name: string; value: number }>>([])
+
+  const sparklineValues = useMemo(() => dailySeries.map(d => d.count), [dailySeries])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "").toString()
+    setApiBase(baseUrl)
+    const url = (path: string) => (baseUrl ? `${baseUrl}${path}` : path)
+
+    const run = async () => {
+      try {
+        const [vRes, mRes, dRes, wRes, rRes] = await Promise.all([
+          fetch(url("/metrics/visitors")),
+          fetch(url("/metrics/avg-daily-access?days=30")),
+          fetch(url("/metrics/daily-access?days=30")),
+          fetch(url("/metrics/weekly-access?weeks=8")),
+          fetch(url("/metrics/users-by-role")),
+        ])
+
+        const [vJson, mJson, dJson, wJson, rJson] = await Promise.all([
+          vRes.ok ? vRes.json() : Promise.resolve(null),
+          mRes.ok ? mRes.json() : Promise.resolve(null),
+          dRes.ok ? dRes.json() : Promise.resolve(null),
+          wRes.ok ? wRes.json() : Promise.resolve(null),
+          rRes.ok ? rRes.json() : Promise.resolve(null),
+        ])
+
+        if (cancelled) return
+        setVisitors(vJson?.totalVisitors ?? null)
+        setAvgDailyAccess(mJson?.averageDailyAccess ?? null)
+        setDailySeries(Array.isArray(dJson?.days) ? dJson.days : [])
+        setWeeklySeries(Array.isArray(wJson?.weeks) ? wJson.weeks : [])
+        setRoleSegments(Array.isArray(rJson?.segments) ? rJson.segments : [])
+        if (!vRes.ok || !mRes.ok || !dRes.ok || !wRes.ok || !rRes.ok) {
+          setError("Falha ao carregar métricas do backend.")
+        } else if (!baseUrl) {
+          setError("Defina NEXT_PUBLIC_BACKEND_URL para o backend.")
+        } else if (
+          (vJson?.totalVisitors ?? null) === null ||
+          (mJson?.averageDailyAccess ?? null) === null ||
+          !Array.isArray(dJson?.days) ||
+          !Array.isArray(wJson?.weeks) ||
+          !Array.isArray(rJson?.segments)
+        ) {
+          setError("Métricas vazias. Verifique coleções do Firestore/RTDB e backend.")
+        } else {
+          setError(null)
+        }
+      } catch {
+        if (cancelled) return
+        setVisitors(null)
+        setAvgDailyAccess(null)
+        setDailySeries([])
+        setWeeklySeries([])
+        setRoleSegments([])
+        setError("Erro de rede ao consultar o backend.")
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    run()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      {/* Sidebar */}
-      <aside className="w-64 bg-muted p-4 border-r hidden md:block">
-        <h2 className="text-xl font-bold mb-6">Administração</h2>
-        <nav className="flex flex-col gap-3">
-          <a href="#" className="text-sm hover:text-primary">Dashboard</a>
-          <a href="#" className="text-sm hover:text-primary">Gerenciar Usuários</a>
-          <a href="#" className="text-sm hover:text-primary">Treinamentos</a>
-          <a href="#" className="text-sm hover:text-primary">Métricas</a>
-          <a href="#" className="text-sm hover:text-primary">Configurações</a>
-        </nav>
-      </aside>
+    <main className="flex-1 p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Painel Administrativo</h1>
+        <Button variant="outline">{dateRange}</Button>
+      </div>
 
-      {/* Conteúdo Principal */}
-      <main className="flex-1 p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Painel Administrativo</h1>
-          <Button variant="outline">Selecionar período</Button>
+      {error && (
+        <div className="text-sm p-3 rounded-md border bg-yellow-50 text-yellow-900">
+          {error} {apiBase ? `(API: ${apiBase})` : ""}
         </div>
+      )}
 
-        {/* Cards principais */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Usuários Ativos</CardTitle>
-              <CardDescription>Desde a última semana</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">342</p>
-              <p className="text-green-500 mt-1">+8.4%</p>
-            </CardContent>
-          </Card>
+      {/* Cards principais */
+      }
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Usuários que acessaram</CardTitle>
+            <CardDescription>Últimos 30 dias</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{loading ? "—" : (visitors ?? "—")}</p>
+            <p className="text-green-500 mt-1">{loading ? "" : ""}</p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Treinamentos Concluídos</CardTitle>
-              <CardDescription>No mês atual</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">124</p>
-              <p className="text-green-500 mt-1">+12.1%</p>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Média diária de acessos</CardTitle>
+            <CardDescription>Últimos 30 dias</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">{loading ? "—" : (avgDailyAccess != null ? avgDailyAccess.toFixed(1) : "—")}</p>
+            <p className="text-red-500 mt-1">{loading ? "" : ""}</p>
+          </CardContent>
+        </Card>
+      </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Acessos à Plataforma</CardTitle>
-              <CardDescription>Últimos 30 dias</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">1.238</p>
-              <p className="text-red-500 mt-1">-3.2%</p>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="col-span-1 lg:col-span-2">
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Atividade Mensal</CardTitle>
+              <CardDescription>Sparkline (média diária)</CardDescription>
+            </div>
+            <LineChartIcon className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-48 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground relative">
+              {!loading && sparklineValues.length > 0 ? (
+                <InteractiveSparkline values={sparklineValues} />
+              ) : (
+                <span>{loading ? "Carregando…" : "Sem dados"}</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Gráficos simulados */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="flex justify-between items-center">
-              <div>
-                <CardTitle>Atividade Mensal</CardTitle>
-                <CardDescription>Visualizações e Interações</CardDescription>
-              </div>
-              <LineChart className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">
-                [Gráfico de Linhas aqui]
-              </div>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Acessos por Semana</CardTitle>
+              <CardDescription>Últimas 8 semanas</CardDescription>
+            </div>
+            <BarChartIcon className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-48">
+              {!loading && weeklySeries.length > 0 ? (
+                <BarChart
+                  data={weeklySeries.map(w => ({ x: w.label, y: w.count }))}
+                />
+              ) : (
+                <span className="text-sm text-muted-foreground">{loading ? "Carregando…" : "Sem dados"}</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex justify-between items-center">
-              <div>
-                <CardTitle>Treinamentos por Categoria</CardTitle>
-                <CardDescription>Distribuição geral</CardDescription>
-              </div>
-              <BarChart className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-40 bg-muted rounded-md flex items-center justify-center text-sm text-muted-foreground">
-                [Gráfico de Barras aqui]
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
+        <Card className="col-span-1 lg:col-span-3">
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <CardTitle>Distribuição de Usuários</CardTitle>
+              <CardDescription>Por perfil de acesso (exemplo)</CardDescription>
+            </div>
+            <PieChartIcon className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-56">
+              {(!loading && roleSegments.length > 0) ? (
+                <DonutChart data={roleSegments} />
+              ) : (
+                <span className="text-sm text-muted-foreground">{loading ? "Carregando…" : "Sem dados"}</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   )
 }

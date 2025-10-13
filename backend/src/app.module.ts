@@ -1,13 +1,12 @@
 /* eslint-disable prettier/prettier */
-// src/app.module.ts
 import { Module } from '@nestjs/common';
-import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './modules/users/users.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
-    PrismaModule,
+    SharedModule, // ✅ disponibiliza FirebaseService globalmente
     UsersModule,
     MetricsModule,
   ],

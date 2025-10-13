@@ -1,0 +1,1 @@
+{"version":3,"file":"logs.module.js","sourceRoot":"","sources":["../../src/logs/logs.module.ts"],"names":[],"mappings":";;;;;;;;;AACA,2CAAuC;AACvC,uDAAkD;AAClD,iDAA4C;AAC5C,iEAA6D;AAMtD,IAAM,UAAU,GAAhB,MAAM,UAAU;CAAI,CAAA;AAAd,gCAAU;qBAAV,UAAU;IAJtB,IAAA,eAAM,EAAC;QACJ,WAAW,EAAE,CAAC,gCAAc,CAAC;QAC7B,SAAS,EAAE,CAAC,0BAAW,EAAE,kCAAe,CAAC;KAC5C,CAAC;GACW,UAAU,CAAI"}

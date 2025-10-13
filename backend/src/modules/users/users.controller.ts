@@ -23,9 +23,9 @@ export class UsersController {
         return this.usersService.findAll();
     }
 
-    @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.findOne(id);
+    @Get(':uid')
+    findOne(@Param('uid') uid: string) {
+        return this.usersService.findOne(uid);
     }
 
     @Post()
@@ -33,16 +33,16 @@ export class UsersController {
         return this.usersService.create(createUserDto);
     }
 
-    @Patch(':id')
+    @Patch(':uid')
     update(
-        @Param('id', ParseIntPipe) id: number,
+        @Param('uid') uid: string,
         @Body() createUserDto: CreateUserDto,
     ) {
-        return this.usersService.update(id, createUserDto);
+        return this.usersService.update(uid, createUserDto);
     }
 
-    @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id: number) {
-        return this.usersService.remove(id);
+    @Delete(':uid')
+    remove(@Param('uid') uid: string) {
+        return this.usersService.remove(uid);
     }
 }

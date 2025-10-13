@@ -26,4 +26,21 @@ export class MetricsController {
         const d = days ? parseInt(days, 10) : 7;
         return this.metricsService.averageDailyAccess(d);
     }
+
+    @Get('daily-access')
+    getDailyAccess(@Query('days') days?: string) {
+        const d = days ? parseInt(days, 10) : 30;
+        return this.metricsService.dailyAccess(d);
+    }
+
+    @Get('weekly-access')
+    getWeeklyAccess(@Query('weeks') weeks?: string) {
+        const w = weeks ? parseInt(weeks, 10) : 8;
+        return this.metricsService.weeklyAccess(w);
+    }
+
+    @Get('users-by-role')
+    getUsersByRole() {
+        return this.metricsService.usersByRole();
+    }
 }
