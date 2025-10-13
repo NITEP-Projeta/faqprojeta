@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as admin from 'firebase-admin';
-
+// Teste de commit
 function initializeFirebase() {
   if (admin.apps.length > 0) return;
 
@@ -23,7 +23,7 @@ function initializeFirebase() {
     databaseURL,
   });
 
-  console.info('[Main] ✅ Firebase inicializado globalmente');
+  console.info('[Main] Firebase inicializado globalmente');
 }
 
 async function bootstrap() {

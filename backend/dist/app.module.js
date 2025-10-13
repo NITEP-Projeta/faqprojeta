@@ -10,14 +10,12 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const users_module_1 = require("./modules/users/users.module");
 const metrics_module_1 = require("./modules/metrics/metrics.module");
-const shared_module_1 = require("./shared/shared.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            shared_module_1.SharedModule,
             users_module_1.UsersModule,
             metrics_module_1.MetricsModule,
         ],
