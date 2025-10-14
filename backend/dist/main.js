@@ -20,7 +20,7 @@ function initializeFirebase() {
         credential: admin.credential.cert(parsed),
         databaseURL,
     });
-    console.info('[Main] ✅ Firebase inicializado globalmente');
+    console.info('[Main] Firebase inicializado globalmente');
 }
 async function bootstrap() {
     initializeFirebase();

@@ -1,14 +1,14 @@
-"use client";
-import { useEffect } from "react";
+'use client';
+
+import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { initAnalytics, logAnalyticsEvent } from "@/src/firebase/analytics.client";
 
-export default function AnalyticsListener() {
+function AnalyticsInner() {
   const pathname = usePathname();
   const search = useSearchParams();
 
   useEffect(() => {
-    // inicializa e dispara page_view a cada navegação
     (async () => {
       await initAnalytics();
       if (typeof window !== "undefined") {
@@ -23,4 +23,12 @@ export default function AnalyticsListener() {
   }, [pathname, search]);
 
   return null;
+}
+
+export default function AnalyticsListener() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsInner />
+    </Suspense>
+  );
 }
