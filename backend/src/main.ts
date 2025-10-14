@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as admin from 'firebase-admin';
-// Teste de commit
+
 function initializeFirebase() {
   if (admin.apps.length > 0) return;
 
@@ -27,13 +27,24 @@ function initializeFirebase() {
 
 async function bootstrap() {
   initializeFirebase();
+
   const app = await NestFactory.create(AppModule);
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'https://faqprojeta.vercel.app',
+    origin: [
+      process.env.FRONTEND_URL || 'https://faqprojeta.vercel.app',
+      'http://localhost:3000',
+    ],
+    methods: 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
   });
 
-  await app.listen(3001);
+  // 🚀 Porta dinâmica para Render (OU 3001 localmente)
+  const port = process.env.PORT || 3001;
+
+  await app.listen(port);
+  console.log(`🚀 Servidor Nest rodando na porta ${port}`);
 }
 
 bootstrap();
