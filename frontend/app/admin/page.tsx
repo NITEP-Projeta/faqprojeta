@@ -1,5 +1,5 @@
 // app/admin/page.tsx
-"use client"
+'use client'
 
 import {
   Card,
@@ -7,18 +7,23 @@ import {
   CardDescription,
   CardHeader,
   CardTitle
-} from "@/components/ui/card"
-import { LineChart as LineChartIcon, BarChart as BarChartIcon, PieChart as PieChartIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useEffect, useMemo, useState } from "react"
-import InteractiveSparkline from "@/components/InteractiveSparkline"
-import { BarChart, DonutChart } from "@/components/ui/chart"
+} from '@/components/ui/card'
+import {
+  LineChart as LineChartIcon,
+  BarChart as BarChartIcon,
+  PieChart as PieChartIcon
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useEffect, useMemo, useState } from 'react'
+import InteractiveSparkline from '@/components/InteractiveSparkline'
+import { BarChart, DonutChart } from '@/components/ui/chart'
 
 export default function AdminDashboard() {
-  const [dateRange] = useState("Últimos 30 dias")
+  const [dateRange] = useState('Últimos 30 dias')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [apiBase, setApiBase] = useState<string>("")
+
+  // Métricas
   const [visitors, setVisitors] = useState<number | null>(null)
   const [avgDailyAccess, setAvgDailyAccess] = useState<number | null>(null)
   const [dailySeries, setDailySeries] = useState<Array<{ date: string; count: number }>>([])
@@ -27,70 +32,69 @@ export default function AdminDashboard() {
 
   const sparklineValues = useMemo(() => dailySeries.map(d => d.count), [dailySeries])
 
+  // Base da API (Render)
+  const apiBase =
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'https://faqprojeta-backend.onrender.com' // fallback padrão
+
   useEffect(() => {
-    let cancelled = false
+    let cancelado = false
 
-    const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "").toString()
-    setApiBase(baseUrl)
-    const url = (path: string) => (baseUrl ? `${baseUrl}${path}` : path)
+    const url = (path: string) => `${apiBase}${path}`
 
-    const run = async () => {
+    const carregarMetricas = async () => {
+      setLoading(true)
       try {
-        const [vRes, mRes, dRes, wRes, rRes] = await Promise.all([
-          fetch(url("/metrics/visitors")),
-          fetch(url("/metrics/avg-daily-access?days=30")),
-          fetch(url("/metrics/daily-access?days=30")),
-          fetch(url("/metrics/weekly-access?weeks=8")),
-          fetch(url("/metrics/users-by-role")),
-        ])
+        const endpoints = [
+          fetch(url('/metrics/visitors')),
+          fetch(url('/metrics/avg-daily-access?days=30')),
+          fetch(url('/metrics/daily-access?days=30')),
+          fetch(url('/metrics/weekly-access?weeks=8')),
+          fetch(url('/metrics/users-by-role')),
+        ]
 
+        const [vRes, mRes, dRes, wRes, rRes] = await Promise.all(endpoints)
         const [vJson, mJson, dJson, wJson, rJson] = await Promise.all([
-          vRes.ok ? vRes.json() : Promise.resolve(null),
-          mRes.ok ? mRes.json() : Promise.resolve(null),
-          dRes.ok ? dRes.json() : Promise.resolve(null),
-          wRes.ok ? wRes.json() : Promise.resolve(null),
-          rRes.ok ? rRes.json() : Promise.resolve(null),
+          vRes.json().catch(() => null),
+          mRes.json().catch(() => null),
+          dRes.json().catch(() => null),
+          wRes.json().catch(() => null),
+          rRes.json().catch(() => null),
         ])
 
-        if (cancelled) return
+        if (cancelado) return
+
+        if (!vRes.ok || !mRes.ok || !dRes.ok || !wRes.ok || !rRes.ok) {
+          throw new Error('Falha ao carregar métricas do backend.')
+        }
+
         setVisitors(vJson?.totalVisitors ?? null)
         setAvgDailyAccess(mJson?.averageDailyAccess ?? null)
         setDailySeries(Array.isArray(dJson?.days) ? dJson.days : [])
         setWeeklySeries(Array.isArray(wJson?.weeks) ? wJson.weeks : [])
         setRoleSegments(Array.isArray(rJson?.segments) ? rJson.segments : [])
-        if (!vRes.ok || !mRes.ok || !dRes.ok || !wRes.ok || !rRes.ok) {
-          setError("Falha ao carregar métricas do backend.")
-        } else if (!baseUrl) {
-          setError("Defina NEXT_PUBLIC_BACKEND_URL para o backend.")
-        } else if (
-          (vJson?.totalVisitors ?? null) === null ||
-          (mJson?.averageDailyAccess ?? null) === null ||
-          !Array.isArray(dJson?.days) ||
-          !Array.isArray(wJson?.weeks) ||
-          !Array.isArray(rJson?.segments)
-        ) {
-          setError("Métricas vazias. Verifique coleções do Firestore/RTDB e backend.")
-        } else {
-          setError(null)
+        setError(null)
+      } catch (err) {
+        console.error('Erro ao buscar métricas:', err)
+        if (!cancelado) {
+          setVisitors(null)
+          setAvgDailyAccess(null)
+          setDailySeries([])
+          setWeeklySeries([])
+          setRoleSegments([])
+          setError('Erro de rede ou falha ao consultar o backend.')
         }
-      } catch {
-        if (cancelled) return
-        setVisitors(null)
-        setAvgDailyAccess(null)
-        setDailySeries([])
-        setWeeklySeries([])
-        setRoleSegments([])
-        setError("Erro de rede ao consultar o backend.")
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelado) setLoading(false)
       }
     }
 
-    run()
+    carregarMetricas()
     return () => {
-      cancelled = true
+      cancelado = true
     }
-  }, [])
+  }, [apiBase])
 
   return (
     <main className="flex-1 p-6 space-y-6">
@@ -101,12 +105,11 @@ export default function AdminDashboard() {
 
       {error && (
         <div className="text-sm p-3 rounded-md border bg-yellow-50 text-yellow-900">
-          {error} {apiBase ? `(API: ${apiBase})` : ""}
+          {error} (API: {apiBase})
         </div>
       )}
 
-      {/* Cards principais */
-      }
+      {/* Cards principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -114,8 +117,9 @@ export default function AdminDashboard() {
             <CardDescription>Últimos 30 dias</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{loading ? "—" : (visitors ?? "—")}</p>
-            <p className="text-green-500 mt-1">{loading ? "" : ""}</p>
+            <p className="text-2xl font-bold">
+              {loading ? '—' : visitors ?? '—'}
+            </p>
           </CardContent>
         </Card>
 
@@ -125,8 +129,9 @@ export default function AdminDashboard() {
             <CardDescription>Últimos 30 dias</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{loading ? "—" : (avgDailyAccess != null ? avgDailyAccess.toFixed(1) : "—")}</p>
-            <p className="text-red-500 mt-1">{loading ? "" : ""}</p>
+            <p className="text-2xl font-bold">
+              {loading ? '—' : avgDailyAccess != null ? avgDailyAccess.toFixed(1) : '—'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -146,7 +151,7 @@ export default function AdminDashboard() {
               {!loading && sparklineValues.length > 0 ? (
                 <InteractiveSparkline values={sparklineValues} />
               ) : (
-                <span>{loading ? "Carregando…" : "Sem dados"}</span>
+                <span>{loading ? 'Carregando…' : 'Sem dados'}</span>
               )}
             </div>
           </CardContent>
@@ -167,7 +172,9 @@ export default function AdminDashboard() {
                   data={weeklySeries.map(w => ({ x: w.label, y: w.count }))}
                 />
               ) : (
-                <span className="text-sm text-muted-foreground">{loading ? "Carregando…" : "Sem dados"}</span>
+                <span className="text-sm text-muted-foreground">
+                  {loading ? 'Carregando…' : 'Sem dados'}
+                </span>
               )}
             </div>
           </CardContent>
@@ -183,10 +190,12 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-56">
-              {(!loading && roleSegments.length > 0) ? (
+              {!loading && roleSegments.length > 0 ? (
                 <DonutChart data={roleSegments} />
               ) : (
-                <span className="text-sm text-muted-foreground">{loading ? "Carregando…" : "Sem dados"}</span>
+                <span className="text-sm text-muted-foreground">
+                  {loading ? 'Carregando…' : 'Sem dados'}
+                </span>
               )}
             </div>
           </CardContent>
