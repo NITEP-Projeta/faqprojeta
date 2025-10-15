@@ -26,7 +26,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const auth = getAuth(app);
 
   // Estados para controle de visibilidade da sidebar e seções
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(true)
   const [isApplicationOpen, setIsApplicationOpen] = useState(true)
 
@@ -54,6 +54,17 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const storedSidebar = localStorage.getItem("sidebarState");
+    if (storedSidebar !== null) {
+      setIsSidebarOpen(storedSidebar === "true");
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("sidebarState", String(isSidebarOpen));
+  }, [isSidebarOpen]);
 
   // Logout do usuário
   const handleLogout = async () => {
