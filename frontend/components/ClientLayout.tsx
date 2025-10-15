@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Home, Book, List, ShieldCheck, Notebook, Car, Contact, CalendarCheck2, LogOut } from "lucide-react";
+import { Home, Book, List, ShieldCheck, Notebook, Car, Contact, CalendarCheck2, LogOut, HelpCircle } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -147,9 +147,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </li>
                   {!isAdmin && (
                   <li>
-                    <Link href="/faq" aria-label="Ir para a página de Dashboard" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                      <i className="pi pi-question-circle"></i>
-                      <span>Duvidas</span>
+                    <Link href="/faq" aria-label="Tira Dúvidas" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
+                      <HelpCircle className="w-5 h-5" />
+                      <span>Tira Dúvidas</span>
                     </Link>
                   </li>
                   )}
@@ -188,7 +188,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   <li>
                     <Link href="/admDuvidas" aria-label="Ir para a página de Dashboard" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
                       <i className="pi pi-question-circle"></i>
-                      <span>Duvidas</span>
+                      <span>Dúvidas</span>
                     </Link>
                   </li>                
                   <li>
