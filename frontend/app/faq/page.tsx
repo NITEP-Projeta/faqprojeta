@@ -97,7 +97,7 @@ export default function TiraDuvidasPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      <div className="min-h-screen from-white to-gray-50">
         <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
           {/* Cabeçalho */}
           <header className="text-center">
