@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-import { FiTruck, FiFileText, FiKey, FiShield, FiAlertTriangle, FiX } from "react-icons/fi";
+import { FiTruck, FiFileText, FiX } from "react-icons/fi";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -17,15 +17,15 @@ const termoVeiculosData = [
     title: "Termo de Responsabilidade",
     description: "Documento de compromisso do colaborador ao utilizar veículos da empresa.",
     slug: "termo_de_responsabilidade",
-    icon: <FiFileText size={28}/>,
-  },
-  /*{
-    title: "Controle de Entrega de Chaves",
-    description: "Registro de retirada e devolução de chaves dos veículos corporativos.",
-    slug: "controle-entrega-chaves",
-    icon: <FiKey size={28}/>,
+    icon: <FiFileText size={28}/>
   },
   {
+    title: "Guia de Uso e Cuidados com os Veículos",
+    description: "Aprenda as boas práticas para dirigir, abastecer e conservar os veículos da empresa, garantindo segurança, economia e durabilidade.",
+    slug: "MANUAL_DE_USO",
+    icon: <FiTruck size={28} />
+  },
+  /*{
     title: "Checklist de Veículos",
     description: "Lista de verificação para garantir condições seguras e adequadas do veículo.",
     slug: "checklist-veiculos",
