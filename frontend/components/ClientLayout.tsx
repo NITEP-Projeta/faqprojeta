@@ -236,7 +236,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       )}
       {/* REABRIR SIDEBAR */}
       {!isSidebarOpen && (
-        <button onClick={() => setIsSidebarOpen(true)} className="fixed top-4 left-4 z-50 bg-[#EAEAEA] p-2 shadow-md border-4 border-[#AF1B1B] border-solid rounded-md transition-all duration-300 cursor-pointer">
+        <button onClick={() => setIsSidebarOpen(true)} className="fixed top-4 left-2 p-1 shadow-md border-1 border-[#AF1B1B] border-solid rounded-sm transition-all duration-300 cursor-pointer">
           <i className="pi pi-bars text-[#AF1B1B]"></i>
         </button>
       )}
