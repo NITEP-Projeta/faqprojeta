@@ -18,34 +18,10 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const manualData = [
   {
-    title: "Código de Conduta",
-    description: "Regras e valores que definem o comportamento profissional dentro da organização.",
-    slug: "codigo-de-conduta",
-    icon: <FiUsers size={28}/>,
-  },
-  {
     title: "Benefícios e Férias",
     description: "Tudo o que você precisa saber sobre benefícios, férias e licenças.",
     slug: "beneficios-e-ferias",
     icon: <FiBriefcase size={28}/>,
-  },
-  {
-    title: "Segurança no Trabalho",
-    description: "Normas e práticas para garantir um ambiente seguro para todos.",
-    slug: "seguranca-no-trabalho",
-    icon: <FiShield size={28}/>,
-  },
-  {
-    title: "Vestimenta Profissional",
-    description: "Recomendações de vestimenta para cada tipo de ambiente e situação.",
-    slug: "vestimenta-profissional",
-    icon: <FiCheckSquare size={28}/>,
-  },
-  {
-    title: "Política de Reembolso",
-    description: "Orientações sobre como solicitar reembolsos de despesas corporativas.",
-    slug: "politica-de-reembolso",
-    icon: <FiCreditCard size={28} />,
   }
 ]
 
