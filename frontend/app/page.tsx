@@ -63,7 +63,7 @@ export default function HomePage() {
             desc: "Conteúdos educativos, vídeos e orientações para todos os setores.",
             href: "/manualColaborador"
           },
-          {
+          /*{
             icon: <List className="w-8 h-8" />,
             title: "Manual Interno",
             desc: "FAQ e suporte para colaboradores com dúvidas sobre os sistemas.",
@@ -74,7 +74,7 @@ export default function HomePage() {
             title: "Diretrizes Internas",
             desc: "Guia com procedimentos e padrões adotados pela organização.",
             href: "/diretrizesInternas"
-          },
+          },*/
           {
             icon: <Notebook className="w-8 h-8" />,
             title: "SIPOC",
@@ -93,12 +93,12 @@ export default function HomePage() {
             desc: "Guia com funções, atribuições e requisitos dos cargos corporativos.",
             href: "/cadernoCargos"
           },
-          {
+          /*{
             icon: <CalendarCheck2 className="w-8 h-8" />,
             title: "Manual de Ponto",
             desc: "Orientações e diretrizes para registro e gestão de ponto eletrônico.",
             href: "/ponto"
-          },
+          },*/
           {
             icon: <HelpCircle className="w-8 h-8" />,
             title: "Tira Dúvidas",
