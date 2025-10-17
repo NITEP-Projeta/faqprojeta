@@ -120,7 +120,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         <span className="font-medium">Manual do Colaborador</span>
                       </Link>
                   </li>
-                  <li>
+                  {/*<li>
                       <Link href="/manualInterno" aria-label="Abrir Manual Interno" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
                         <List className="w-5 h-5" />
                         <span className="font-medium">Manual Interno</span>
@@ -131,7 +131,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         <ShieldCheck className="w-5 h-5" />
                         <span className="font-medium">Diretrizes Internas</span>
                       </Link>
-                  </li>
+                  </li>*/}
                   <li>
                       <Link href="/sipoc" aria-label="Abrir SIPOC" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
                         <Notebook className="w-5 h-5" />
@@ -150,12 +150,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <span className="font-medium">Caderno de Cargos</span>
                     </Link>
                   </li>
-                  <li>
+                  {/*<li>
                     <Link href="/ponto" aria-label="Manual de Ponto" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
                       <CalendarCheck2 className="w-5 h-5" />
                       <span className="font-medium">Manual de Ponto</span>
                     </Link>
-                  </li>
+                  </li>*/}
                   {!isAdmin && (
                   <li>
                     <Link href="/faq" aria-label="Tira Dúvidas" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
