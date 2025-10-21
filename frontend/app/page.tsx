@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact, CalendarCheck2 } from "lucide-react";
+import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact, Newspaper } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -93,12 +93,12 @@ export default function HomePage() {
             desc: "Guia com funções, atribuições e requisitos dos cargos corporativos.",
             href: "/cadernoCargos"
           },
-          /*{
-            icon: <CalendarCheck2 className="w-8 h-8" />,
-            title: "Manual de Ponto",
-            desc: "Orientações e diretrizes para registro e gestão de ponto eletrônico.",
-            href: "/ponto"
-          },*/
+          {
+            icon: <Newspaper className="w-8 h-8" />,
+            title: "Projeta News",
+            desc: "Boletins semanais com novidades, resultados e comunicados da Projeta.",
+            href: "/projeta-news"
+          },
           {
             icon: <HelpCircle className="w-8 h-8" />,
             title: "Tira Dúvidas",

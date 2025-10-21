@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Home, Book, List, ShieldCheck, Notebook, Car, Contact, CalendarCheck2, LogOut, HelpCircle } from "lucide-react";
+import { Home, Book, Notebook, Car, Contact, LogOut, HelpCircle, Newspaper } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -135,7 +135,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   <li>
                       <Link href="/sipoc" aria-label="Abrir SIPOC" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
                         <Notebook className="w-5 h-5" />
-                        <span className="font-medium">SIPOC</span>
+                        <span className="font-medium">SIPOC & Organograma</span>
                       </Link>
                   </li>
                   <li>
@@ -148,6 +148,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     <Link href="/cadernoCargos" aria-label="Abrir Caderno de Cargos" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
                       <Contact className="w-5 h-5" />
                       <span className="font-medium">Caderno de Cargos</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/projeta-news" aria-label="Abrir Caderno de Cargos" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
+                      <Newspaper className="w-5 h-5" />
+                      <span className="font-medium">Projeta News</span>
                     </Link>
                   </li>
                   {/*<li>
