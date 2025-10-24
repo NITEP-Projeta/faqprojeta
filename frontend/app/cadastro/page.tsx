@@ -41,15 +41,6 @@ export default function CadastroPage() {
   const isDisabled = password !== confirmPassword || password === "" || email === "" || nome === "";
 
   // Funções para validação dos campos
-  const handleEmailBlur = () => {
-    if (!email) {
-      setEmailError("⚠️ O campo e-mail é obrigatório.");
-    } else if (!regex.test(email)) {
-      setEmailError("⚠️ Só aceitamos e-mails do domínio projetacs.com");
-    } else {
-      setEmailError("");
-    }
-  };
 
   const handlePasswordBlur = () => {
     if (password.length < 6) {
@@ -175,11 +166,9 @@ export default function CadastroPage() {
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              onBlur={handleEmailBlur}
               placeholder="Digite seu e-mail"
               className="mt-2 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
-            {emailError && <p className="mt-4 text-red-600 text-sm text-center">{emailError}</p>}
           </div>
 
           {/* Senha */}
