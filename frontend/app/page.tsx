@@ -106,12 +106,6 @@ export default function HomePage() {
             href: "/faq"
           },
           {
-            icon: <ShieldCheck className="w-8 h-8" />,
-            title: "Área Administrativa",
-            desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
-            href: "/admin"
-          },
-          {
             icon: <Share2 className="w-8 h-8" />,
             title: "Sharepoint Corporativo",
             desc: "Acesso ao Sharepoint para documentos e recursos corporativos",
