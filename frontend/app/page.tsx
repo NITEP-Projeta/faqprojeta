@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, List, Notebook, Contact, Newspaper } from "lucide-react";
+import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, Notebook, Contact, Newspaper, Share2 } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -110,6 +110,12 @@ export default function HomePage() {
             title: "Área Administrativa",
             desc: "Acesso restrito para responsáveis por controle e conteúdo interno.",
             href: "/admin"
+          },
+          {
+            icon: <Share2 className="w-8 h-8" />,
+            title: "Sharepoint Corporativo",
+            desc: "Acesso ao Sharepoint para documentos e recursos corporativos",
+            href: "https://projeta98.sharepoint.com/sites/Projeta2",
           }
         ].map((item, idx) => (
           <div

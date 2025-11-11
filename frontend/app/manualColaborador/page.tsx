@@ -40,7 +40,7 @@ const manualData = [
     icon: <FiSend size={28}/>,
   },
   {
-    title: "Solicitação de Reembolso de Despesas",
+    title: "Solicitação de Reembolso",
     description: "Guia completo para solicitar reembolso de despesas corporativas.",
     slug: "solicitacao-de-reembolso",
     icon: <FiCreditCard size={28}/>,
