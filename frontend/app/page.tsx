@@ -28,17 +28,17 @@ export default function HomePage() {
             {[
               {
                 title: 'Missão',
-                desc: 'Oferecer soluções em engenharia com excelência técnica, inovação e compromisso com os resultados.',
+                desc: 'Prestar serviços de forma a atender as necessidades de nossos clientes, buscando um contínuo desenvolvimento e rentabilidade.',
                 icon: <Target className="mx-auto text-[#AF1B1B] w-8 h-8" />,
               },
               {
                 title: 'Visão',
-                desc: 'Ser referência nacional em engenharia consultiva, promovendo desenvolvimento sustentável.',
+                desc: 'Ser referência em soluções integradas de engenharia no Norte e Nordeste até 2030.',
                 icon: <Eye className="mx-auto text-[#AF1B1B] w-8 h-8" />,
               },
               {
                 title: 'Valores',
-                desc: 'Ética, transparência, segurança, melhoria contínua e foco no cliente.',
+                desc: 'Honestidade, Humanidade, Humildade e Humor',
                 icon: <HeartHandshake className="mx-auto text-[#AF1B1B] w-8 h-8" />,
               },
             ].map((item, i) => (
