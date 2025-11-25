@@ -4,8 +4,6 @@ import AppWrapper from "@/components/appWrapper";
 import AnalyticsListener from "./analytics-listener";
 import Script from 'next/script';
 import "./globals.css";
-// 👇 ADICIONADO: Import do componente
-import ChatwootWidget from "@/components/ChatwootWidget"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,10 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  {/* URL */}
+  // ✅ CORRETO: URL HTTPS do Ngrok
   const CHATWOOT_BASE_URL = "https://freewill-kizzy-regardant.ngrok-free.dev";
 
-  {/* Chave */}
+  // ✅ CORRETO: Token do Widget
   const CHATWOOT_TOKEN = 'QZE8T7cqYSoWbyG19CpDVApz';
 
   return (
@@ -39,8 +37,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AnalyticsListener/>
         <AppWrapper>{children}</AppWrapper>
-        {/* 👇 ADICIONADO: O widget entra aqui no final */}
-        <ChatwootWidget /> 
+        {/* ❌ REMOVIDO: Uso do componente ChatwootWidget (remoção da injeção duplicada) */}
       </body>
       <Script
         id="chatwoot-script"
