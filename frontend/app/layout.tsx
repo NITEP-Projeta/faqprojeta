@@ -4,6 +4,8 @@ import AppWrapper from "@/components/appWrapper";
 import AnalyticsListener from "./analytics-listener";
 import Script from 'next/script';
 import "./globals.css";
+// 👇 ADICIONADO: Import do componente
+import ChatwootWidget from "@/components/ChatwootWidget"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +36,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AnalyticsListener/>
         <AppWrapper>{children}</AppWrapper>
+        {/* 👇 ADICIONADO: O widget entra aqui no final */}
+        <ChatwootWidget /> 
       </body>
       <Script
         id="chatwoot-script"
