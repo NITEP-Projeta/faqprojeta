@@ -6,7 +6,7 @@ const ChatwootWidget = () => {
   useEffect(() => {
     // Configurações extraídas da sua imagem
     const WEBSITE_TOKEN = 'QZE8T7cqYSoWbyG19CpDVApz';
-    const BASE_URL = 'http://192.168.15.101:3001';
+    const BASE_URL = 'https://freewill-kizzy-regardant.ngrok-free.dev';
 
     // Função para carregar o script do Chatwoot
     (function(d, t) {
