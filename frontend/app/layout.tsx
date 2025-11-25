@@ -28,7 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
+  {/* URL */}
   const CHATWOOT_BASE_URL = "https://freewill-kizzy-regardant.ngrok-free.dev";
+
+  {/* Chave */}
   const CHATWOOT_TOKEN = 'QZE8T7cqYSoWbyG19CpDVApz';
 
   return (
