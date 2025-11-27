@@ -30,7 +30,7 @@ export default function RootLayout({
   const CHATWOOT_BASE_URL = "https://freewill-kizzy-regardant.ngrok-free.dev";
 
   // ✅ CORRETO: Token do Widget
-  const CHATWOOT_TOKEN = 'QZE8T7cqYSoWbyG19CpDVApz';
+  const CHATWOOT_TOKEN = 'bkfZTpLiBHYbBK3C8Wr1k9dd';
 
   return (
     <html lang="pt-BR">
