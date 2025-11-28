@@ -27,10 +27,10 @@ export default function RootLayout({
 }>) {
 
   // ✅ CORRETO: URL HTTPS do Ngrok
-  const CHATWOOT_BASE_URL = "https://freewill-kizzy-regardant.ngrok-free.dev";
+  const CHATWOOT_BASE_URL = "https://chat.boingaestrutural.com";
 
   // ✅ CORRETO: Token do Widget
-  const CHATWOOT_TOKEN = 'bkfZTpLiBHYbBK3C8Wr1k9dd';
+  const CHATWOOT_TOKEN = 'WhnkViuGFgJCHcB1qNbtPYwL';
 
   return (
     <html lang="pt-BR">
