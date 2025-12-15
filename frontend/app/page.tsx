@@ -68,13 +68,13 @@ export default function HomePage() {
             title: "Manual Interno",
             desc: "FAQ e suporte para colaboradores com dúvidas sobre os sistemas.",
             href: "/manualInterno"
-          },
+          },*/
           {
             icon: <ShieldCheck className="w-8 h-8" />,
-            title: "Diretrizes Internas",
+            title: "Regimento Interno",
             desc: "Guia com procedimentos e padrões adotados pela organização.",
             href: "/diretrizesInternas"
-          },*/
+          },
           {
             icon: <Notebook className="w-8 h-8" />,
             title: "SIPOC",

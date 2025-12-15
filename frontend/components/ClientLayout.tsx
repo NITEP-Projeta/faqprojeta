@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Home, Book, Notebook, Car, Contact, LogOut, HelpCircle, Newspaper } from "lucide-react";
+import { Home, Book, Notebook, Car, Contact, LogOut, HelpCircle, Newspaper, ShieldCheck } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -125,13 +125,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         <List className="w-5 h-5" />
                         <span className="font-medium">Manual Interno</span>
                       </Link>
-                  </li>
+                  </li>*/
                   <li>
                       <Link href="/diretrizesInternas" aria-label="Abrir Diretrizes Internas" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
                         <ShieldCheck className="w-5 h-5" />
-                        <span className="font-medium">Diretrizes Internas</span>
+                        <span className="font-medium">Regimento Interno</span>
                       </Link>
-                  </li>*/}
+                  </li>}
                   <li>
                       <Link href="/sipoc" aria-label="Abrir SIPOC" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
                         <Notebook className="w-5 h-5" />
