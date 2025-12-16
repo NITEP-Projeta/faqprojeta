@@ -1,15 +1,10 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useRef } from "react";
-
 import { motion } from "framer-motion";
-
 import { Button } from "@/components/ui/button";
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-import { FiBookOpen, FiX } from "react-icons/fi";
-
+import { FiBookOpen } from "react-icons/fi";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import { Document, Page, pdfjs } from "react-pdf";
@@ -27,118 +22,150 @@ const diretrizesData = [
     title: "Regimento Interno",
     description: "Conjunto de regras e diretrizes que orientam o funcionamento interno da empresa.",
     slug: "regimento-interno",
-    icon: <FiBookOpen size={28}/>,
+    icon: <FiBookOpen size={28} />,
   },
-  /*{
-    title: "Conduta Organizacional",
-    description: "Normas de comportamento e relacionamento entre colaboradores e setores.",
-    slug: "conduta-organizacional",
-    icon: <FiUsers size={28}/>,
-  },
-  {
-    title: "Segurança da Informação",
-    description: "Diretrizes para proteção de dados internos, confidencialidade e boas práticas digitais.",
-    slug: "seguranca-da-informacao",
-    icon: <FiShield size={28}/>,
-  },
-  {
-    title: "Gestão de Políticas Internas",
-    description: "Documentos oficiais e padrões que regem procedimentos internos.",
-    slug: "gestao-politicas-internas",
-    icon: <FiFileText size={28}/>,
-  },
-  {
-    title: "Conformidade e Auditorias",
-    description: "Regras para garantir conformidade com normas internas e externas, incluindo auditorias periódicas.",
-    slug: "conformidade-auditorias",
-    icon: <FiCheckCircle size={28}/>,
-  },*/
-]
+];
 
 export default function DiretrizesInternasPage() {
   const [pdfSlug, setPdfSlug] = useState<string | null>(null);
-  const [selectedContent, setSelectedContent] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  
+
+  // ✅ Estado para evitar cliques duplicados
+  const [isConfirming, setIsConfirming] = useState(false);
+
   // ✅ Recalcula após o modal abrir
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
-          setContainerWidth(containerRef.current.offsetWidth - 32);
+        setContainerWidth(containerRef.current.offsetWidth - 32);
       }
     };
-  
-      // Escuta resize
+
     window.addEventListener("resize", updateWidth);
-  
-    // Recalcula depois que o modal abre
+
     const observer = new MutationObserver(updateWidth);
     observer.observe(document.body, { childList: true, subtree: true });
-  
-    // Timeout garante que o PDF carrega com tamanho correto
+
     const timeout = setTimeout(updateWidth, 100);
-  
+
     return () => {
       window.removeEventListener("resize", updateWidth);
       observer.disconnect();
       clearTimeout(timeout);
     };
   }, [pdfSlug]);
-  return (
-    // Proteção de rota para garantir que apenas usuários autenticados acessem a página
-    <ProtectedRoute>
-    <div className="flex flex-col items-center justify-between min-h-screen bg-[#F8F8F8] gap-8 p-6">
-      {/* Header */}
-      <div className="w-full max-w-7xl">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2 }} className="text-center">
-          <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">Regimento <span className="text-[#AF1B1B]">Interno</span></h1>
-          <div className="w-28 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
-          <p className="text-[#555] mt-3">Consulte as diretrizes corporativas para garantir alinhamento, ética e segurança em nossas operações.</p>
-        </motion.div>
-      </div>
-      {/* Grid */}
-      <div className="w-full max-w-7xl">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }} className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {diretrizesData.map((item) => (
-            <Card key={item.slug} className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center">
-              <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
-              <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
-                <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
-                <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex justify-center mt-2">
-                <Button onClick={() => setPdfSlug(item.slug)} className="px-5 py-2 bg-[#D96C06] text-white rounded-md transition-all cursor-pointer px-5 py-2 bg-[#AF1B1B] text-white rounded-md transition-all cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                  Acessar
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
-      </div>
 
-      {/* Footer */}
-      <div className="w-full max-w-7xl">
-        <p className="text-center text-sm text-[#7A7A7A] py-4">© {new Date().getFullYear()} Projeta • Sistema Interno Corporativo</p>
-      </div>
+  // ✅ Confirmação + registro de acesso (API própria / Firebase)
+  const handleConfirmAccess = async () => {
+    if (!pdfSlug) return;
+
+    try {
+      setIsConfirming(true);
+
+      // TODO: Substituir pelos dados reais do usuário (Firebase Auth / sessão)
+      const nome = "Usuário Logado";
+      const email = "usuario@email.com";
+
+      const payload = {
+        nome,
+        email,
+        documentoSlug: pdfSlug,
+        pagina: "Diretrizes Internas",
+        acessadoEm: new Date().toISOString(),
+        userAgent: typeof window !== "undefined" ? window.navigator.userAgent : null,
+      };
+
+      // 🔹 EXEMPLO: API própria
+      const res = await fetch("/api/monitoramento-acesso", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Falha ao registrar acesso: ${res.status}`);
+      }
+
+      // Fecha o modal SOMENTE após registrar
+      setPdfSlug(null);
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível registrar o acesso. Tente novamente.");
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  return (
+    <ProtectedRoute>
+      <div className="flex flex-col items-center justify-between min-h-screen bg-[#F8F8F8] gap-8 p-6">
+        {/* Header */}
+        <div className="w-full max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">
+              Regimento <span className="text-[#AF1B1B]">Interno</span>
+            </h1>
+            <div className="w-28 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
+            <p className="text-[#555] mt-3">
+              Consulte as diretrizes corporativas para garantir alinhamento, ética e segurança em nossas operações.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Grid */}
+        <div className="w-full max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
+            className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {diretrizesData.map((item) => (
+              <Card
+                key={item.slug}
+                className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
+              >
+                <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
+                <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
+                  <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
+                  <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center mt-2">
+                  <Button
+                    onClick={() => setPdfSlug(item.slug)}
+                    className="px-5 py-2 bg-[#AF1B1B] text-white rounded-md cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
+                  >
+                    Acessar
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Footer */}
+        <div className="w-full max-w-7xl">
+          <p className="text-center text-sm text-[#7A7A7A] py-4">
+            © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
+          </p>
+        </div>
 
         {/* Modal PDF */}
         {pdfSlug && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-2 sm:p-4">
             <div className="relative w-full max-w-7xl h-[95vh] bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
-              <div
-                ref={containerRef}
-                className="overflow-auto p-4 flex-1 bg-white"
-              >
+              <div ref={containerRef} className="overflow-auto p-4 flex-1 bg-white">
                 <Document
                   file={`/pdfs/regimento-interno/${pdfSlug}.pdf`}
                   onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                  loading={
-                    <p className="text-center text-gray-500 mt-10">
-                      Carregando documento...
-                    </p>
-                  }
+                  loading={<p className="text-center text-gray-500 mt-10">Carregando documento...</p>}
                   className="flex flex-col items-center"
                 >
                   {Array.from(new Array(numPages ?? 0), (_, idx) => (
@@ -153,18 +180,31 @@ export default function DiretrizesInternasPage() {
                 </Document>
               </div>
 
-              {/* Botão Fechar */}
-              <button
-                onClick={() => setPdfSlug(null)}
-                className="absolute top-8 right-2 bg-[#AF1B1B] hover:bg-[#8C1616] text-white p-2 rounded-full shadow-md transition-all duration-300 cursor-pointer"
-                aria-label="Fechar"
-              >
-                <FiX size={18} />
-              </button>
+              {/* Card de Confirmação */}
+              <div className="border-t bg-gray-50 p-4">
+                <Card className="max-w-3xl mx-auto border-l-4 border-[#AF1B1B] shadow-sm">
+                  <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">Confirmar saída e registrar acesso</p>
+                      <p className="text-xs text-gray-600">
+                        Ao confirmar, seu acesso será registrado no monitoramento interno e o documento será fechado.
+                      </p>
+                    </div>
+
+                    <Button
+                      onClick={handleConfirmAccess}
+                      disabled={isConfirming}
+                      className="bg-[#AF1B1B] hover:bg-[#8C1616] text-white px-6 py-2 rounded-md transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 cursor-pointer"
+                    >
+                      {isConfirming ? "Registrando..." : "Confirmar e sair"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         )}
-    </div>
+      </div>
     </ProtectedRoute>
-  )
+  );
 }

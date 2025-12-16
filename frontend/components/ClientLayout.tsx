@@ -170,6 +170,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     </Link>
                   </li>
                   )}
+                  {/*          
                   {!isAdmin && (
                     <li>
                       <Link href="/chat" aria-label="Ir para a página de Chat" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
@@ -183,6 +184,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       </Link>
                     </li>
                   )}
+                  */}  
               </ul>
               )}
             </div>
@@ -207,7 +209,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <i className="pi pi-question-circle"></i>
                       <span>Dúvidas</span>
                     </Link>
-                  </li>                
+                  </li>
+                  {/*             
                   <li>
                     <Link href="/admin/chat" aria-label="Ir para a página de Chat" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
                       <i className="pi pi-comments"></i>
@@ -219,6 +222,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         )}
                     </Link>
                   </li>
+                  */}
                 </ul>
               )}
             </div>
