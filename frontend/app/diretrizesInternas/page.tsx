@@ -190,7 +190,8 @@ export default function DiretrizesInternasPage() {
                         Ao confirmar, seu acesso será registrado no monitoramento interno e o documento será fechado.
                       </p>
                     </div>
-
+                    
+                    {/* Botão de confirmação */}
                     <Button
                       onClick={handleConfirmAccess}
                       disabled={isConfirming}
