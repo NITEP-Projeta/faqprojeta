@@ -11,6 +11,9 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 
+import { auth, db } from "@/src/firebase/firebase";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+
 // Configuração obrigatória do worker
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -35,8 +38,16 @@ export default function DiretrizesInternasPage() {
   // ✅ Estado para evitar cliques duplicados
   const [isConfirming, setIsConfirming] = useState(false);
 
-  // ✅ Recalcula após o modal abrir
+  // ✅ Controle para não permitir confirmação duplicada
+  const [jaConfirmado, setJaConfirmado] = useState(false);
+
+  const buildConfirmDocId = (uid: string, documentoSlug: string) =>
+    `${uid}__${encodeURIComponent(documentoSlug)}`;
+
+  // ✅ Recalcula largura do PDF quando modal abre/resize
   useEffect(() => {
+    if (!pdfSlug) return;
+
     const updateWidth = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth - 32);
@@ -57,38 +68,88 @@ export default function DiretrizesInternasPage() {
     };
   }, [pdfSlug]);
 
-  // ✅ Confirmação + registro de acesso (API própria / Firebase)
+  // ✅ Sempre que abrir/trocar o PDF, verifica se já confirmou
+  useEffect(() => {
+    const checkConfirmacao = async () => {
+      if (!pdfSlug) return;
+
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        const docId = buildConfirmDocId(user.uid, pdfSlug);
+        const ref = doc(db, "confirmacoesLeitura", docId);
+        const snap = await getDoc(ref);
+        setJaConfirmado(snap.exists());
+      } catch (e) {
+        console.error("Erro ao verificar confirmação:", e);
+        setJaConfirmado(false);
+      }
+    };
+
+    checkConfirmacao();
+  }, [pdfSlug]);
+
   const handleConfirmAccess = async () => {
     if (!pdfSlug) return;
 
     try {
       setIsConfirming(true);
 
-      // TODO: Substituir pelos dados reais do usuário (Firebase Auth / sessão)
-      const nome = "Usuário Logado";
-      const email = "usuario@email.com";
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Sessão expirada. Faça login novamente.");
+        return;
+      }
 
-      const payload = {
+      // ✅ Se já confirmou, vira apenas FECHAR (não registra novamente)
+      if (jaConfirmado) {
+        setPdfSlug(null);
+        return;
+      }
+
+      // ✅ ID fixo => não duplica
+      const confirmDocId = buildConfirmDocId(user.uid, pdfSlug);
+      const confirmRef = doc(db, "confirmacoesLeitura", confirmDocId);
+
+      // Double-check: se existir, não cria
+      const existing = await getDoc(confirmRef);
+      if (existing.exists()) {
+        setJaConfirmado(true);
+        setPdfSlug(null);
+        return;
+      }
+
+      // ✅ Busca nome/email do users/{uid} (seu cadastro cria docId = uid)
+      let nome = user.displayName ?? "";
+      let email = user.email ?? "";
+
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data() as any;
+          nome = data.nome ?? nome;
+          email = data.email ?? email;
+        }
+      } catch (e) {
+        // fallback com dados do auth
+        console.warn("Não foi possível ler users/{uid}. Usando dados do Auth.", e);
+      }
+
+      // ✅ Registra uma única vez
+      await setDoc(confirmRef, {
+        uid: user.uid,
         nome,
         email,
         documentoSlug: pdfSlug,
         pagina: "Diretrizes Internas",
-        acessadoEm: new Date().toISOString(),
+        acessadoEm: serverTimestamp(),
         userAgent: typeof window !== "undefined" ? window.navigator.userAgent : null,
-      };
-
-      // 🔹 EXEMPLO: API própria
-      const res = await fetch("/api/monitoramento-acesso", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        pagePath: typeof window !== "undefined" ? window.location.pathname : "",
       });
 
-      if (!res.ok) {
-        throw new Error(`Falha ao registrar acesso: ${res.status}`);
-      }
-
-      // Fecha o modal SOMENTE após registrar
+      setJaConfirmado(true);
       setPdfSlug(null);
     } catch (error) {
       console.error(error);
@@ -185,19 +246,22 @@ export default function DiretrizesInternasPage() {
                 <Card className="max-w-3xl mx-auto border-l-4 border-[#AF1B1B] shadow-sm">
                   <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">Confirmar saída e registrar acesso</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {jaConfirmado ? "Documento já confirmado" : "Confirmar saída e registrar acesso"}
+                      </p>
                       <p className="text-xs text-gray-600">
-                        Ao confirmar, seu acesso será registrado no monitoramento interno e o documento será fechado.
+                        {jaConfirmado
+                          ? "Este documento já teve a leitura confirmada. Você pode apenas fechar."
+                          : "Ao confirmar, seu acesso será registrado no monitoramento interno e o documento será fechado."}
                       </p>
                     </div>
-                    
-                    {/* Botão de confirmação */}
+
                     <Button
                       onClick={handleConfirmAccess}
                       disabled={isConfirming}
                       className="bg-[#AF1B1B] hover:bg-[#8C1616] text-white px-6 py-2 rounded-md transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 cursor-pointer"
                     >
-                      {isConfirming ? "Registrando..." : "Confirmar e sair"}
+                      {isConfirming ? "Processando..." : jaConfirmado ? "Fechar" : "Confirmar e sair"}
                     </Button>
                   </CardContent>
                 </Card>
