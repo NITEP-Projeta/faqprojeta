@@ -82,8 +82,10 @@ export default function CadastroPage() {
     
       // Salva os dados do usuário no Firestore
       await setDoc(doc(db, "users", uid), {
+        uid,
         nome,
         email,
+        isAdmin: false,
         createdAt: serverTimestamp(),
       });
 
