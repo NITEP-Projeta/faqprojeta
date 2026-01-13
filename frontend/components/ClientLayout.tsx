@@ -203,6 +203,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <i className="pi pi-chart-bar"></i>
                       <span>Dashboard</span>
                     </Link>
+                  </li>
+                  <li>
+                    <Link href="/dashboard-confimacoes" aria-label="Ir para a página de Dashboard" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
+                      <i className="pi pi-chart-bar"></i>
+                      <span>Dashboard Leituras</span>
+                    </Link>
                   </li>  
                   <li>
                     <Link href="/admDuvidas" aria-label="Ir para a página de Dashboard" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
