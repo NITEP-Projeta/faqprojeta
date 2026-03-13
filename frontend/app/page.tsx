@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, Notebook, Contact, Newspaper, Share2 } from "lucide-react";
+import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, Notebook, Contact, Newspaper, Share2, TriangleAlert } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -74,6 +74,12 @@ export default function HomePage() {
             title: "Regimento Interno",
             desc: "Guia com procedimentos e padrões adotados pela organização.",
             href: "/diretrizesInternas"
+          },
+          {
+            icon: <TriangleAlert className="w-8 h-8" />,
+            title: "Segurança do Trabalho",
+            desc: "Normas de orientações voltadas à prevenção de riscos e proteção dos colaboradores.",
+            href: "/segurancaTrabalho"
           },
           {
             icon: <Notebook className="w-8 h-8" />,
