@@ -38,15 +38,7 @@ const segurancaTrabalhoData: DocumentoSeguranca[] = [
     slug: "direito-de-recusa-formulario",
     path: "/pdfs/seguranca-trabalho/direito_de_recusa.pdf",
     icon: <FileCheck2 className="w-8 h-8" />,
-  },
-  {
-    title: "Apresentação Direito de Recusa",
-    description:
-      "Material de orientação com conceitos, responsabilidades e fluxo de aplicação do direito de recusa.",
-    slug: "direito-de-recusa-apresentacao",
-    path: "/pdfs/seguranca-trabalho/apresentacao.pdf",
-    icon: <Presentation className="w-8 h-8" />,
-  },
+  }
 ];
 
 export default function SegurancaTrabalhoPage() {
