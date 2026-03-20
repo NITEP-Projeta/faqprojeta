@@ -28,9 +28,6 @@ export default function EsqueciSenhaPage() {
     if (!email) {
       setEmailError("⚠️ O campo e-mail é obrigatório.");
       setDesabilitar(true)
-    } else if (!regex.test(email)) {
-      setEmailError("⚠️ Só aceitamos e-mails do domínio projetacs.com");
-      setDesabilitar(true)
     } else {
       setEmailError("");
       setDesabilitar(false)
