@@ -90,7 +90,7 @@ export default function CadastroPage() {
       });
 
       // Exibe mensagem de sucesso
-      toast.warn("Verifique seu e-mail", {
+      toast.success("Verifique seu e-mail", {
         position: "top-right",
         autoClose: 3000,
         theme: "light",
@@ -106,18 +106,39 @@ export default function CadastroPage() {
 
     } catch (err: any) {
 
-      // Exibe mensagem de erro
-      toast.error(err.message || "Erro ao cadastrar usuário.", {
+      let mensagem = "Erro ao cadastrar usuário.";
+
+      switch (err.code) {
+        case "auth/email-already-in-use":
+          mensagem = "⚠️ Este e-mail já está cadastrado. Tente fazer login ou recuperar a senha.";
+          break;
+
+        case "auth/invalid-email":
+          mensagem = "⚠️ O e-mail informado é inválido.";
+          break;
+
+        case "auth/weak-password":
+          mensagem = "⚠️ A senha deve ter pelo menos 6 caracteres.";
+          break;
+
+        case "auth/network-request-failed":
+          mensagem = "⚠️ Erro de conexão. Verifique sua internet.";
+          break;
+
+        default:
+          mensagem = "❌ Não foi possível realizar o cadastro. Tente novamente.";
+      }
+
+      toast.error(mensagem, {
         position: "top-right",
         autoClose: 3000,
         theme: "light",
         hideProgressBar: false,
         pauseOnHover: true,
-        progress: undefined,
       });
-
+    }
       // Reseta os estados de loading
-    } finally {
+     finally {
       setLoading(false);
     }
   };
