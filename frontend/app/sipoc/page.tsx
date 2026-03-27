@@ -15,6 +15,13 @@ import {
   FiUserCheck,
   FiX,
   FiGitBranch,
+  FiBox,
+  FiCreditCard,
+  FiLayers,
+  FiClipboard,
+  FiCalendar,
+  FiSmile,
+  FiUsers,
 } from "react-icons/fi";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useRef, useEffect, useState } from "react";
@@ -30,31 +37,81 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const sipocData = [
+  // ==========================================
+  // SEUS 3 PROCESSOS ORIGINAIS
+  // ==========================================
   {
     title: "Processo De Contratação De Capital Intelectual",
-    description:
-      "Atrai e seleciona profissionais qualificados alinhados aos objetivos estratégicos da empresa.",
-    slug: "processo_de_contratacao_de_capital_intelectual",
+    description: "Atrai e seleciona profissionais qualificados alinhados aos objetivos estratégicos da empresa.",
+    slug: "sipoc/processo_de_contratacao_de_capital_intelectual",
     icon: <FiUserCheck size={28} />,
   },
   {
     title: "Processo De Admissão De Pessoas",
-    description:
-      "Gerencia a entrada de novos colaboradores, garantindo conformidade legal e integração à empresa.",
-    slug: "processo_de_admissao_de_pessoas",
+    description: "Gerencia a entrada de novos colaboradores, garantindo conformidade legal e integração à empresa.",
+    slug: "sipoc/processo_de_admissao_de_pessoas",
     icon: <FiUserPlus size={28} />,
   },
   {
     title: "Processo De Mobilização De Pessoas",
-    description:
-      "Planeja e executa o envio de colaboradores para projetos, assegurando requisitos logísticos e de segurança.",
-    slug: "processo_de_mobilizacao_de_pessoas",
+    description: "Planeja e executa o envio de colaboradores para projetos, assegurando requisitos logísticos e de segurança.",
+    slug: "sipoc/processo_de_mobilizacao_de_pessoas",
     icon: <FiTruck size={28} />,
   },
+
+  // ==========================================
+  // OS NOVOS ADICIONADOS DA SUA IMAGEM (Sem Obras e Controladoria)
+  // ==========================================
+  {
+    title: "SIPOC de Despesas Reembolsáveis",
+    description: "Padroniza o fluxo de solicitação, aprovação e pagamento de reembolsos corporativos.",
+    slug: "despesas/SIPOC Despesas reembolsáveis",
+    icon: <FiCreditCard size={28} />,
+  },
+  {
+    title: "SIPOC de Geotécnia",
+    description: "Mapeia os processos de análise de solo e viabilidade técnica para a fundação das obras.",
+    slug: "geotecnica/SIPOC Geotecnica",
+    icon: <FiLayers size={28} />,
+  },
+  {
+    title: "SIPOC de Inventário",
+    description: "Gerencia o fluxo físico e sistêmico para controle exato dos bens e materiais da empresa.",
+    slug: "inventario/SIPOC de Inventário",
+    icon: <FiBox size={28} />,
+  },
+  {
+    title: "SIPOC de Medição Geral",
+    description: "Estrutura o acompanhamento, validação e faturamento dos serviços executados em campo.",
+    slug: "medicao/SIPOC Medição Geral",
+    icon: <FiClipboard size={28} />,
+  },
+  {
+    title: "SIPOC de Planejamento",
+    description: "Estabelece cronogramas, metas e dimensiona os recursos necessários para o sucesso operacional.",
+    slug: "planejamento/SIPOC Planejamento",
+    icon: <FiCalendar size={28} />,
+  },
+  {
+    title: "SIPOC Pesquisa de Satisfação do Cliente",
+    description: "Avalia o nível de entrega dos projetos e capta feedbacks para garantir a melhoria contínua.",
+    slug: "psc/SIPOC PSC",
+    icon: <FiSmile size={28} />,
+  },
+  {
+    title: "SIPOC do RH",
+    description: "Desenvolve, treina e apoia os colaboradores, fortalecendo a cultura e o clima organizacional.",
+    slug: "rh/Sipoc RH",
+    icon: <FiUsers size={28} />,
+  },
+
+  // ==========================================
+  // SEU ORGANOGRAMA ORIGINAL
+  // ==========================================
   {
     title: "Organograma Master",
     description: "Macroambiente Executivo da Projeta.",
-    slug: "organograma",
+    slug: "sipoc/organograma", 
     icon: <FiGitBranch size={28} />,
   },
 ];
@@ -163,7 +220,7 @@ export default function SipocPage() {
                 className="overflow-auto p-4 flex-1 bg-white"
               >
                 <Document
-                  file={`/pdfs/sipoc/${pdfSlug}.pdf`}
+                  file={encodeURI(`/pdfs/${pdfSlug}.pdf`)}
                   onLoadSuccess={({ numPages }) => setNumPages(numPages)}
                   loading={
                     <p className="text-center text-gray-500 mt-10">
