@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, Notebook, Contact, Newspaper, Share2, TriangleAlert } from "lucide-react";
+import { HelpCircle, ShieldCheck, Target, Eye, HeartHandshake, Car, Book, Notebook, Contact, Newspaper, Share2, TriangleAlert, PlayCircle } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -98,6 +98,12 @@ export default function HomePage() {
             title: "Caderno De Cargos",
             desc: "Guia com funções, atribuições e requisitos dos cargos corporativos.",
             href: "/cadernoCargos"
+          },
+          {
+            icon: <PlayCircle className="w-8 h-8" />,
+            title: "Treinamentos",
+            desc: "Vídeos explicativos sobre o uso do sistema, incluindo funcionalidades, rotinas e boas práticas de navegação.",
+            href: "/tutorial"
           },
           {
             icon: <Newspaper className="w-8 h-8" />,

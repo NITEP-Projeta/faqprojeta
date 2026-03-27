@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Home, Book, Notebook, Car, Contact, LogOut, HelpCircle, Newspaper, ShieldCheck, TriangleAlert } from "lucide-react";
+import { Home, Book, Notebook, Car, Contact, LogOut, HelpCircle, Newspaper, ShieldCheck, TriangleAlert, PlayCircle  } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -157,7 +157,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                     </Link>
                   </li>
                   <li>
-                    <Link href="/projeta-news" aria-label="Abrir Caderno de Cargos" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
+                    <Link href="/tutorial" aria-label="Abrir Treinamentos" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
+                      <PlayCircle  className="w-5 h-5" />
+                      <span className="font-medium">Treinamentos</span>
+                    </Link>
+                  </li>                  
+                  <li>
+                    <Link href="/projeta-news" aria-label="Abrir Projeta News" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
                       <Newspaper className="w-5 h-5" />
                       <span className="font-medium">Projeta News</span>
                     </Link>
