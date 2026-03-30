@@ -105,8 +105,8 @@ export default function HomePage() {
     },
     {
       icon: <FileText className="w-8 h-8" />,
-      title: "Processo Seletivo Interno",
-      desc: "Preenchimento de solicitações e registros corporativos.",
+      title: "Vagas Internas Abertas!",
+      desc: "Inscreva-se e cresça com a Projeta!",
       action: "modal",
     },
   ];
@@ -173,7 +173,7 @@ export default function HomePage() {
                   onClick={() => setOpenForm(true)}
                   className="px-5 py-2 bg-[#AF1B1B] text-white rounded-md cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
                 >
-                  Acessar
+                  Quero me inscrever
                 </Button>
               ) : (
                 <Link href={item.href}>
@@ -185,10 +185,9 @@ export default function HomePage() {
             </div>
           ))}
         </section>
-
         {openForm && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="relative w-full max-w-5xl h-[90vh] bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-2">
+            <div className="relative w-full max-w-[95vw] h-[95vh] bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
               <div className="border-b px-5 py-4">
                 <h2 className="text-lg font-semibold text-[#1A1A1A]">
                   Formulário Corporativo
@@ -215,7 +214,6 @@ export default function HomePage() {
             </div>
           </div>
         )}
-
         <footer className="text-sm text-center text-muted-foreground py-6">
           © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
         </footer>

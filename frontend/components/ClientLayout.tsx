@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { Home, Book, Notebook, Car, Contact, LogOut, HelpCircle, Newspaper, ShieldCheck, TriangleAlert, PlayCircle  } from "lucide-react";
+import { Home, FileText, Book, Notebook, Car, Contact, LogOut, HelpCircle, Newspaper, ShieldCheck, TriangleAlert, PlayCircle  } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -37,6 +37,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const { isAdmin } = useCurrentUser();
 
   const unread = useUnreadBadge(isAdmin);
+
+  const [openForm, setOpenForm] = useState(false);
 
   // Hook para verificar se o usuário está autenticado
   useEffect(() => {
@@ -168,6 +170,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <span className="font-medium">Projeta News</span>
                     </Link>
                   </li>
+                  <li>
+                    <button
+                      onClick={() => setOpenForm(true)}
+                      className="flex items-center gap-2 p-2 rounded w-full text-left transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
+                    >
+                      <FileText className="w-5 h-5" />
+                      <span className="font-medium">Formulário Interno</span>
+                    </button>
+                  </li>
                   {/*<li>
                     <Link href="/ponto" aria-label="Manual de Ponto" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
                       <CalendarCheck2 className="w-5 h-5" />
@@ -270,6 +281,42 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       )}
       {/* CONTEÚDO PRINCIPAL */}
       <main className="flex-1 bg-[#F5F5F5] p-5 overflow-y-auto">{children}</main>
+      {openForm && (
+      <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-2">
+        
+        <div className="relative w-full max-w-[95vw] h-[95vh] bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+          
+          {/* Header */}
+          <div className="border-b px-5 py-4">
+            <h2 className="text-lg font-semibold text-[#1A1A1A]">
+              Formulário Corporativo
+            </h2>
+            <p className="text-sm text-[#666]">
+              Preencha o formulário abaixo.
+            </p>
+          </div>
+
+          {/* IFRAME */}
+          <div className="flex-1">
+            <iframe
+              src="https://forms.office.com/Pages/ResponsePage.aspx?id=aggIEcw610KuWinVc3B1mZq4vipk6y1MssYGpwNGf0JUNldZTDNKM1pTMTdSV1lNRDZTNUNPNTdLWS4u&embed=true"
+              className="w-full h-full"
+              style={{ border: "none" }}
+              allowFullScreen
+            />
+          </div>
+
+          {/* Fechar */}
+          <button
+            onClick={() => setOpenForm(false)}
+            className="absolute top-4 right-4 bg-[#AF1B1B] hover:bg-[#8C1616] text-white p-2 rounded-full shadow-md cursor-pointer"
+            aria-label="Fechar formulário"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    )}
     </div>
     </ProtectedRoute>
   )
