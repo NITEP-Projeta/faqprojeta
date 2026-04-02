@@ -176,7 +176,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       className="flex items-center gap-2 p-2 rounded w-full text-left transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
                     >
                       <FileText className="w-5 h-5" />
-                      <span className="font-medium">Formulário Interno</span>
+                      <span className="font-medium">Vagas Internas</span>
                     </button>
                   </li>
                   {/*<li>
