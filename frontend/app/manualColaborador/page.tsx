@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-import { FiBriefcase, FiCreditCard, FiX, FiSend  } from "react-icons/fi";
+import {  FiBriefcase, FiCreditCard, FiX, FiSend, FiBookOpen, FiFileText, FiShield, FiUsers  } from "react-icons/fi";
 
 import Image from "next/image";
 
@@ -44,7 +44,31 @@ const manualData = [
     description: "Guia completo para solicitar reembolso de despesas corporativas.",
     slug: "solicitacao-de-reembolso",
     icon: <FiCreditCard size={28}/>,
-  }
+  },
+  {
+    title: "Código de Ética",
+    description: "Diretrizes de conduta ética, integridade e boas práticas profissionais da empresa.",
+    slug: "codigo_etica",
+    icon: <FiBookOpen size={28} />,
+  },
+  {
+    title: "Regimento Interno",
+    description: "Normas internas, responsabilidades e orientações para o funcionamento organizacional.",
+    slug: "regimento_interno",
+    icon: <FiFileText size={28} />,
+  },
+  {
+    title: "Combate ao Assédio",
+    description: "Orientações para prevenção, identificação e combate a situações de assédio no ambiente de trabalho.",
+    slug: "combate_assedio",
+    icon: <FiShield size={28} />,
+  },
+  {
+    title: "Responsabilidade Social",
+    description: "Princípios e ações voltadas ao compromisso social, respeito às pessoas e desenvolvimento sustentável.",
+    slug: "responsabilidade_social",
+    icon: <FiUsers size={28} />,
+  },
 ]
 
 export default function ManualPage() {
