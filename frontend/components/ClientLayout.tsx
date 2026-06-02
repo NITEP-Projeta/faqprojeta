@@ -12,7 +12,6 @@ import {
   LogOut,
   HelpCircle,
   Newspaper,
-  ShieldCheck,
   TriangleAlert,
   PlayCircle
 } from "lucide-react";
@@ -124,13 +123,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                       <Link href="/manualColaborador" aria-label="Abrir Manual do Colaborador" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
                         <Book className="w-5 h-5" />
                         <span className="font-medium">Manual do Colaborador</span>
-                      </Link>
-                    </li>
-
-                    <li>
-                      <Link href="/diretrizesInternas" aria-label="Abrir Diretrizes Internas" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <ShieldCheck className="w-5 h-5" />
-                        <span className="font-medium">Regimento Interno</span>
                       </Link>
                     </li>
 

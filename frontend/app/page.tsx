@@ -8,7 +8,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import {
   HelpCircle,
-  ShieldCheck,
   Target,
   Eye,
   HeartHandshake,
@@ -48,12 +47,6 @@ export default function HomePage() {
       title: "Manual do Colaborador",
       desc: "Conteúdos educativos, vídeos e orientações para todos os setores.",
       href: "/manualColaborador",
-    },
-    {
-      icon: <ShieldCheck className="w-8 h-8" />,
-      title: "Regimento Interno",
-      desc: "Guia com procedimentos e padrões adotados pela organização.",
-      href: "/diretrizesInternas",
     },
     {
       icon: <TriangleAlert className="w-8 h-8" />,
