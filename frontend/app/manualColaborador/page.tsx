@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FiBriefcase, FiCreditCard, FiSend, FiBookOpen, FiShield, FiUsers } from "react-icons/fi";
+import { FiBriefcase, FiCreditCard, FiSend, FiBookOpen, FiShield, FiUsers, FiFileText } from "react-icons/fi";
 import Image from "next/image";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -48,7 +48,13 @@ const manualData = [
     icon: <FiBookOpen size={28} />,
   },
   {
-    title: "POLÍTICA DE COMBATE ASSÉDIO",
+    title: "Regimento Interno",
+    description: "Normas internas, responsabilidades e orientações para o funcionamento organizacional.",
+    slug: "regimento_interno",
+    icon: <FiFileText size={28} />,
+  },
+  {
+    title: "Política de Combate ao Assédio",
     description: "Orientações para prevenção, identificação e combate a situações de assédio no ambiente de trabalho.",
     slug: "combate_assedio",
     icon: <FiShield size={28} />,

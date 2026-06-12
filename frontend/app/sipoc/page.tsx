@@ -98,12 +98,7 @@ const sipocData = [
     slug: "psc/SIPOC PSC",
     icon: <FiSmile size={28} />,
   },
-  {
-    title: "SIPOC do RH",
-    description: "Desenvolve, treina e apoia os colaboradores, fortalecendo a cultura e o clima organizacional.",
-    slug: "rh/Sipoc RH",
-    icon: <FiUsers size={28} />,
-  },
+  
 
   // ==========================================
   // SEU ORGANOGRAMA ORIGINAL
