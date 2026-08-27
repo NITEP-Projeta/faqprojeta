@@ -1,290 +1,748 @@
-'use client'
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { ElementType, useEffect, useState } from "react";
 
 import {
-  Home,
-  FileText,
+  BarChart3,
   Book,
-  Notebook,
   Car,
+  ChevronDown,
+  ChevronUp,
+  CircleHelp,
   Contact,
+  FileText,
+  Home,
   LogOut,
-  HelpCircle,
+  Menu,
   Newspaper,
+  Notebook,
+  PlayCircle,
   TriangleAlert,
-  PlayCircle
+  X,
 } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  User,
+} from "firebase/auth";
 
-import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+
 import { db, app } from "@/src/firebase/firebase";
 
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import useUnreadBadge from "@/hooks/useUnreadBadge";
+
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import useUnreadBadge from '@/hooks/useUnreadBadge';
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+const auth = getAuth(app);
+
+type NavItem = {
+  label: string;
+  href?: string;
+  icon: ElementType;
+  action?: "open-vagas";
+  badge?: number;
+};
+
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
   const router = useRouter();
-  const auth = getAuth(app);
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isFavoritesOpen, setIsFavoritesOpen] = useState(true);
-  const [isApplicationOpen, setIsApplicationOpen] = useState(true);
-  const [displayName, setDisplayName] = useState<string | null>(null);
-  const [openForm, setOpenForm] = useState(false);
 
   const { isAdmin } = useCurrentUser();
   const unread = useUnreadBadge(isAdmin);
 
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [libraryOpen, setLibraryOpen] = useState(true);
+  const [adminOpen, setAdminOpen] = useState(true);
+
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [openForm, setOpenForm] = useState(false);
+
+  /* ============================================================
+     USUÁRIO
+  ============================================================ */
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      if (user) {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          setDisplayName(userDoc.data().nome as string);
-        } else {
-          setDisplayName(user.displayName || user.email || "Usuário");
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (user: User | null) => {
+        if (!user) {
+          setDisplayName(null);
+          return;
         }
-      } else {
-        setDisplayName(null);
+
+        try {
+          const userDoc = await getDoc(
+            doc(db, "users", user.uid)
+          );
+
+          if (userDoc.exists()) {
+            setDisplayName(
+              userDoc.data().nome as string
+            );
+          } else {
+            setDisplayName(
+              user.displayName ||
+                user.email ||
+                "Usuário"
+            );
+          }
+        } catch (error) {
+          console.error(
+            "Erro ao carregar usuário:",
+            error
+          );
+
+          setDisplayName(
+            user.displayName ||
+              user.email ||
+              "Usuário"
+          );
+        }
       }
-    });
+    );
 
     return () => unsubscribe();
   }, []);
 
+  /* ============================================================
+     SIDEBAR DESKTOP
+  ============================================================ */
+
   useEffect(() => {
-    const storedSidebar = localStorage.getItem("sidebarState");
-    if (storedSidebar !== null) {
-      setIsSidebarOpen(storedSidebar === "true");
+    const stored =
+      localStorage.getItem("sidebarState");
+
+    if (stored !== null) {
+      setDesktopSidebarOpen(
+        stored === "true"
+      );
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("sidebarState", String(isSidebarOpen));
-  }, [isSidebarOpen]);
+    localStorage.setItem(
+      "sidebarState",
+      String(desktopSidebarOpen)
+    );
+  }, [desktopSidebarOpen]);
 
-  const handleLogout = async () => {
-    router.replace("/login");
-    setTimeout(() => {
-      signOut(auth);
-    }, 3000);
-  };
+  /* ============================================================
+     MOBILE
+  ============================================================ */
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (mobileMenuOpen || openForm) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen, openForm]);
+
+  /* ============================================================
+     LOGOUT
+  ============================================================ */
+
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+      router.replace("/login");
+    } catch (error) {
+      console.error(
+        "Erro ao sair do sistema:",
+        error
+      );
+    }
+  }
+
+  /* ============================================================
+     ITENS
+  ============================================================ */
+
+  const libraryItems: NavItem[] = [
+    {
+      label: "Início",
+      href: "/",
+      icon: Home,
+    },
+    {
+      label: "Manual",
+      href: "/manualColaborador",
+      icon: Book,
+    },
+    {
+      label: "Segurança",
+      href: "/segurancaTrabalho",
+      icon: TriangleAlert,
+    },
+    {
+      label: "SIPOC",
+      href: "/sipoc",
+      icon: Notebook,
+    },
+    {
+      label: "Veículos",
+      href: "/termoVeiculos",
+      icon: Car,
+    },
+    {
+      label: "Cargos",
+      href: "/cadernoCargos",
+      icon: Contact,
+    },
+    {
+      label: "Treinamentos",
+      href: "/tutorial",
+      icon: PlayCircle,
+    },
+    {
+      label: "Projeta News",
+      href: "/projeta-news",
+      icon: Newspaper,
+    },
+    {
+      label: "Vagas Internas",
+      icon: FileText,
+      action: "open-vagas",
+    },
+  ];
+
+  if (!isAdmin) {
+    libraryItems.push({
+      label: "Tira Dúvidas",
+      href: "/faq",
+      icon: CircleHelp,
+    });
+  }
+
+  const adminItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      href: "/dashboard-confimacoes",
+      icon: BarChart3,
+    },
+    {
+      label: "Dúvidas",
+      href: "/admDuvidas",
+      icon: CircleHelp,
+      badge: unread,
+    },
+  ];
+
+  /* ============================================================
+     ITEM
+  ============================================================ */
+
+  function isItemActive(item: NavItem) {
+    if (!item.href) return false;
+
+    if (item.href === "/") {
+      return pathname === "/";
+    }
+
+    return (
+      pathname === item.href ||
+      pathname.startsWith(`${item.href}/`)
+    );
+  }
+
+  function renderNavItem(
+    item: NavItem,
+    index: number
+  ) {
+    const Icon = item.icon;
+    const active = isItemActive(item);
+
+    const classes = `
+      projeta-nav-item
+      group
+      relative
+      flex
+      min-h-[40px]
+      w-full
+      items-center
+      gap-2.5
+      rounded-lg
+      px-2.5
+      text-[13px]
+      font-medium
+
+      ${
+        active
+          ? "bg-[#AF1B1B]/10 text-[#AF1B1B]"
+          : "text-[#333333] hover:bg-[#ECECEB] hover:text-[#AF1B1B]"
+      }
+    `;
+
+    const content = (
+      <>
+        {active && (
+          <span className="projeta-active-line absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#AF1B1B]" />
+        )}
+
+        <div
+          className={`
+            flex
+            h-7
+            w-7
+            shrink-0
+            items-center
+            justify-center
+            ${
+              active
+                ? "text-[#AF1B1B]"
+                : "text-[#444444] group-hover:text-[#AF1B1B]"
+            }
+          `}
+        >
+          <Icon className="h-[17px] w-[17px]" />
+        </div>
+
+        <span className="min-w-0 flex-1 truncate text-left">
+          {item.label}
+        </span>
+
+        {item.badge !== undefined &&
+          item.badge > 0 && (
+            <span className="projeta-notification-pulse flex min-w-[19px] items-center justify-center rounded-full bg-[#AF1B1B] px-1.5 py-[3px] text-[9px] font-bold leading-none text-white">
+              {item.badge > 99
+                ? "99+"
+                : item.badge}
+            </span>
+          )}
+      </>
+    );
+
+    if (item.action === "open-vagas") {
+      return (
+        <button
+          key={item.label}
+          type="button"
+          onClick={() => {
+            setOpenForm(true);
+            setMobileMenuOpen(false);
+          }}
+          className={classes}
+          style={{
+            animationDelay: `${index * 20}ms`,
+          }}
+        >
+          {content}
+        </button>
+      );
+    }
+
+    return (
+      <Link
+        key={item.label}
+        href={item.href || "#"}
+        className={classes}
+        style={{
+          animationDelay: `${index * 20}ms`,
+        }}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  /* ============================================================
+     CONTEÚDO DA SIDEBAR
+  ============================================================ */
+
+  function SidebarContent({
+    mobile = false,
+  }: {
+    mobile?: boolean;
+  }) {
+    return (
+      <>
+        {/* LOGO */}
+
+        <header className="flex h-[64px] shrink-0 items-center justify-between border-b border-gray-200 px-4">
+          <img
+            src="/Logotipo_Projeta_1.png"
+            alt="Projeta"
+            className="w-[112px] object-contain"
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              if (mobile) {
+                setMobileMenuOpen(false);
+              } else {
+                setDesktopSidebarOpen(false);
+              }
+            }}
+            aria-label="Fechar menu"
+            className="projeta-button flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-200 hover:text-[#AF1B1B]"
+          >
+            <X className="h-[17px] w-[17px]" />
+          </button>
+        </header>
+
+        <div className="h-[3px] shrink-0 bg-[#AF1B1B]" />
+
+        {/* MENU */}
+
+        <nav className="flex-1 overflow-y-auto overscroll-contain px-2.5 py-3">
+          {/* BIBLIOTECA */}
+
+          <section>
+            <button
+              type="button"
+              onClick={() =>
+                setLibraryOpen(
+                  (current) => !current
+                )
+              }
+              className="flex h-8 w-full items-center justify-between px-2"
+            >
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400">
+                Biblioteca
+              </span>
+
+              {libraryOpen ? (
+                <ChevronUp className="h-3.5 w-3.5 text-gray-400" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+              )}
+            </button>
+
+            <div
+              className={`
+                grid
+                transition-[grid-template-rows,opacity]
+                duration-300
+                ease-out
+
+                ${
+                  libraryOpen
+                    ? "grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-0"
+                }
+              `}
+            >
+              <div className="overflow-hidden">
+                <div className="mt-1 space-y-[2px]">
+                  {libraryItems.map(
+                    (item, index) =>
+                      renderNavItem(
+                        item,
+                        index
+                      )
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ADMIN */}
+
+          {isAdmin && (
+            <section className="mt-4 border-t border-gray-200 pt-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setAdminOpen(
+                    (current) => !current
+                  )
+                }
+                className="flex h-8 w-full items-center justify-between px-2"
+              >
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400">
+                  Administração
+                </span>
+
+                {adminOpen ? (
+                  <ChevronUp className="h-3.5 w-3.5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                )}
+              </button>
+
+              <div
+                className={`
+                  grid
+                  transition-[grid-template-rows,opacity]
+                  duration-300
+                  ease-out
+
+                  ${
+                    adminOpen
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }
+                `}
+              >
+                <div className="overflow-hidden">
+                  <div className="mt-1 space-y-[2px]">
+                    {adminItems.map(
+                      (item, index) =>
+                        renderNavItem(
+                          item,
+                          index
+                        )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+        </nav>
+
+        {/* PERFIL */}
+
+        <footer
+          className="shrink-0 border-t border-gray-200 bg-white p-2.5"
+          style={{
+            paddingBottom: mobile
+              ? "max(10px, env(safe-area-inset-bottom))"
+              : undefined,
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#AF1B1B] text-[11px] font-bold uppercase text-white">
+              {displayName
+                ?.trim()
+                .charAt(0) || "U"}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p
+                className="truncate text-[12px] font-semibold text-[#202020]"
+                title={displayName || "Usuário"}
+              >
+                {displayName || "Usuário"}
+              </p>
+
+              <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-gray-400">
+                {isAdmin
+                  ? "Administrador"
+                  : "Colaborador"}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sair"
+              aria-label="Sair"
+              className="projeta-button flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-[#AF1B1B]/10 hover:text-[#AF1B1B]"
+            >
+              <LogOut className="h-[16px] w-[16px]" />
+            </button>
+          </div>
+        </footer>
+      </>
+    );
+  }
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen">
-        {/* SIDEBAR */}
-        {isSidebarOpen && (
-          <aside className="w-[280px] bg-[#F5F5F5] border-r border-gray-200 flex flex-col justify-between h-screen sticky top-0 left-0 shadow-sm z-20 transition-all duration-300">
-            {/* TOPO COM LOGO */}
-            <div className="px-5 py-4 flex items-center justify-between bg-[#F5F5F5] shadow-sm gap-23">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/Logotipo_Projeta_1.png"
-                  alt="logo"
-                  className="w-32 max-w-[140px] object-contain transition-transform duration-300 hover:scale-105"
-                />
-              </div>
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="text-black hover:text-[#dc2e1c] p-2 rounded-full transition-all duration-300"
-              >
-                <i className="pi pi-times text-lg cursor-pointer"></i>
-              </button>
-            </div>
+      <div className="min-h-screen bg-[#F5F5F5] lg:flex">
+        {/* =====================================================
+            SIDEBAR DESKTOP
+        ===================================================== */}
 
-            {/* MENU */}
-            <div className="overflow-y-auto flex-1 px-4 py-4 text-sm border-t-4 border-[#dc2e1c]">
-              {/* Favoritos */}
-              <div className="mb-4">
-                <button
-                  onClick={() => setIsFavoritesOpen(!isFavoritesOpen)}
-                  className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none cursor-pointer"
-                >
-                  <span className='text-lg font-extrabold text-black'>Biblioteca Corporativa</span>
-                  <i className={`pi ${isFavoritesOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#AF1B1B] duration-300`}></i>
-                </button>
+        <aside
+          className={`
+            hidden
+            h-screen
+            shrink-0
+            overflow-hidden
+            border-r
+            border-gray-200
+            bg-[#F8F8F7]
+            transition-[width]
+            duration-300
+            ease-out
 
-                {isFavoritesOpen && (
-                  <ul className="space-y-1 transition-all text-black font-medium">
-                    <li>
-                      <Link href="/" aria-label="Ir para a página principal" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <Home className="w-5 h-5" />
-                        <span className="font-medium">Início</span>
-                      </Link>
-                    </li>
+            lg:sticky
+            lg:left-0
+            lg:top-0
+            lg:flex
+            lg:flex-col
 
-                    <li>
-                      <Link href="/manualColaborador" aria-label="Abrir Manual do Colaborador" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <Book className="w-5 h-5" />
-                        <span className="font-medium">Manual do Colaborador</span>
-                      </Link>
-                    </li>
+            ${
+              desktopSidebarOpen
+                ? "lg:w-[220px]"
+                : "lg:w-0 lg:border-r-0"
+            }
+          `}
+        >
+          <div className="flex h-full w-[220px] min-w-[220px] flex-col">
+            <SidebarContent />
+          </div>
+        </aside>
 
-                    <li>
-                      <Link href="/segurancaTrabalho" aria-label="Abrir Segurança do Trabalho" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <TriangleAlert className="w-5 h-5" />
-                        <span className="font-medium">Segurança do Trabalho</span>
-                      </Link>
-                    </li>
+        {/* =====================================================
+            BOTÃO REABRIR DESKTOP
+        ===================================================== */}
 
-                    <li>
-                      <Link href="/sipoc" aria-label="Abrir SIPOC" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <Notebook className="w-5 h-5" />
-                        <span className="font-medium">SIPOC & Organograma</span>
-                      </Link>
-                    </li>
-
-                    <li>
-                      <Link href="/termoVeiculos" aria-label="Abrir Termo Veículos" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#dfe0db] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <Car className="w-5 h-5" />
-                        <span className="font-medium">Termo Veículos</span>
-                      </Link>
-                    </li>
-
-                    <li>
-                      <Link href="/cadernoCargos" aria-label="Abrir Caderno de Cargos" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <Contact className="w-5 h-5" />
-                        <span className="font-medium">Caderno de Cargos</span>
-                      </Link>
-                    </li>
-
-                    <li>
-                      <Link href="/tutorial" aria-label="Abrir Treinamentos" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <PlayCircle className="w-5 h-5" />
-                        <span className="font-medium">Treinamentos</span>
-                      </Link>
-                    </li>
-
-                    <li>
-                      <Link href="/projeta-news" aria-label="Abrir Projeta News" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                        <Newspaper className="w-5 h-5" />
-                        <span className="font-medium">Projeta News</span>
-                      </Link>
-                    </li>
-
-                    <li>
-                      <button
-                        onClick={() => setOpenForm(true)}
-                        className="cursor-pointer flex items-center gap-2 p-2 rounded w-full text-left transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]"
-                      >
-                        <FileText className="w-5 h-5" />
-                        <span className="font-medium">Vagas Internas</span>
-                      </button>
-                    </li>
-
-                    {!isAdmin && (
-                      <li>
-                        <Link href="/faq" aria-label="Tira Dúvidas" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                          <HelpCircle className="w-5 h-5" />
-                          <span>Tira Dúvidas</span>
-                        </Link>
-                      </li>
-                    )}
-                  </ul>
-                )}
-              </div>
-
-              {/* Controle de ADM */}
-              {isAdmin && (
-                <div>
-                  <button
-                    onClick={() => setIsApplicationOpen(!isApplicationOpen)}
-                    className="text-[#EAEAEA] font-medium mb-2 flex items-center justify-between w-full focus:outline-none cursor-pointer"
-                  >
-                    <span className='text-lg font-extrabold text-black'>Painel de Controle</span>
-                    <i className={`pi ${isApplicationOpen ? 'pi-chevron-up' : 'pi-chevron-down'} transition-transform text-black hover:text-[#AF1B1B] duration-300`}></i>
-                  </button>
-
-                  {isApplicationOpen && (
-                    <ul className="space-y-1 text-black">
-                      <li>
-                        <Link href="/dashboard-confimacoes" aria-label="Ir para a página de Dashboard" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                          <i className="pi pi-chart-bar"></i>
-                          <span>Dashboard Leituras</span>
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link href="/admDuvidas" aria-label="Ir para a página de Dashboard" className="flex items-center gap-2 p-2 rounded transition-all duration-300 ease-in-out hover:bg-[#F1F5F9] hover:scale-[1.03] hover:text-[#AF1B1B]">
-                          <i className="pi pi-question-circle"></i>
-                          <span>Dúvidas</span>
-                        </Link>
-                      </li>
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* RODAPÉ COM USUÁRIO */}
-            <div className="p-4 bg-[#AF1B1B] hover:bg-[#8C1616] transition-colors duration-300 text-white">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-black text-white truncate max-w-[180px]">
-                    {displayName || "Desconhecido"}
-                  </span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  title="Sair"
-                  className="p-2 rounded-md hover:bg-black transition-colors text-white hover:text-[#dc2e1c] cursor-pointer transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </aside>
-        )}
-
-        {/* REABRIR SIDEBAR */}
-        {!isSidebarOpen && (
+        {!desktopSidebarOpen && (
           <button
-            onClick={() => setIsSidebarOpen(true)}
-            aria-label="Abrir menu lateral"
-            className="fixed top-4 left-3 z-50 flex items-center justify-center w-11 h-11 rounded-xl border border-[#AF1B1B] bg-white text-[#AF1B1B] shadow-lg transition-all duration-300 cursor-pointer hover:bg-[#AF1B1B] hover:text-white hover:scale-105"
+            type="button"
+            onClick={() =>
+              setDesktopSidebarOpen(true)
+            }
+            aria-label="Abrir menu"
+            className="projeta-menu-enter projeta-button fixed left-4 top-4 z-30 hidden h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-[#AF1B1B] shadow-md hover:bg-[#AF1B1B] hover:text-white lg:flex"
           >
-            <i className="pi pi-bars text-lg"></i>
+            <Menu className="h-[18px] w-[18px]" />
           </button>
         )}
 
-        {/* CONTEÚDO PRINCIPAL */}
-        <main className="flex-1 bg-[#F5F5F5] p-5 overflow-y-auto">{children}</main>
+        {/* =====================================================
+            MOBILE TOPBAR
+        ===================================================== */}
 
-        {/* MODAL VAGAS INTERNAS */}
+        <header className="sticky top-0 z-30 flex h-[58px] items-center justify-between border-b border-gray-200 bg-white/95 px-3 backdrop-blur lg:hidden">
+          <button
+            type="button"
+            onClick={() =>
+              setMobileMenuOpen(true)
+            }
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-[#AF1B1B] active:bg-[#AF1B1B]/10"
+            aria-label="Abrir menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+
+          <img
+            src="/Logotipo_Projeta_1.png"
+            alt="Projeta"
+            className="w-[105px] object-contain"
+          />
+
+          <div className="h-10 w-10" />
+        </header>
+
+        {/* =====================================================
+            MOBILE BACKDROP
+        ===================================================== */}
+
+        {mobileMenuOpen && (
+          <button
+            type="button"
+            aria-label="Fechar menu"
+            onClick={() =>
+              setMobileMenuOpen(false)
+            }
+            className="projeta-fade fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] lg:hidden"
+          />
+        )}
+
+        {/* =====================================================
+            DRAWER MOBILE
+        ===================================================== */}
+
+        <aside
+          className={`
+            fixed
+            inset-y-0
+            left-0
+            z-50
+            flex
+            h-[100dvh]
+            w-[84vw]
+            max-w-[285px]
+            flex-col
+            border-r
+            border-gray-200
+            bg-[#F8F8F7]
+            shadow-2xl
+            transition-transform
+            duration-300
+            ease-out
+
+            lg:hidden
+
+            ${
+              mobileMenuOpen
+                ? "translate-x-0"
+                : "-translate-x-full"
+            }
+          `}
+        >
+          <SidebarContent mobile />
+        </aside>
+
+        {/* =====================================================
+            CONTEÚDO
+        ===================================================== */}
+
+        <main className="min-w-0 flex-1 overflow-x-hidden bg-[#F5F5F5]">
+          {children}
+        </main>
+
+        {/* =====================================================
+            MODAL
+        ===================================================== */}
+
         {openForm && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-2">
-            <div className="relative w-full max-w-[95vw] h-[95vh] bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
-              <div className="border-b px-5 py-4">
-                <h2 className="text-lg font-semibold text-[#1A1A1A]">
-                  Formulário Corporativo
-                </h2>
-                <p className="text-sm text-[#666]">
-                  Preencha o formulário abaixo.
-                </p>
+          <div
+            className="projeta-modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-black/75 sm:p-3"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="vagas-title"
+          >
+            <div className="projeta-modal-content flex h-[100dvh] w-screen flex-col overflow-hidden bg-white sm:h-[94vh] sm:max-w-6xl sm:rounded-2xl sm:shadow-2xl">
+              <div className="flex min-h-[64px] shrink-0 items-center justify-between border-b border-gray-200 px-4 sm:px-6">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#AF1B1B]">
+                    Oportunidades
+                  </p>
+
+                  <h2
+                    id="vagas-title"
+                    className="mt-0.5 text-base font-bold text-[#171717]"
+                  >
+                    Vagas Internas
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenForm(false)
+                  }
+                  className="projeta-button flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-[#AF1B1B] hover:text-white"
+                  aria-label="Fechar formulário"
+                >
+                  <X className="h-[18px] w-[18px]" />
+                </button>
               </div>
 
-              <div className="flex-1">
+              <div className="min-h-0 flex-1">
                 <iframe
                   src="https://forms.office.com/Pages/ResponsePage.aspx?id=aggIEcw610KuWinVc3B1mZq4vipk6y1MssYGpwNGf0JUNldZTDNKM1pTMTdSV1lNRDZTNUNPNTdLWS4u&embed=true"
-                  className="w-full h-full"
+                  title="Formulário de Vagas Internas"
+                  className="h-full w-full"
                   style={{ border: "none" }}
                   allowFullScreen
                 />
               </div>
-
-              <button
-                onClick={() => setOpenForm(false)}
-                className="absolute top-4 right-4 bg-[#AF1B1B] hover:bg-[#8C1616] text-white p-2 rounded-full shadow-md cursor-pointer"
-                aria-label="Fechar formulário"
-              >
-                ✕
-              </button>
             </div>
           </div>
         )}
