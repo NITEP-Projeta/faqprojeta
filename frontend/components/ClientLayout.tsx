@@ -58,7 +58,18 @@ export default function ClientLayout({
   const router = useRouter();
 
   const { isAdmin } = useCurrentUser();
-  const unread = useUnreadBadge(isAdmin);
+
+  /*
+   * useUnreadBadge retorna:
+   * {
+   *   total: number;
+   *   perChat: ...;
+   *   markRead: ...;
+   * }
+   *
+   * Para o badge da navbar precisamos apenas do total.
+   */
+  const { total: unreadTotal } = useUnreadBadge(isAdmin);
 
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -165,6 +176,7 @@ export default function ClientLayout({
   async function handleLogout() {
     try {
       await signOut(auth);
+
       router.replace("/login");
     } catch (error) {
       console.error(
@@ -244,7 +256,7 @@ export default function ClientLayout({
       label: "Dúvidas",
       href: "/admDuvidas",
       icon: CircleHelp,
-      badge: unread,
+      badge: unreadTotal,
     },
   ];
 
@@ -307,6 +319,7 @@ export default function ClientLayout({
             shrink-0
             items-center
             justify-center
+
             ${
               active
                 ? "text-[#AF1B1B]"
@@ -406,7 +419,9 @@ export default function ClientLayout({
         {/* MENU */}
 
         <nav className="flex-1 overflow-y-auto overscroll-contain px-2.5 py-3">
-          {/* BIBLIOTECA */}
+          {/* =====================================================
+              BIBLIOTECA
+          ===================================================== */}
 
           <section>
             <button
@@ -457,7 +472,9 @@ export default function ClientLayout({
             </div>
           </section>
 
-          {/* ADMIN */}
+          {/* =====================================================
+              ADMIN
+          ===================================================== */}
 
           {isAdmin && (
             <section className="mt-4 border-t border-gray-200 pt-3">
@@ -511,7 +528,9 @@ export default function ClientLayout({
           )}
         </nav>
 
-        {/* PERFIL */}
+        {/* =====================================================
+            PERFIL
+        ===================================================== */}
 
         <footer
           className="shrink-0 border-t border-gray-200 bg-white p-2.5"
@@ -531,9 +550,13 @@ export default function ClientLayout({
             <div className="min-w-0 flex-1">
               <p
                 className="truncate text-[12px] font-semibold text-[#202020]"
-                title={displayName || "Usuário"}
+                title={
+                  displayName ||
+                  "Usuário"
+                }
               >
-                {displayName || "Usuário"}
+                {displayName ||
+                  "Usuário"}
               </p>
 
               <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-gray-400">
@@ -739,7 +762,9 @@ export default function ClientLayout({
                   src="https://forms.office.com/Pages/ResponsePage.aspx?id=aggIEcw610KuWinVc3B1mZq4vipk6y1MssYGpwNGf0JUNldZTDNKM1pTMTdSV1lNRDZTNUNPNTdLWS4u&embed=true"
                   title="Formulário de Vagas Internas"
                   className="h-full w-full"
-                  style={{ border: "none" }}
+                  style={{
+                    border: "none",
+                  }}
                   allowFullScreen
                 />
               </div>
