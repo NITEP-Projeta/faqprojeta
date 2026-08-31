@@ -1,273 +1,878 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FiBookOpen } from "react-icons/fi";
+
+import {
+  FiBookOpen,
+  FiBriefcase,
+  FiFileText,
+  FiX,
+} from "react-icons/fi";
+
+import {
+  Button,
+} from "@/components/ui/button";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-import { Document, Page, pdfjs } from "react-pdf";
+import {
+  Document,
+  Page,
+  pdfjs,
+} from "react-pdf";
+
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 
-import { auth, db } from "@/src/firebase/firebase";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  auth,
+  db,
+} from "@/src/firebase/firebase";
 
-// Configuração obrigatória do worker
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+
+/* ============================================================
+   PDF WORKER
+============================================================ */
+
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url
 ).toString();
 
-const diretrizesData = [
+/* ============================================================
+   TIPOS
+============================================================ */
+
+type Diretriz = {
+  title: string;
+  description: string;
+  slug: string;
+  file: string;
+  code?: string;
+  revision?: string;
+  icon: React.ReactNode;
+};
+
+/* ============================================================
+   DOCUMENTOS
+============================================================ */
+
+const diretrizesData: Diretriz[] = [
   {
     title: "Regimento Interno",
-    description: "Conjunto de regras e diretrizes que orientam o funcionamento interno da empresa.",
+    description:
+      "Conjunto de regras e diretrizes que orientam o funcionamento interno da empresa.",
     slug: "regimento-interno",
-    icon: <FiBookOpen size={28} />,
+    file: "/pdfs/regimento-interno/regimento-interno.pdf",
+    icon: <FiBookOpen size={24} />,
+  },
+  {
+    title: "Política de Viagens",
+    description:
+      "Diretrizes corporativas para planejamento, realização e controle de viagens a serviço da Projeta.",
+    slug: "politica-de-viagens",
+    file: "/pdfs/diretrizes-internas/IT_25_Politica_de_Viagens_Rev00.pdf",
+    code: "IT_25",
+    revision: "Rev00",
+    icon: <FiBriefcase size={24} />,
   },
 ];
 
 export default function DiretrizesInternasPage() {
-  const [pdfSlug, setPdfSlug] = useState<string | null>(null);
-  const [numPages, setNumPages] = useState<number | null>(null);
-  const [containerWidth, setContainerWidth] = useState(800);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [selectedDocument, setSelectedDocument] =
+    useState<Diretriz | null>(null);
 
-  // ✅ Estado para evitar cliques duplicados
-  const [isConfirming, setIsConfirming] = useState(false);
+  const [numPages, setNumPages] =
+    useState<number | null>(null);
 
-  // ✅ Controle para não permitir confirmação duplicada
-  const [jaConfirmado, setJaConfirmado] = useState(false);
+  const [containerWidth, setContainerWidth] =
+    useState(800);
 
-  const buildConfirmDocId = (uid: string, documentoSlug: string) =>
-    `${uid}__${encodeURIComponent(documentoSlug)}`;
+  const containerRef =
+    useRef<HTMLDivElement | null>(null);
 
-  // ✅ Recalcula largura do PDF quando modal abre/resize
+  const [isConfirming, setIsConfirming] =
+    useState(false);
+
+  const [jaConfirmado, setJaConfirmado] =
+    useState(false);
+
+  /* ============================================================
+     ID DA CONFIRMAÇÃO
+  ============================================================ */
+
+  const buildConfirmDocId = (
+    uid: string,
+    documentoSlug: string
+  ) =>
+    `${uid}__${encodeURIComponent(
+      documentoSlug
+    )}`;
+
+  /* ============================================================
+     PDF RESPONSIVO
+  ============================================================ */
+
   useEffect(() => {
-    if (!pdfSlug) return;
+    if (!selectedDocument) return;
 
     const updateWidth = () => {
       if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth - 32);
+        const width =
+          containerRef.current.offsetWidth - 32;
+
+        setContainerWidth(
+          Math.min(width, 1000)
+        );
       }
     };
 
-    window.addEventListener("resize", updateWidth);
+    updateWidth();
 
-    const observer = new MutationObserver(updateWidth);
-    observer.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener(
+      "resize",
+      updateWidth
+    );
 
-    const timeout = setTimeout(updateWidth, 100);
+    const observer = new ResizeObserver(
+      updateWidth
+    );
+
+    if (containerRef.current) {
+      observer.observe(
+        containerRef.current
+      );
+    }
 
     return () => {
-      window.removeEventListener("resize", updateWidth);
-      observer.disconnect();
-      clearTimeout(timeout);
-    };
-  }, [pdfSlug]);
+      window.removeEventListener(
+        "resize",
+        updateWidth
+      );
 
-  // ✅ Sempre que abrir/trocar o PDF, verifica se já confirmou
+      observer.disconnect();
+    };
+  }, [selectedDocument]);
+
+  /* ============================================================
+     VERIFICA CONFIRMAÇÃO
+  ============================================================ */
+
   useEffect(() => {
     const checkConfirmacao = async () => {
-      if (!pdfSlug) return;
+      if (!selectedDocument) return;
 
       const user = auth.currentUser;
+
       if (!user) return;
 
       try {
-        const docId = buildConfirmDocId(user.uid, pdfSlug);
-        const ref = doc(db, "confirmacoesLeitura", docId);
+        const docId = buildConfirmDocId(
+          user.uid,
+          selectedDocument.slug
+        );
+
+        const ref = doc(
+          db,
+          "confirmacoesLeitura",
+          docId
+        );
+
         const snap = await getDoc(ref);
-        setJaConfirmado(snap.exists());
-      } catch (e) {
-        console.error("Erro ao verificar confirmação:", e);
+
+        setJaConfirmado(
+          snap.exists()
+        );
+      } catch (error) {
+        console.error(
+          "Erro ao verificar confirmação:",
+          error
+        );
+
         setJaConfirmado(false);
       }
     };
 
+    setJaConfirmado(false);
+    setNumPages(null);
+
     checkConfirmacao();
-  }, [pdfSlug]);
+  }, [selectedDocument]);
 
-  const handleConfirmAccess = async () => {
-    if (!pdfSlug) return;
+  /* ============================================================
+     BLOQUEIA SCROLL DO FUNDO
+  ============================================================ */
 
-    try {
-      setIsConfirming(true);
+  useEffect(() => {
+    if (selectedDocument) {
+      document.body.style.overflow =
+        "hidden";
+    } else {
+      document.body.style.overflow =
+        "";
+    }
 
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Sessão expirada. Faça login novamente.");
-        return;
-      }
+    return () => {
+      document.body.style.overflow =
+        "";
+    };
+  }, [selectedDocument]);
 
-      // ✅ Se já confirmou, vira apenas FECHAR (não registra novamente)
-      if (jaConfirmado) {
-        setPdfSlug(null);
-        return;
-      }
+  /* ============================================================
+     FECHAR MODAL
+  ============================================================ */
 
-      // ✅ ID fixo => não duplica
-      const confirmDocId = buildConfirmDocId(user.uid, pdfSlug);
-      const confirmRef = doc(db, "confirmacoesLeitura", confirmDocId);
+  function closeDocument() {
+    setSelectedDocument(null);
+    setNumPages(null);
+    setJaConfirmado(false);
+  }
 
-      // Double-check: se existir, não cria
-      const existing = await getDoc(confirmRef);
-      if (existing.exists()) {
-        setJaConfirmado(true);
-        setPdfSlug(null);
-        return;
-      }
+  /* ============================================================
+     CONFIRMAÇÃO
+  ============================================================ */
 
-      // ✅ Busca nome/email do users/{uid} (seu cadastro cria docId = uid)
-      let nome = user.displayName ?? "";
-      let email = user.email ?? "";
+  const handleConfirmAccess =
+    async () => {
+      if (!selectedDocument) return;
 
       try {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const data = userSnap.data() as any;
-          nome = data.nome ?? nome;
-          email = data.email ?? email;
+        setIsConfirming(true);
+
+        const user =
+          auth.currentUser;
+
+        if (!user) {
+          alert(
+            "Sessão expirada. Faça login novamente."
+          );
+          return;
         }
-      } catch (e) {
-        // fallback com dados do auth
-        console.warn("Não foi possível ler users/{uid}. Usando dados do Auth.", e);
+
+        /* =========================================
+           JÁ CONFIRMADO
+        ========================================= */
+
+        if (jaConfirmado) {
+          closeDocument();
+          return;
+        }
+
+        const confirmDocId =
+          buildConfirmDocId(
+            user.uid,
+            selectedDocument.slug
+          );
+
+        const confirmRef = doc(
+          db,
+          "confirmacoesLeitura",
+          confirmDocId
+        );
+
+        /* =========================================
+           DOUBLE-CHECK
+        ========================================= */
+
+        const existing =
+          await getDoc(confirmRef);
+
+        if (existing.exists()) {
+          setJaConfirmado(true);
+          closeDocument();
+          return;
+        }
+
+        /* =========================================
+           DADOS DO USUÁRIO
+        ========================================= */
+
+        let nome =
+          user.displayName ?? "";
+
+        let email =
+          user.email ?? "";
+
+        try {
+          const userRef = doc(
+            db,
+            "users",
+            user.uid
+          );
+
+          const userSnap =
+            await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            const data =
+              userSnap.data();
+
+            nome =
+              data.nome ?? nome;
+
+            email =
+              data.email ?? email;
+          }
+        } catch (error) {
+          console.warn(
+            "Não foi possível ler users/{uid}. Usando dados do Auth.",
+            error
+          );
+        }
+
+        /* =========================================
+           REGISTRA LEITURA
+        ========================================= */
+
+        await setDoc(
+          confirmRef,
+          {
+            uid: user.uid,
+            nome,
+            email,
+
+            documentoSlug:
+              selectedDocument.slug,
+
+            documentoTitulo:
+              selectedDocument.title,
+
+            documentoCodigo:
+              selectedDocument.code ??
+              null,
+
+            documentoRevisao:
+              selectedDocument.revision ??
+              null,
+
+            pagina:
+              "Diretrizes Internas",
+
+            acessadoEm:
+              serverTimestamp(),
+
+            userAgent:
+              typeof window !==
+              "undefined"
+                ? window.navigator
+                    .userAgent
+                : null,
+
+            pagePath:
+              typeof window !==
+              "undefined"
+                ? window.location
+                    .pathname
+                : "",
+          },
+          {
+            merge: true,
+          }
+        );
+
+        setJaConfirmado(true);
+
+        closeDocument();
+      } catch (error) {
+        console.error(error);
+
+        alert(
+          "Não foi possível registrar o acesso. Tente novamente."
+        );
+      } finally {
+        setIsConfirming(false);
       }
-
-      // ✅ Registra uma única vez
-      await setDoc(confirmRef, {
-        uid: user.uid,
-        nome,
-        email,
-        documentoSlug: pdfSlug,
-        pagina: "Diretrizes Internas",
-        acessadoEm: serverTimestamp(),
-        userAgent: typeof window !== "undefined" ? window.navigator.userAgent : null,
-        pagePath: typeof window !== "undefined" ? window.location.pathname : "",
-      });
-
-      setJaConfirmado(true);
-      setPdfSlug(null);
-    } catch (error) {
-      console.error(error);
-      alert("Não foi possível registrar o acesso. Tente novamente.");
-    } finally {
-      setIsConfirming(false);
-    }
-  };
+    };
 
   return (
     <ProtectedRoute>
-      <div className="flex flex-col items-center justify-between min-h-screen bg-[#F8F8F8] gap-8 p-6">
-        {/* Header */}
-        <div className="w-full max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl font-bold text-[#1A1A1A] mb-2">
-              Regimento <span className="text-[#AF1B1B]">Interno</span>
-            </h1>
-            <div className="w-28 h-1 bg-[#AF1B1B] mx-auto rounded"></div>
-            <p className="text-[#555] mt-3">
-              Consulte as diretrizes corporativas para garantir alinhamento, ética e segurança em nossas operações.
-            </p>
-          </motion.div>
-        </div>
+      <div className="min-h-screen bg-[#F5F5F5]">
+        <div className="mx-auto w-full max-w-[1450px] px-3 py-4 sm:px-5 sm:py-5 lg:px-7">
+          {/* =====================================================
+              CABEÇALHO
+          ===================================================== */}
 
-        {/* Grid */}
-        <div className="w-full max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5 }}
-            className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          <motion.header
+            initial={{
+              opacity: 0,
+              y: 14,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.45,
+            }}
+            className="
+              overflow-hidden
+              rounded-2xl
+              border
+              border-gray-200
+              bg-white
+              shadow-sm
+            "
           >
-            {diretrizesData.map((item) => (
-              <Card
-                key={item.slug}
-                className="relative bg-white border-l-4 shadow-sm hover:shadow-xl transition-transform transform hover:-translate-y-1 rounded-md p-4 flex flex-col items-center text-center"
-              >
-                <div className="mb-3 text-[#AF1B1B]">{item.icon}</div>
-                <CardHeader className="flex flex-col items-center justify-center space-y-2 w-full">
-                  <CardTitle className="text-lg font-semibold text-[#1A1A1A]">{item.title}</CardTitle>
-                  <CardDescription className="text-sm text-[#555]">{item.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-center mt-2">
-                  <Button
-                    onClick={() => setPdfSlug(item.slug)}
-                    className="px-5 py-2 bg-[#AF1B1B] text-white rounded-md cursor-pointer hover:bg-[#8C1616] transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg"
+            <div className="px-5 py-5 sm:px-7 sm:py-6 lg:px-8">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#AF1B1B] sm:text-[11px]">
+                Biblioteca Corporativa
+              </p>
+
+              <h1 className="mt-1 text-2xl font-black tracking-tight text-[#171717] sm:text-3xl">
+                Diretrizes Internas
+              </h1>
+
+              <p className="mt-2 max-w-3xl text-[13px] leading-5 text-gray-500 sm:text-sm sm:leading-6">
+                Consulte as políticas,
+                normas e diretrizes
+                corporativas para garantir
+                alinhamento, ética e
+                segurança nas atividades da
+                Projeta.
+              </p>
+            </div>
+          </motion.header>
+
+          {/* =====================================================
+              DOCUMENTOS
+          ===================================================== */}
+
+          <section className="mt-5 sm:mt-6">
+            <div className="mb-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#AF1B1B]">
+                Documentos
+              </p>
+
+              <h2 className="mt-1 text-lg font-bold text-[#171717] sm:text-xl">
+                Diretrizes disponíveis
+              </h2>
+            </div>
+
+            <motion.div
+              initial={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+              transition={{
+                duration: 0.4,
+                delay: 0.1,
+              }}
+              className="
+                grid
+                grid-cols-1
+                gap-3
+
+                sm:grid-cols-2
+                sm:gap-4
+
+                xl:grid-cols-3
+              "
+            >
+              {diretrizesData.map(
+                (item, index) => (
+                  <motion.div
+                    key={item.slug}
+                    initial={{
+                      opacity: 0,
+                      y: 14,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      duration: 0.4,
+                      delay:
+                        0.12 +
+                        index * 0.07,
+                    }}
                   >
-                    Acessar
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </motion.div>
+                    <Card
+                      className="
+                        group
+                        flex
+                        h-full
+                        flex-col
+                        overflow-hidden
+                        rounded-xl
+                        border
+                        border-gray-200
+                        bg-white
+                        shadow-sm
+                        transition-all
+                        duration-200
+
+                        hover:-translate-y-1
+                        hover:border-[#AF1B1B]/30
+                        hover:shadow-md
+                      "
+                    >
+                      {/* LINHA SUPERIOR */}
+
+                      <div className="h-[3px] w-full bg-[#AF1B1B]" />
+
+                      <CardHeader className="flex-1 p-5">
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#AF1B1B]/10 text-[#AF1B1B] transition-transform duration-200 group-hover:scale-105">
+                            {item.icon}
+                          </div>
+
+                          {(item.code ||
+                            item.revision) && (
+                            <div className="flex flex-wrap justify-end gap-1.5">
+                              {item.code && (
+                                <span className="rounded-md bg-[#AF1B1B]/10 px-2 py-1 text-[10px] font-bold text-[#AF1B1B]">
+                                  {
+                                    item.code
+                                  }
+                                </span>
+                              )}
+
+                              {item.revision && (
+                                <span className="rounded-md bg-gray-100 px-2 py-1 text-[10px] font-semibold text-gray-500">
+                                  {
+                                    item.revision
+                                  }
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <CardTitle className="text-[15px] font-bold text-[#171717] sm:text-base">
+                          {item.title}
+                        </CardTitle>
+
+                        <CardDescription className="mt-1.5 text-[12px] leading-5 text-gray-500">
+                          {
+                            item.description
+                          }
+                        </CardDescription>
+                      </CardHeader>
+
+                      <CardContent className="border-t border-gray-100 p-4">
+                        <Button
+                          onClick={() =>
+                            setSelectedDocument(
+                              item
+                            )
+                          }
+                          className="
+                            flex
+                            h-10
+                            w-full
+                            cursor-pointer
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-lg
+                            bg-[#AF1B1B]
+                            text-xs
+                            font-semibold
+                            text-white
+                            transition-all
+                            duration-200
+
+                            hover:bg-[#8C1616]
+                            hover:shadow-md
+                            active:scale-[0.98]
+                          "
+                        >
+                          <FiFileText
+                            size={15}
+                          />
+
+                          Visualizar documento
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )
+              )}
+            </motion.div>
+          </section>
+
+          {/* =====================================================
+              FOOTER
+          ===================================================== */}
+
+          <footer
+            className="py-6 text-center text-[10px] text-gray-400 sm:text-[11px]"
+            suppressHydrationWarning
+          >
+            ©{" "}
+            {new Date().getFullYear()}{" "}
+            Projeta • Sistema Interno
+            Corporativo
+          </footer>
         </div>
 
-        {/* Footer */}
-        <div className="w-full max-w-7xl">
-          <p className="text-center text-sm text-[#7A7A7A] py-4">
-            © {new Date().getFullYear()} Projeta • Sistema Interno Corporativo
-          </p>
-        </div>
+        {/* =====================================================
+            MODAL PDF
+        ===================================================== */}
 
-        {/* Modal PDF */}
-        {pdfSlug && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-2 sm:p-4">
-            <div className="relative w-full max-w-7xl h-[95vh] bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
-              <div ref={containerRef} className="overflow-auto p-4 flex-1 bg-white">
-                <Document
-                  file={`/pdfs/regimento-interno/${pdfSlug}.pdf`}
-                  onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                  loading={<p className="text-center text-gray-500 mt-10">Carregando documento...</p>}
-                  className="flex flex-col items-center"
+        {selectedDocument && (
+          <motion.div
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            className="
+              fixed
+              inset-0
+              z-[100]
+              flex
+              items-center
+              justify-center
+              bg-black/75
+
+              sm:p-3
+            "
+          >
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: 16,
+                scale: 0.98,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              transition={{
+                duration: 0.25,
+              }}
+              className="
+                flex
+                h-[100dvh]
+                w-full
+                flex-col
+                overflow-hidden
+                bg-white
+
+                sm:h-[95vh]
+                sm:max-w-7xl
+                sm:rounded-2xl
+                sm:shadow-2xl
+              "
+            >
+              {/* =================================================
+                  HEADER MODAL
+              ================================================= */}
+
+              <div className="flex min-h-[64px] shrink-0 items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 sm:px-5">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {selectedDocument.code && (
+                      <span className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#AF1B1B]">
+                        {
+                          selectedDocument.code
+                        }
+                      </span>
+                    )}
+
+                    {selectedDocument.revision && (
+                      <span className="text-[9px] font-semibold uppercase tracking-[0.1em] text-gray-400">
+                        {
+                          selectedDocument.revision
+                        }
+                      </span>
+                    )}
+                  </div>
+
+                  <h2 className="truncate text-sm font-bold text-[#171717] sm:text-base">
+                    {
+                      selectedDocument.title
+                    }
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeDocument}
+                  aria-label="Fechar documento"
+                  className="
+                    flex
+                    h-9
+                    w-9
+                    shrink-0
+                    cursor-pointer
+                    items-center
+                    justify-center
+                    rounded-lg
+                    border
+                    border-gray-200
+                    text-gray-400
+                    transition
+
+                    hover:bg-[#AF1B1B]
+                    hover:text-white
+                  "
                 >
-                  {Array.from(new Array(numPages ?? 0), (_, idx) => (
-                    <Page
-                      key={`page_${idx + 1}`}
-                      pageNumber={idx + 1}
-                      renderTextLayer={false}
-                      renderAnnotationLayer={false}
-                      width={containerWidth}
-                    />
-                  ))}
+                  <FiX size={17} />
+                </button>
+              </div>
+
+              {/* =================================================
+                  PDF
+              ================================================= */}
+
+              <div
+                ref={containerRef}
+                className="
+                  min-h-0
+                  flex-1
+                  overflow-auto
+                  bg-[#EAEAEA]
+                  p-2
+
+                  sm:p-4
+                "
+              >
+                <Document
+                  file={
+                    selectedDocument.file
+                  }
+                  onLoadSuccess={({
+                    numPages,
+                  }) =>
+                    setNumPages(numPages)
+                  }
+                  loading={
+                    <div className="flex min-h-[300px] items-center justify-center">
+                      <p className="text-sm text-gray-500">
+                        Carregando
+                        documento...
+                      </p>
+                    </div>
+                  }
+                  error={
+                    <div className="flex min-h-[300px] items-center justify-center text-center">
+                      <div>
+                        <p className="text-sm font-semibold text-red-600">
+                          Não foi possível
+                          carregar o
+                          documento.
+                        </p>
+
+                        <p className="mt-1 text-xs text-gray-500">
+                          Verifique se o
+                          arquivo PDF está
+                          disponível.
+                        </p>
+                      </div>
+                    </div>
+                  }
+                  className="flex flex-col items-center gap-3"
+                >
+                  {Array.from(
+                    {
+                      length:
+                        numPages ?? 0,
+                    },
+                    (_, index) => (
+                      <Page
+                        key={`page_${
+                          index + 1
+                        }`}
+                        pageNumber={
+                          index + 1
+                        }
+                        renderTextLayer={
+                          false
+                        }
+                        renderAnnotationLayer={
+                          false
+                        }
+                        width={
+                          containerWidth
+                        }
+                        className="overflow-hidden shadow-md"
+                      />
+                    )
+                  )}
                 </Document>
               </div>
 
-              {/* Card de Confirmação */}
-              <div className="border-t bg-gray-50 p-4">
-                <Card className="max-w-3xl mx-auto border-l-4 border-[#AF1B1B] shadow-sm">
-                  <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {jaConfirmado ? "Documento já confirmado" : "Confirmar saída e registrar acesso"}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {jaConfirmado
-                          ? "Este documento já teve a leitura confirmada. Você pode apenas fechar."
-                          : "Ao confirmar, seu acesso será registrado no monitoramento interno e o documento será fechado."}
-                      </p>
-                    </div>
+              {/* =================================================
+                  CONFIRMAÇÃO
+              ================================================= */}
 
-                    <Button
-                      onClick={handleConfirmAccess}
-                      disabled={isConfirming}
-                      className="bg-[#AF1B1B] hover:bg-[#8C1616] text-white px-6 py-2 rounded-md transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 cursor-pointer"
-                    >
-                      {isConfirming ? "Processando..." : jaConfirmado ? "Fechar" : "Confirmar e sair"}
-                    </Button>
-                  </CardContent>
-                </Card>
+              <div className="shrink-0 border-t border-gray-200 bg-white p-3 sm:p-4">
+                <div className="mx-auto flex max-w-4xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-bold text-gray-800 sm:text-[13px]">
+                      {jaConfirmado
+                        ? "Documento já confirmado"
+                        : "Confirmar leitura"}
+                    </p>
+
+                    <p className="mt-0.5 text-[10px] leading-4 text-gray-500 sm:text-[11px]">
+                      {jaConfirmado
+                        ? "Sua leitura deste documento já foi registrada anteriormente."
+                        : "Ao confirmar, seu acesso será registrado no monitoramento interno."}
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={
+                      handleConfirmAccess
+                    }
+                    disabled={
+                      isConfirming
+                    }
+                    className="
+                      h-10
+                      shrink-0
+                      cursor-pointer
+                      rounded-lg
+                      bg-[#AF1B1B]
+                      px-5
+                      text-xs
+                      font-semibold
+                      text-white
+
+                      hover:bg-[#8C1616]
+
+                      disabled:cursor-not-allowed
+                      disabled:opacity-60
+                    "
+                  >
+                    {isConfirming
+                      ? "Processando..."
+                      : jaConfirmado
+                      ? "Fechar"
+                      : "Confirmar leitura"}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </div>
     </ProtectedRoute>
